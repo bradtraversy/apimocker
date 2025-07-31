@@ -1,35 +1,40 @@
-# ApiMocker
+# ApiMocker 🚀
 
-A fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL.
+A comprehensive fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL. Similar to JSONPlaceholder but with enhanced features including rate limiting, validation, and realistic data.
 
-## Features
+## ✨ Features
 
-- **RESTful API** with full CRUD operations
-- **Three core resources**: Users, Posts, and Todos
-- **Realistic data** with proper relationships
-- **Rate limiting**: 100 writes/day per IP, unlimited reads
-- **Daily reset** at midnight UTC with fresh data
-- **Modular architecture** for easy extension
-- **Comprehensive validation** and error handling
-- **Production-ready** with logging and monitoring
+- **Full CRUD Operations** - Create, Read, Update, Delete for all resources
+- **Realistic Data** - 10 users, 100 posts, 200 todos with realistic content
+- **Rate Limiting** - Configurable limits to prevent abuse
+- **Input Validation** - Comprehensive validation for all endpoints
+- **Pagination** - Built-in pagination support
+- **Filtering** - Query-based filtering for all resources
+- **Daily Reset** - Automatic database reset at midnight UTC
+- **Comprehensive Logging** - Request/response logging with Winston
+- **TypeScript** - Full type safety throughout the application
+- **Prisma ORM** - Type-safe database operations
+- **Neon PostgreSQL** - Cloud-hosted database
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Backend**: Node.js with Express
+- **Backend**: Node.js, Express.js
+- **Language**: TypeScript
 - **Database**: PostgreSQL (Neon)
 - **ORM**: Prisma
-- **Language**: TypeScript
 - **Validation**: express-validator
 - **Rate Limiting**: express-rate-limit
 - **Logging**: Winston
+- **Security**: Helmet, CORS
 - **Scheduling**: node-cron
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL database (Neon recommended)
+- npm or yarn
+- Neon PostgreSQL database
 
 ### Installation
 
@@ -50,219 +55,668 @@ A fake REST API service for developers to test against, built with Node.js, Expr
    Create a `.env` file in the root directory:
 
    ```env
-   DATABASE_URL="your-postgresql-connection-string"
+   # Database
+   DATABASE_URL="postgresql://username:password@host/database?sslmode=require"
+
+   # Server
    PORT=3000
    NODE_ENV=development
-   RATE_LIMIT_WINDOW_MS=86400000
-   RATE_LIMIT_MAX_WRITES=100
+
+   # Rate Limiting
+   RATE_LIMIT_WINDOW_MS=86400000 # 24 hours
+   RATE_LIMIT_MAX_WRITES=100 # 100 writes per day per IP
+
+   # Logging
    LOG_LEVEL=info
    ```
 
-4. **Set up the database**
+4. **Generate Prisma client**
 
    ```bash
-   # Generate Prisma client
    npm run db:generate
+   ```
 
-   # Push schema to database
+5. **Push database schema**
+
+   ```bash
    npm run db:push
+   ```
 
-   # Seed with initial data
+6. **Seed the database**
+
+   ```bash
    npm run db:seed
    ```
 
-5. **Start the development server**
+7. **Start the server**
    ```bash
    npm run dev
    ```
 
 The API will be available at `http://localhost:3000`
 
-## API Endpoints
+## 📊 API Endpoints
 
-### Users
-
-| Method | Endpoint           | Description      |
-| ------ | ------------------ | ---------------- |
-| GET    | `/users`           | Get all users    |
-| GET    | `/users/:id`       | Get single user  |
-| GET    | `/users/:id/posts` | Get user's posts |
-| GET    | `/users/:id/todos` | Get user's todos |
-| POST   | `/users`           | Create user      |
-| PUT    | `/users/:id`       | Update user      |
-| DELETE | `/users/:id`       | Delete user      |
-
-### Posts
-
-| Method | Endpoint     | Description     |
-| ------ | ------------ | --------------- |
-| GET    | `/posts`     | Get all posts   |
-| GET    | `/posts/:id` | Get single post |
-| POST   | `/posts`     | Create post     |
-| PUT    | `/posts/:id` | Update post     |
-| DELETE | `/posts/:id` | Delete post     |
-
-### Todos
-
-| Method | Endpoint     | Description     |
-| ------ | ------------ | --------------- |
-| GET    | `/todos`     | Get all todos   |
-| GET    | `/todos/:id` | Get single todo |
-| POST   | `/todos`     | Create todo     |
-| PUT    | `/todos/:id` | Update todo     |
-| DELETE | `/todos/:id` | Delete todo     |
-
-## Query Parameters
-
-All GET endpoints support the following query parameters:
-
-- `_page`: Page number for pagination (default: 1)
-- `_limit`: Number of items per page (default: 10)
-- `userId`: Filter by user ID
-- `completed`: Filter todos by completion status (true/false)
-
-### Examples
-
-```bash
-# Get first 5 users
-GET /users?_limit=5
-
-# Get posts from page 2
-GET /posts?_page=2&_limit=20
-
-# Get todos for user 1
-GET /todos?userId=1
-
-# Get completed todos
-GET /todos?completed=true
-```
-
-## Data Models
-
-### User
-
-```typescript
-{
-  id: number
-  name: string
-  username: string
-  email: string
-  phone?: string
-  website?: string
-  address?: {
-    street: string
-    suite: string
-    city: string
-    zipcode: string
-    geo: { lat: string, lng: string }
-  }
-  company?: {
-    name: string
-    catchPhrase: string
-    bs: string
-  }
-  createdAt: Date
-  updatedAt: Date
-}
-```
-
-### Post
-
-```typescript
-{
-  id: number
-  title: string
-  body: string
-  userId: number
-  user?: User
-  createdAt: Date
-  updatedAt: Date
-}
-```
-
-### Todo
-
-```typescript
-{
-  id: number
-  title: string
-  completed: boolean
-  userId: number
-  user?: User
-  createdAt: Date
-  updatedAt: Date
-}
-```
-
-## Rate Limiting
-
-- **Read operations**: Unlimited
-- **Write operations**: 100 per day per IP address
-- **General requests**: 1000 per 15 minutes per IP
-
-## Daily Reset
-
-The database automatically resets at midnight UTC every day, providing fresh data for testing.
-
-## Development
-
-### Available Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run db:generate  # Generate Prisma client
-npm run db:push      # Push schema to database
-npm run db:seed      # Seed database with data
-npm run db:reset     # Reset and reseed database
-npm run db:studio    # Open Prisma Studio
-```
-
-### Project Structure
+### Base URL
 
 ```
-src/
-├── controllers/     # Generic CRUD controller
-├── middleware/      # Express middleware
-├── routes/          # API route definitions
-├── scripts/         # Database seeding scripts
-├── utils/           # Utility functions
-└── index.ts         # Main server file
+http://localhost:3000
 ```
 
-## Extending the API
+### Health Check
 
-To add new resources (e.g., Comments, Albums):
-
-1. **Add to Prisma schema** (`prisma/schema.prisma`)
-2. **Create route file** (`src/routes/comments.ts`)
-3. **Add validation** (`src/middleware/validation.ts`)
-4. **Register routes** (`src/index.ts`)
-5. **Update seed script** (`src/scripts/seed.ts`)
-
-The generic controller pattern makes it easy to add new resources with minimal code.
-
-## Error Handling
-
-The API returns consistent error responses:
-
-```json
-{
-  "error": "Error Type",
-  "message": "Human-readable message",
-  "details": [] // Validation errors (if applicable)
-}
-```
-
-## Health Check
-
-```bash
+```http
 GET /health
 ```
 
-Returns server status and uptime information.
+**Response:**
 
-## License
+```json
+{
+  "status": "OK",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "uptime": 3600
+}
+```
 
-MIT
+### Users
+
+#### Get All Users
+
+```http
+GET /users
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10, max: 100)
+
+**Example:**
+
+```http
+GET /users?_page=1&_limit=5
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "username": "johndoe",
+      "email": "john.doe@example.com",
+      "phone": "+1-555-0123",
+      "website": "https://johndoe.dev",
+      "address": {
+        "street": "123 Main St",
+        "suite": "Apt 4B",
+        "city": "New York",
+        "zipcode": "10001",
+        "geo": { "lat": "40.7128", "lng": "-74.0060" }
+      },
+      "company": {
+        "name": "Tech Solutions Inc",
+        "catchPhrase": "Innovating the future",
+        "bs": "harness real-time e-markets"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 10,
+    "totalPages": 2,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+#### Get User by ID
+
+```http
+GET /users/:id
+```
+
+**Example:**
+
+```http
+GET /users/1
+```
+
+#### Create User
+
+```http
+POST /users
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "name": "New User",
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "phone": "+1-555-0123",
+  "website": "https://newuser.com",
+  "address": {
+    "street": "123 Main St",
+    "suite": "Apt 4B",
+    "city": "New York",
+    "zipcode": "10001",
+    "geo": { "lat": "40.7128", "lng": "-74.0060" }
+  },
+  "company": {
+    "name": "Company Name",
+    "catchPhrase": "Company catchphrase",
+    "bs": "Company business statement"
+  }
+}
+```
+
+#### Update User
+
+```http
+PUT /users/:id
+Content-Type: application/json
+```
+
+**Example:**
+
+```http
+PUT /users/1
+{
+  "name": "Updated Name"
+}
+```
+
+#### Delete User
+
+```http
+DELETE /users/:id
+```
+
+**Example:**
+
+```http
+DELETE /users/1
+```
+
+#### Get User's Posts
+
+```http
+GET /users/:id/posts
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10)
+
+**Example:**
+
+```http
+GET /users/1/posts?_page=1&_limit=5
+```
+
+#### Get User's Todos
+
+```http
+GET /users/:id/todos
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10)
+
+**Example:**
+
+```http
+GET /users/1/todos?_page=1&_limit=5
+```
+
+### Posts
+
+#### Get All Posts
+
+```http
+GET /posts
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10)
+- `userId` (optional): Filter by user ID
+
+**Example:**
+
+```http
+GET /posts?userId=1&_page=1&_limit=5
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Getting Started with Modern Web Development",
+      "body": "This is a comprehensive article about getting started with modern web development...",
+      "userId": 1,
+      "user": {
+        "id": 1,
+        "name": "John Doe",
+        "username": "johndoe",
+        "email": "john.doe@example.com"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 100,
+    "totalPages": 20,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+#### Get Post by ID
+
+```http
+GET /posts/:id
+```
+
+#### Create Post
+
+```http
+POST /posts
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "title": "New Post Title",
+  "body": "This is the content of the new post...",
+  "userId": 1
+}
+```
+
+#### Update Post
+
+```http
+PUT /posts/:id
+Content-Type: application/json
+```
+
+#### Delete Post
+
+```http
+DELETE /posts/:id
+```
+
+### Todos
+
+#### Get All Todos
+
+```http
+GET /todos
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10)
+- `userId` (optional): Filter by user ID
+- `completed` (optional): Filter by completion status (true/false)
+
+**Example:**
+
+```http
+GET /todos?completed=true&userId=1&_page=1&_limit=5
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Review pull requests",
+      "completed": true,
+      "userId": 1,
+      "user": {
+        "id": 1,
+        "name": "John Doe",
+        "username": "johndoe",
+        "email": "john.doe@example.com"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 200,
+    "totalPages": 40,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+#### Get Todo by ID
+
+```http
+GET /todos/:id
+```
+
+#### Create Todo
+
+```http
+POST /todos
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "title": "New Todo Item",
+  "completed": false,
+  "userId": 1
+}
+```
+
+#### Update Todo
+
+```http
+PUT /todos/:id
+Content-Type: application/json
+```
+
+#### Delete Todo
+
+```http
+DELETE /todos/:id
+```
+
+## 🔒 Rate Limiting
+
+ApiMocker implements a sophisticated rate limiting system to prevent abuse while allowing legitimate usage:
+
+### Write Operations (POST, PUT, DELETE, PATCH)
+
+- **Limit**: 100 write operations per day per IP address
+- **Window**: 24 hours (configurable via `RATE_LIMIT_WINDOW_MS`)
+- **Reset**: Daily at midnight UTC
+
+### Read Operations (GET)
+
+- **Limit**: 1000 requests per 15 minutes per IP address
+- **Window**: 15 minutes
+- **Reset**: Automatically after the time window
+
+### Rate Limit Response
+
+When rate limits are exceeded, the API returns:
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Write limit exceeded. Maximum 100 write operations per day per IP.",
+  "resetTime": "2024-01-16T00:00:00.000Z"
+}
+```
+
+**HTTP Status**: `429 Too Many Requests`
+
+### Rate Limit Headers
+
+The API includes rate limit information in response headers:
+
+- `X-RateLimit-Limit`: Maximum requests allowed
+- `X-RateLimit-Remaining`: Remaining requests in current window
+- `X-RateLimit-Reset`: Time when the rate limit resets
+
+## ✅ Input Validation
+
+All endpoints include comprehensive input validation:
+
+### User Validation
+
+- **name**: Required, 1-100 characters
+- **username**: Required, 3-50 characters, alphanumeric + underscore only
+- **email**: Required, valid email format
+- **phone**: Optional, valid phone number
+- **website**: Optional, valid URL
+- **address**: Optional, must be an object
+- **company**: Optional, must be an object
+
+### Post Validation
+
+- **title**: Required, 1-200 characters
+- **body**: Required, 1-5000 characters
+- **userId**: Required, positive integer
+
+### Todo Validation
+
+- **title**: Required, 1-200 characters
+- **completed**: Optional, boolean value
+- **userId**: Required, positive integer
+
+### Validation Error Response
+
+```json
+{
+  "error": "Validation Error",
+  "message": "Invalid input data",
+  "details": [
+    {
+      "type": "field",
+      "value": "",
+      "msg": "Name is required and must be between 1 and 100 characters",
+      "path": "name",
+      "location": "body"
+    }
+  ]
+}
+```
+
+## 🔄 Daily Reset
+
+The database automatically resets at **midnight UTC** every day:
+
+- All existing data is cleared
+- Fresh seed data is inserted
+- 10 users, 100 posts, and 200 todos are created
+- Reset includes realistic data with proper relationships
+
+This ensures a consistent testing environment and prevents data accumulation.
+
+## 📝 Logging
+
+ApiMocker uses Winston for comprehensive logging:
+
+### Log Files
+
+- `logs/error.log`: Error-level logs only
+- `logs/combined.log`: All logs
+
+### Logged Information
+
+- **Request Details**: Method, URL, IP, User-Agent, timestamp
+- **Response Details**: Status code, duration, content length
+- **Error Details**: Stack traces, error messages
+- **Database Operations**: Connection status, seeding events
+
+### Log Format
+
+```json
+{
+  "level": "info",
+  "message": "Request completed",
+  "method": "GET",
+  "url": "/users",
+  "statusCode": 200,
+  "duration": "45ms",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "service": "apimocker"
+}
+```
+
+## 🛠 Development Scripts
+
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build TypeScript
+npm run start        # Start production server
+
+# Database
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Push schema to database
+npm run db:seed      # Seed database with sample data
+npm run db:reset     # Reset and reseed database
+npm run db:studio    # Open Prisma Studio
+
+# Testing
+npm test             # Run tests (when implemented)
+```
+
+## 📁 Project Structure
+
+```
+apimocker/
+├── src/
+│   ├── controllers/
+│   │   └── genericController.ts    # Generic CRUD controller
+│   ├── middleware/
+│   │   ├── errorHandler.ts         # Error handling middleware
+│   │   ├── rateLimiter.ts          # Rate limiting middleware
+│   │   ├── requestLogger.ts        # Request logging middleware
+│   │   └── validation.ts           # Input validation middleware
+│   ├── routes/
+│   │   ├── users.ts                # User routes
+│   │   ├── posts.ts                # Post routes
+│   │   └── todos.ts                # Todo routes
+│   ├── scripts/
+│   │   ├── seed.ts                 # Database seeding
+│   │   └── reset.ts                # Database reset
+│   ├── utils/
+│   │   ├── logger.ts               # Winston logger configuration
+│   │   └── cronJobs.ts             # Daily reset scheduling
+│   ├── lib/
+│   │   └── prisma.ts               # Prisma client initialization
+│   └── index.ts                    # Main application file
+├── prisma/
+│   └── schema.prisma               # Database schema
+├── logs/                           # Log files (auto-generated)
+├── .env                            # Environment variables
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable                | Description                              | Default        |
+| ----------------------- | ---------------------------------------- | -------------- |
+| `DATABASE_URL`          | PostgreSQL connection string             | Required       |
+| `PORT`                  | Server port                              | 3000           |
+| `NODE_ENV`              | Environment (development/production)     | development    |
+| `RATE_LIMIT_WINDOW_MS`  | Rate limit window in milliseconds        | 86400000 (24h) |
+| `RATE_LIMIT_MAX_WRITES` | Maximum write operations per day per IP  | 100            |
+| `LOG_LEVEL`             | Logging level (error, warn, info, debug) | info           |
+
+### Database Schema
+
+The application uses three main models:
+
+- **User**: Personal information, contact details, address, company
+- **Post**: Blog posts with title, body, and user relationship
+- **Todo**: Task items with title, completion status, and user relationship
+
+All models include timestamps and proper foreign key relationships.
+
+## 🚀 Deployment
+
+### Production Deployment
+
+1. **Set environment variables**
+
+   ```bash
+   NODE_ENV=production
+   DATABASE_URL=your_production_database_url
+   ```
+
+2. **Build the application**
+
+   ```bash
+   npm run build
+   ```
+
+3. **Start the server**
+   ```bash
+   npm start
+   ```
+
+### Docker Deployment (Optional)
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For issues, questions, or contributions:
+
+- Create an issue on GitHub
+- Check the documentation
+- Review the API endpoints
+
+---
+
+**ApiMocker** - Your reliable fake API for development and testing! 🎯
