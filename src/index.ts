@@ -2,12 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
 import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import { requestLogger } from './middleware/requestLogger';
 import { setupCronJobs } from './utils/cronJobs';
+import { prisma } from './lib/prisma';
 
 // Import routes
 import userRoutes from './routes/users';
@@ -19,9 +19,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Initialize Prisma client
-export const prisma = new PrismaClient();
 
 // Middleware
 app.use(helmet());
@@ -35,10 +32,10 @@ app.use(rateLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -49,9 +46,9 @@ app.use('/todos', todoRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Not Found',
-    message: `Route ${req.method} ${req.originalUrl} not found`
+    message: `Route ${req.method} ${req.originalUrl} not found`,
   });
 });
 
@@ -91,4 +88,4 @@ const startServer = async () => {
   }
 };
 
-startServer(); 
+startServer();

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GenericController } from '../controllers/genericController';
-import { prisma } from '../index';
+import { prisma } from '../lib/prisma';
 import { validateTodo } from '../middleware/validation';
 
 const router = Router();
@@ -32,4 +32,4 @@ router.put('/:id', validateTodo, todoController.update);
 // DELETE /todos/:id - Delete todo
 router.delete('/:id', todoController.delete);
 
-export default router; 
+export default router;

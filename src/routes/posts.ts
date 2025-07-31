@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GenericController } from '../controllers/genericController';
-import { prisma } from '../index';
+import { prisma } from '../lib/prisma';
 import { validatePost } from '../middleware/validation';
 
 const router = Router();
@@ -32,4 +32,4 @@ router.put('/:id', validatePost, postController.update);
 // DELETE /posts/:id - Delete post
 router.delete('/:id', postController.delete);
 
-export default router; 
+export default router;

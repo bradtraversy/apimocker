@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GenericController } from '../controllers/genericController';
-import { prisma } from '../index';
+import { prisma } from '../lib/prisma';
 import { validateUser } from '../middleware/validation';
 
 const router = Router();
@@ -33,4 +33,4 @@ router.put('/:id', validateUser, userController.update);
 // DELETE /users/:id - Delete user
 router.delete('/:id', userController.delete);
 
-export default router; 
+export default router;

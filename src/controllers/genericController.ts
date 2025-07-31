@@ -33,15 +33,16 @@ export class GenericController {
         }
       });
 
+      const model = this.prisma[this.modelName as keyof PrismaClient] as any;
       const [data, total] = await Promise.all([
-        this.prisma[this.modelName as keyof PrismaClient].findMany({
+        model.findMany({
           where,
           skip,
           take: Number(limit),
           include: this.includeRelations,
           orderBy: { id: 'asc' },
         }),
-        this.prisma[this.modelName as keyof PrismaClient].count({ where }),
+        model.count({ where }),
       ]);
 
       const totalPages = Math.ceil(total / Number(limit));
@@ -66,10 +67,9 @@ export class GenericController {
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
-      const data = await this.prisma[
-        this.modelName as keyof PrismaClient
-      ].findUnique({
+      const data = await model.findUnique({
         where: { id: Number(id) },
         include: this.includeRelations,
       });
@@ -90,9 +90,8 @@ export class GenericController {
   // Create new resource
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.prisma[
-        this.modelName as keyof PrismaClient
-      ].create({
+      const model = this.prisma[this.modelName as keyof PrismaClient] as any;
+      const data = await model.create({
         data: req.body,
         include: this.includeRelations,
       });
@@ -108,10 +107,9 @@ export class GenericController {
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
-      const data = await this.prisma[
-        this.modelName as keyof PrismaClient
-      ].update({
+      const data = await model.update({
         where: { id: Number(id) },
         data: req.body,
         include: this.includeRelations,
@@ -128,8 +126,9 @@ export class GenericController {
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
-      await this.prisma[this.modelName as keyof PrismaClient].delete({
+      await model.delete({
         where: { id: Number(id) },
       });
 
@@ -152,15 +151,16 @@ export class GenericController {
       const { id } = req.params;
       const { page = 1, limit = 10 } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
+      const model = this.prisma[relationModel as keyof PrismaClient] as any;
 
       const [data, total] = await Promise.all([
-        this.prisma[relationModel as keyof PrismaClient].findMany({
+        model.findMany({
           where: { [foreignKey]: Number(id) },
           skip,
           take: Number(limit),
           orderBy: { id: 'asc' },
         }),
-        this.prisma[relationModel as keyof PrismaClient].count({
+        model.count({
           where: { [foreignKey]: Number(id) },
         }),
       ]);
