@@ -8,8 +8,8 @@ const writeCounts = new Map<string, { count: number; resetTime: number }>();
 export const writeRateLimiter = (req: Request, res: Response, next: Function) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const now = Date.now();
-  const windowMs = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '86400000'); // 24 hours
-  const maxWrites = parseInt(process.env.RATE_LIMIT_MAX_WRITES || '100');
+  const windowMs = parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '86400000'); // 24 hours
+  const maxWrites = parseInt(process.env['RATE_LIMIT_MAX_WRITES'] || '100');
 
   // Get current count for this IP
   const current = writeCounts.get(ip);

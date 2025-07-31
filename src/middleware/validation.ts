@@ -11,7 +11,7 @@ const handleValidationErrors = (req: Request, res: Response, next: NextFunction)
       details: errors.array(),
     });
   }
-  next();
+  return next();
 };
 
 // User validation rules

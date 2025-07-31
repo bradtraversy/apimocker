@@ -211,7 +211,7 @@ const generatePosts = (userId: number) => {
     'User Experience Design Principles',
   ];
 
-  return postTitles.map((title, index) => ({
+  return postTitles.map((title) => ({
     title,
     body: `This is a comprehensive article about ${title.toLowerCase()}. It covers various aspects including best practices, common pitfalls, and real-world examples. The content is designed to be both educational and practical for developers at all levels.`,
     userId,
@@ -242,7 +242,7 @@ const generateTodos = (userId: number) => {
     'Attend team meeting',
   ];
 
-  return todoTitles.map((title, index) => ({
+  return todoTitles.map((title) => ({
     title,
     completed: Math.random() > 0.6, // 40% chance of being completed
     userId,

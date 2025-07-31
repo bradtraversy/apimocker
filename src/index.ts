@@ -18,7 +18,7 @@ import todoRoutes from './routes/todos';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env['PORT'] || 3000;
 
 // Middleware
 app.use(helmet());
@@ -31,7 +31,7 @@ app.use(requestLogger);
 app.use(rateLimiter);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),

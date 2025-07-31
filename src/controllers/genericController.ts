@@ -81,9 +81,9 @@ export class GenericController {
         });
       }
 
-      res.json({ data });
+      return res.json({ data });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 
