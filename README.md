@@ -103,6 +103,20 @@ The API will be available at `http://localhost:3000`
 http://localhost:3000
 ```
 
+### Web Interface
+
+```
+http://localhost:3000/
+```
+
+A beautiful web interface with API documentation and quick testing links.
+
+### API Base URL
+
+```
+http://localhost:3000/api
+```
+
 ### Health Check
 
 ```http
@@ -124,7 +138,7 @@ GET /health
 #### Get All Users
 
 ```http
-GET /users
+GET /api/users
 ```
 
 **Query Parameters:**
@@ -135,7 +149,7 @@ GET /users
 **Example:**
 
 ```http
-GET /users?_page=1&_limit=5
+GET /api/users?_page=1&_limit=5
 ```
 
 **Response:**
@@ -180,19 +194,19 @@ GET /users?_page=1&_limit=5
 #### Get User by ID
 
 ```http
-GET /users/:id
+GET /api/users/:id
 ```
 
 **Example:**
 
 ```http
-GET /users/1
+GET /api/users/1
 ```
 
 #### Create User
 
 ```http
-POST /users
+POST /api/users
 Content-Type: application/json
 ```
 
@@ -223,14 +237,14 @@ Content-Type: application/json
 #### Update User
 
 ```http
-PUT /users/:id
+PUT /api/users/:id
 Content-Type: application/json
 ```
 
 **Example:**
 
 ```http
-PUT /users/1
+PUT /api/users/1
 {
   "name": "Updated Name"
 }
@@ -239,19 +253,19 @@ PUT /users/1
 #### Delete User
 
 ```http
-DELETE /users/:id
+DELETE /api/users/:id
 ```
 
 **Example:**
 
 ```http
-DELETE /users/1
+DELETE /api/users/1
 ```
 
 #### Get User's Posts
 
 ```http
-GET /users/:id/posts
+GET /api/users/:id/posts
 ```
 
 **Query Parameters:**
@@ -262,13 +276,13 @@ GET /users/:id/posts
 **Example:**
 
 ```http
-GET /users/1/posts?_page=1&_limit=5
+GET /api/users/1/posts?_page=1&_limit=5
 ```
 
 #### Get User's Todos
 
 ```http
-GET /users/:id/todos
+GET /api/users/:id/todos
 ```
 
 **Query Parameters:**
@@ -279,7 +293,7 @@ GET /users/:id/todos
 **Example:**
 
 ```http
-GET /users/1/todos?_page=1&_limit=5
+GET /api/users/1/todos?_page=1&_limit=5
 ```
 
 ### Posts
@@ -287,7 +301,7 @@ GET /users/1/todos?_page=1&_limit=5
 #### Get All Posts
 
 ```http
-GET /posts
+GET /api/posts
 ```
 
 **Query Parameters:**
@@ -299,7 +313,7 @@ GET /posts
 **Example:**
 
 ```http
-GET /posts?userId=1&_page=1&_limit=5
+GET /api/posts?userId=1&_page=1&_limit=5
 ```
 
 **Response:**
@@ -336,13 +350,13 @@ GET /posts?userId=1&_page=1&_limit=5
 #### Get Post by ID
 
 ```http
-GET /posts/:id
+GET /api/posts/:id
 ```
 
 #### Create Post
 
 ```http
-POST /posts
+POST /api/posts
 Content-Type: application/json
 ```
 
@@ -359,14 +373,14 @@ Content-Type: application/json
 #### Update Post
 
 ```http
-PUT /posts/:id
+PUT /api/posts/:id
 Content-Type: application/json
 ```
 
 #### Delete Post
 
 ```http
-DELETE /posts/:id
+DELETE /api/posts/:id
 ```
 
 ### Todos
@@ -374,7 +388,7 @@ DELETE /posts/:id
 #### Get All Todos
 
 ```http
-GET /todos
+GET /api/todos
 ```
 
 **Query Parameters:**
@@ -387,7 +401,7 @@ GET /todos
 **Example:**
 
 ```http
-GET /todos?completed=true&userId=1&_page=1&_limit=5
+GET /api/todos?completed=true&userId=1&_page=1&_limit=5
 ```
 
 **Response:**
@@ -424,13 +438,13 @@ GET /todos?completed=true&userId=1&_page=1&_limit=5
 #### Get Todo by ID
 
 ```http
-GET /todos/:id
+GET /api/todos/:id
 ```
 
 #### Create Todo
 
 ```http
-POST /todos
+POST /api/todos
 Content-Type: application/json
 ```
 
@@ -447,14 +461,14 @@ Content-Type: application/json
 #### Update Todo
 
 ```http
-PUT /todos/:id
+PUT /api/todos/:id
 Content-Type: application/json
 ```
 
 #### Delete Todo
 
 ```http
-DELETE /todos/:id
+DELETE /api/todos/:id
 ```
 
 ## 🔒 Rate Limiting
