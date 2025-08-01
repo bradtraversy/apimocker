@@ -15,6 +15,7 @@ import postRoutes from './routes/posts';
 import todoRoutes from './routes/todos';
 import commentRoutes from './routes/comments';
 import errorRoutes from './routes/errors';
+import searchRoutes from './routes/search';
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +56,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/todos', todoRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/error', errorRoutes);
+app.use('/api/search', searchRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
