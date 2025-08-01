@@ -36,7 +36,16 @@ export class GenericController {
           key !== 'page' &&
           key !== 'limit'
         ) {
-          where[key] = req.query[key];
+          const value = req.query[key];
+
+          // Convert query parameters to appropriate types
+          if (key === 'userId' || key === 'id') {
+            where[key] = Number(value);
+          } else if (key === 'completed') {
+            where[key] = value === 'true';
+          } else {
+            where[key] = value;
+          }
         }
       });
 
