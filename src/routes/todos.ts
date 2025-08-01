@@ -29,6 +29,9 @@ router.post('/', validateTodo, todoController.create);
 // PUT /todos/:id - Update todo
 router.put('/:id', validateTodo, todoController.update);
 
+// PATCH /todos/:id - Partial update todo
+router.patch('/:id', validateTodo, todoController.update);
+
 // DELETE /todos/:id - Delete todo
 router.delete('/:id', todoController.delete);
 

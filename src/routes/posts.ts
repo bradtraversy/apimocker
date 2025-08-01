@@ -29,6 +29,9 @@ router.post('/', validatePost, postController.create);
 // PUT /posts/:id - Update post
 router.put('/:id', validatePost, postController.update);
 
+// PATCH /posts/:id - Partial update post
+router.patch('/:id', validatePost, postController.update);
+
 // DELETE /posts/:id - Delete post
 router.delete('/:id', postController.delete);
 
