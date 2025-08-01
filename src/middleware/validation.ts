@@ -99,4 +99,28 @@ export const validateTodo = [
     .withMessage('userId must be a positive integer'),
   
   handleValidationErrors,
-]; 
+];
+
+// Comment validation rules
+export const validateComment = [
+  body('name')
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Name is required and must be between 1 and 100 characters'),
+  
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Must be a valid email address'),
+  
+  body('body')
+    .trim()
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('Body is required and must be between 1 and 1000 characters'),
+  
+  body('postId')
+    .isInt({ min: 1 })
+    .withMessage('postId must be a positive integer'),
+  
+  handleValidationErrors,
+];

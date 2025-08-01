@@ -218,6 +218,41 @@ const generatePosts = (userId: number) => {
   }));
 };
 
+const generateComments = (postId: number) => {
+  const commentData = [
+    {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      body: 'Great article! This really helped me understand the concepts better.',
+    },
+    {
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com',
+      body: 'Thanks for sharing this valuable information. Looking forward to more posts!',
+    },
+    {
+      name: 'Mike Johnson',
+      email: 'mike.johnson@example.com',
+      body: 'I have a question about the implementation. Could you elaborate on the database optimization part?',
+    },
+    {
+      name: 'Sarah Wilson',
+      email: 'sarah.wilson@example.com',
+      body: 'This is exactly what I was looking for. The examples are very clear and practical.',
+    },
+    {
+      name: 'David Brown',
+      email: 'david.brown@example.com',
+      body: 'Excellent write-up! The step-by-step approach makes it easy to follow along.',
+    },
+  ];
+
+  return commentData.map((comment) => ({
+    ...comment,
+    postId,
+  }));
+};
+
 const generateTodos = (userId: number) => {
   const todoData = [
     {
@@ -315,6 +350,7 @@ export const seedDatabase = async () => {
     logger.info('Starting database seeding...');
 
     // Clear existing data
+    await prisma.comment.deleteMany();
     await prisma.todo.deleteMany();
     await prisma.post.deleteMany();
     await prisma.user.deleteMany();
@@ -323,6 +359,7 @@ export const seedDatabase = async () => {
     await prisma.$executeRaw`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
     await prisma.$executeRaw`ALTER SEQUENCE posts_id_seq RESTART WITH 1`;
     await prisma.$executeRaw`ALTER SEQUENCE todos_id_seq RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE comments_id_seq RESTART WITH 1`;
 
     logger.info('Existing data cleared and sequences reset to start from 1');
 
@@ -357,8 +394,20 @@ export const seedDatabase = async () => {
 
     logger.info(`Created ${todos.length} todos`);
 
+    // Create comments for each post
+    const comments = [];
+    for (const post of posts) {
+      const postComments = generateComments(post.id);
+      const createdComments = await Promise.all(
+        postComments.map(commentData => prisma.comment.create({ data: commentData }))
+      );
+      comments.push(...createdComments);
+    }
+
+    logger.info(`Created ${comments.length} comments`);
+
     logger.info('Database seeding completed successfully!');
-    logger.info(`Summary: ${users.length} users, ${posts.length} posts, ${todos.length} todos`);
+    logger.info(`Summary: ${users.length} users, ${posts.length} posts, ${todos.length} todos, ${comments.length} comments`);
 
   } catch (error) {
     logger.error('Error seeding database:', error);

@@ -44,6 +44,9 @@ model Post {
   userId Int
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  // Relationships
+  comments Comment[]
+  
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,4 +69,21 @@ model Todo {
   updatedAt   DateTime @updatedAt
 
   @@map("todos")
+}
+
+model Comment {
+  id     Int    @id @default(autoincrement())
+  name   String
+  email  String
+  body   String
+  
+  // Foreign key relationship
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comments")
 } 
