@@ -23,8 +23,8 @@ export class GenericController {
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Handle both page/limit and _page/_limit parameters
-      const page = Number(req.query.page || req.query._page || 1);
-      const limit = Number(req.query.limit || req.query._limit || 10);
+      const page = Number(req.query['page'] || req.query['_page'] || 1);
+      const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
       const skip = (page - 1) * limit;
 
       // Build where clause from query parameters
@@ -166,8 +166,8 @@ export class GenericController {
     try {
       const { id } = req.params;
       // Handle both page/limit and _page/_limit parameters
-      const page = Number(req.query.page || req.query._page || 1);
-      const limit = Number(req.query.limit || req.query._limit || 10);
+      const page = Number(req.query['page'] || req.query['_page'] || 1);
+      const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
       const skip = (page - 1) * limit;
       const model = this.prisma[relationModel as keyof PrismaClient] as any;
 
