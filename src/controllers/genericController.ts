@@ -22,6 +22,12 @@ export class GenericController {
   // Get all resources with pagination and filtering
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // Handle response delay simulation
+      const delay = Number(req.query['_delay'] || 0);
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
       // Handle both page/limit and _page/_limit parameters
       const page = Number(req.query['page'] || req.query['_page'] || 1);
       const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
@@ -41,7 +47,8 @@ export class GenericController {
           key !== 'page' &&
           key !== 'limit' &&
           key !== '_sort' &&
-          key !== '_order'
+          key !== '_order' &&
+          key !== '_delay'
         ) {
           const value = req.query[key];
 
@@ -102,6 +109,12 @@ export class GenericController {
   // Get single resource by ID
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // Handle response delay simulation
+      const delay = Number(req.query['_delay'] || 0);
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
       const { id } = req.params;
       const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
