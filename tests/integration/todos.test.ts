@@ -30,9 +30,9 @@ describe('Todos API Integration Tests', () => {
     testUser = await db.createUser(sampleUsers[0]);
   });
 
-  describe('GET /api/todos', () => {
+  describe('GET /todos', () => {
     it('should return empty array when no todos exist', async () => {
-      const response = await apiTester.testGetAll('/api/todos');
+      const response = await apiTester.testGetAll('/todos');
 
       expect(response.body.data).toEqual([]);
       expect(response.body.pagination.total).toBe(0);
@@ -48,7 +48,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       });
 
-      const response = await apiTester.testGetAll('/api/todos');
+      const response = await apiTester.testGetAll('/todos');
 
       expect(response.body.data).toHaveLength(2);
       expect(response.body.pagination.total).toBe(2);
@@ -78,7 +78,7 @@ describe('Todos API Integration Tests', () => {
         });
       }
 
-      const response = await apiTester.testPagination('/api/todos', 1, 3);
+      const response = await apiTester.testPagination('/todos', 1, 3);
 
       expect(response.body.data).toHaveLength(3);
       expect(response.body.pagination.page).toBe(1);
@@ -102,7 +102,7 @@ describe('Todos API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/todos?userId=${testUser.id}`)
+        .get(`/todos?userId=${testUser.id}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(1);
@@ -130,7 +130,7 @@ describe('Todos API Integration Tests', () => {
 
       // Test completed filter
       const completedResponse = await request(app)
-        .get('/api/todos?completed=true')
+        .get('/todos?completed=true')
         .expect(200);
 
       expect(completedResponse.body.data).toHaveLength(2);
@@ -140,7 +140,7 @@ describe('Todos API Integration Tests', () => {
 
       // Test incomplete filter
       const incompleteResponse = await request(app)
-        .get('/api/todos?completed=false')
+        .get('/todos?completed=false')
         .expect(200);
 
       expect(incompleteResponse.body.data).toHaveLength(1);
@@ -170,7 +170,7 @@ describe('Todos API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/todos?userId=${testUser.id}&completed=true`)
+        .get(`/todos?userId=${testUser.id}&completed=true`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(1);
@@ -180,7 +180,7 @@ describe('Todos API Integration Tests', () => {
 
     it('should handle invalid pagination parameters', async () => {
       const response = await request(app)
-        .get('/api/todos?_page=invalid&_limit=invalid')
+        .get('/todos?_page=invalid&_limit=invalid')
         .expect(200);
 
       // Should use default values
@@ -189,7 +189,7 @@ describe('Todos API Integration Tests', () => {
     });
   });
 
-  describe('GET /api/todos/:id', () => {
+  describe('GET /todos/:id', () => {
     it('should return a specific todo by ID', async () => {
       const createdTodo = await db.createTodo({
         ...sampleTodos[0],
@@ -197,7 +197,7 @@ describe('Todos API Integration Tests', () => {
       });
 
       const response = await apiTester.testGetById(
-        '/api/todos',
+        '/todos',
         createdTodo.id
       );
 
@@ -216,15 +216,15 @@ describe('Todos API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent todo', async () => {
-      await apiTester.testGetById('/api/todos', 999, 404);
+      await apiTester.testGetById('/todos', 999, 404);
     });
 
     it('should handle invalid ID format', async () => {
-      await request(app).get('/api/todos/invalid').expect(400);
+      await request(app).get('/todos/invalid').expect(400);
     });
   });
 
-  describe('POST /api/todos', () => {
+  describe('POST /todos', () => {
     it('should create a new todo with valid data', async () => {
       const newTodo = {
         title: 'New Todo Item',
@@ -232,7 +232,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      const response = await apiTester.testCreate('/api/todos', newTodo);
+      const response = await apiTester.testCreate('/todos', newTodo);
 
       expect(response.body).toMatchObject(newTodo);
       expect(response.body.id).toBeDefined();
@@ -246,7 +246,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      const response = await apiTester.testCreate('/api/todos', newTodo);
+      const response = await apiTester.testCreate('/todos', newTodo);
 
       expect(response.body.completed).toBe(false); // Default value
       expect(response.body.title).toBe(newTodo.title);
@@ -258,7 +258,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      await apiTester.testValidationError('/api/todos', 'post', invalidTodo);
+      await apiTester.testValidationError('/todos', 'post', invalidTodo);
     });
 
     it('should return validation error for invalid userId', async () => {
@@ -268,7 +268,7 @@ describe('Todos API Integration Tests', () => {
         userId: 999, // Non-existent user
       };
 
-      await apiTester.testValidationError('/api/todos', 'post', invalidTodo);
+      await apiTester.testValidationError('/todos', 'post', invalidTodo);
     });
 
     it('should return validation error for title too long', async () => {
@@ -278,7 +278,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      await apiTester.testValidationError('/api/todos', 'post', invalidTodo);
+      await apiTester.testValidationError('/todos', 'post', invalidTodo);
     });
 
     it('should return validation error for invalid completed type', async () => {
@@ -288,11 +288,11 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      await apiTester.testValidationError('/api/todos', 'post', invalidTodo);
+      await apiTester.testValidationError('/todos', 'post', invalidTodo);
     });
   });
 
-  describe('PUT /api/todos/:id', () => {
+  describe('PUT /todos/:id', () => {
     it('should update an existing todo', async () => {
       const createdTodo = await db.createTodo({
         ...sampleTodos[0],
@@ -305,7 +305,7 @@ describe('Todos API Integration Tests', () => {
       };
 
       const response = await apiTester.testUpdate(
-        '/api/todos',
+        '/todos',
         createdTodo.id,
         updateData
       );
@@ -327,7 +327,7 @@ describe('Todos API Integration Tests', () => {
       };
 
       const response = await apiTester.testUpdate(
-        '/api/todos',
+        '/todos',
         createdTodo.id,
         updateData
       );
@@ -338,7 +338,7 @@ describe('Todos API Integration Tests', () => {
 
     it('should return 404 for non-existent todo', async () => {
       const updateData = { title: 'Updated Title' };
-      await apiTester.testUpdate('/api/todos', 999, updateData, 404);
+      await apiTester.testUpdate('/todos', 999, updateData, 404);
     });
 
     it('should return validation error for invalid update data', async () => {
@@ -352,21 +352,21 @@ describe('Todos API Integration Tests', () => {
       };
 
       await apiTester.testValidationError(
-        `/api/todos/${createdTodo.id}`,
+        `/todos/${createdTodo.id}`,
         'put',
         invalidData
       );
     });
   });
 
-  describe('DELETE /api/todos/:id', () => {
+  describe('DELETE /todos/:id', () => {
     it('should delete an existing todo', async () => {
       const createdTodo = await db.createTodo({
         ...sampleTodos[0],
         userId: testUser.id,
       });
 
-      await apiTester.testDelete('/api/todos', createdTodo.id);
+      await apiTester.testDelete('/todos', createdTodo.id);
 
       // Verify todo is deleted
       const deletedTodo = await db.getTodo(createdTodo.id);
@@ -374,7 +374,7 @@ describe('Todos API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent todo', async () => {
-      await apiTester.testDelete('/api/todos', 999, 404);
+      await apiTester.testDelete('/todos', 999, 404);
     });
   });
 
@@ -400,7 +400,7 @@ describe('Todos API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/todos?userId=${testUser.id}`)
+        .get(`/todos?userId=${testUser.id}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -427,7 +427,7 @@ describe('Todos API Integration Tests', () => {
       }
 
       const response = await request(app)
-        .get(`/api/todos?userId=${testUser.id}&_page=1&_limit=3`)
+        .get(`/todos?userId=${testUser.id}&_page=1&_limit=3`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(3);
@@ -452,7 +452,7 @@ describe('Todos API Integration Tests', () => {
 
       // Test with string 'true'
       const completedResponse = await request(app)
-        .get('/api/todos?completed=true')
+        .get('/todos?completed=true')
         .expect(200);
 
       expect(completedResponse.body.data).toHaveLength(1);
@@ -460,7 +460,7 @@ describe('Todos API Integration Tests', () => {
 
       // Test with string 'false'
       const incompleteResponse = await request(app)
-        .get('/api/todos?completed=false')
+        .get('/todos?completed=false')
         .expect(200);
 
       expect(incompleteResponse.body.data).toHaveLength(1);
@@ -477,7 +477,7 @@ describe('Todos API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/todos/${todo.id}`)
+        .get(`/todos/${todo.id}`)
         .expect(200);
 
       expect(response.body.user).toMatchObject({
@@ -498,11 +498,11 @@ describe('Todos API Integration Tests', () => {
       // Delete the user
       await db.disconnect();
       await db.connect();
-      await request(app).delete(`/api/users/${testUser.id}`).expect(200);
+      await request(app).delete(`/users/${testUser.id}`).expect(200);
 
       // Todo should still exist but user should be null
       const response = await request(app)
-        .get(`/api/todos/${todo.id}`)
+        .get(`/todos/${todo.id}`)
         .expect(200);
 
       expect(response.body.userId).toBe(testUser.id);
@@ -521,23 +521,23 @@ describe('Todos API Integration Tests', () => {
 
       // Mark as completed
       await request(app)
-        .put(`/api/todos/${todo.id}`)
+        .put(`/todos/${todo.id}`)
         .send({ completed: true })
         .expect(200);
 
       let response = await request(app)
-        .get(`/api/todos/${todo.id}`)
+        .get(`/todos/${todo.id}`)
         .expect(200);
 
       expect(response.body.completed).toBe(true);
 
       // Mark as incomplete
       await request(app)
-        .put(`/api/todos/${todo.id}`)
+        .put(`/todos/${todo.id}`)
         .send({ completed: false })
         .expect(200);
 
-      response = await request(app).get(`/api/todos/${todo.id}`).expect(200);
+      response = await request(app).get(`/todos/${todo.id}`).expect(200);
 
       expect(response.body.completed).toBe(false);
     });
@@ -556,12 +556,12 @@ describe('Todos API Integration Tests', () => {
 
       // Update the todo
       await request(app)
-        .put(`/api/todos/${todo.id}`)
+        .put(`/todos/${todo.id}`)
         .send({ completed: true })
         .expect(200);
 
       const response = await request(app)
-        .get(`/api/todos/${todo.id}`)
+        .get(`/todos/${todo.id}`)
         .expect(200);
 
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(
@@ -582,7 +582,7 @@ describe('Todos API Integration Tests', () => {
 
         const expectedStatus = i < 100 ? 201 : 429;
         await request(app)
-          .post('/api/todos')
+          .post('/todos')
           .send(todoData)
           .expect(expectedStatus);
       }

@@ -51,12 +51,12 @@ app.get('/', (_req, res) => {
 });
 
 // API routes
-app.use('/api/users', userRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/todos', todoRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/error', errorRoutes);
-app.use('/api/search', searchRoutes);
+app.use('/users', userRoutes);
+app.use('/posts', postRoutes);
+app.use('/todos', todoRoutes);
+app.use('/comments', commentRoutes);
+app.use('/error', errorRoutes);
+app.use('/search', searchRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -96,7 +96,7 @@ const startServer = async () => {
       logger.info(`🚀 ApiMocker server running on port ${port}`);
       logger.info(`📊 Health check: http://localhost:${port}/health`);
       logger.info(`🌐 Web interface: http://localhost:${port}/`);
-      logger.info(`🔗 API base: http://localhost:${port}/api`);
+      logger.info(`🔗 API base: http://localhost:${port}`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

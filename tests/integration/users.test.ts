@@ -26,9 +26,9 @@ describe('Users API Integration Tests', () => {
     await db.cleanup();
   });
 
-  describe('GET /api/users', () => {
+  describe('GET /users', () => {
     it('should return empty array when no users exist', async () => {
-      const response = await apiTester.testGetAll('/api/users');
+      const response = await apiTester.testGetAll('/users');
 
       expect(response.body.data).toEqual([]);
       expect(response.body.pagination.total).toBe(0);
@@ -39,7 +39,7 @@ describe('Users API Integration Tests', () => {
       const user1 = await db.createUser(sampleUsers[0]);
       const user2 = await db.createUser(sampleUsers[1]);
 
-      const response = await apiTester.testGetAll('/api/users');
+      const response = await apiTester.testGetAll('/users');
 
       expect(response.body.data).toHaveLength(2);
       expect(response.body.pagination.total).toBe(2);
@@ -63,7 +63,7 @@ describe('Users API Integration Tests', () => {
         });
       }
 
-      const response = await apiTester.testPagination('/api/users', 1, 3);
+      const response = await apiTester.testPagination('/users', 1, 3);
 
       expect(response.body.data).toHaveLength(3);
       expect(response.body.pagination.page).toBe(1);
@@ -73,7 +73,7 @@ describe('Users API Integration Tests', () => {
 
     it('should handle invalid pagination parameters', async () => {
       const response = await request(app)
-        .get('/api/users?_page=invalid&_limit=invalid')
+        .get('/users?_page=invalid&_limit=invalid')
         .expect(200);
 
       // Should use default values
@@ -82,12 +82,12 @@ describe('Users API Integration Tests', () => {
     });
   });
 
-  describe('GET /api/users/:id', () => {
+  describe('GET /users/:id', () => {
     it('should return a specific user by ID', async () => {
       const createdUser = await db.createUser(sampleUsers[0]);
 
       const response = await apiTester.testGetById(
-        '/api/users',
+        '/users',
         createdUser.id
       );
 
@@ -100,15 +100,15 @@ describe('Users API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      await apiTester.testGetById('/api/users', 999, 404);
+      await apiTester.testGetById('/users', 999, 404);
     });
 
     it('should handle invalid ID format', async () => {
-      await request(app).get('/api/users/invalid').expect(400);
+      await request(app).get('/users/invalid').expect(400);
     });
   });
 
-  describe('POST /api/users', () => {
+  describe('POST /users', () => {
     it('should create a new user with valid data', async () => {
       const newUser = {
         name: 'New User',
@@ -130,7 +130,7 @@ describe('Users API Integration Tests', () => {
         },
       };
 
-      const response = await apiTester.testCreate('/api/users', newUser);
+      const response = await apiTester.testCreate('/users', newUser);
 
       expect(response.body).toMatchObject(newUser);
       expect(response.body.id).toBeDefined();
@@ -144,7 +144,7 @@ describe('Users API Integration Tests', () => {
         email: 'invalid-email', // Invalid email
       };
 
-      await apiTester.testValidationError('/api/users', 'post', invalidUser);
+      await apiTester.testValidationError('/users', 'post', invalidUser);
     });
 
     it('should return validation error for invalid email format', async () => {
@@ -153,7 +153,7 @@ describe('Users API Integration Tests', () => {
         email: 'not-an-email',
       };
 
-      await apiTester.testValidationError('/api/users', 'post', invalidUser);
+      await apiTester.testValidationError('/users', 'post', invalidUser);
     });
 
     it('should return validation error for invalid username format', async () => {
@@ -162,7 +162,7 @@ describe('Users API Integration Tests', () => {
         username: 'user@name', // Contains invalid character
       };
 
-      await apiTester.testValidationError('/api/users', 'post', invalidUser);
+      await apiTester.testValidationError('/users', 'post', invalidUser);
     });
 
     it('should return validation error for invalid phone format', async () => {
@@ -171,7 +171,7 @@ describe('Users API Integration Tests', () => {
         phone: 'not-a-phone',
       };
 
-      await apiTester.testValidationError('/api/users', 'post', invalidUser);
+      await apiTester.testValidationError('/users', 'post', invalidUser);
     });
 
     it('should return validation error for invalid website format', async () => {
@@ -180,11 +180,11 @@ describe('Users API Integration Tests', () => {
         website: 'not-a-url',
       };
 
-      await apiTester.testValidationError('/api/users', 'post', invalidUser);
+      await apiTester.testValidationError('/users', 'post', invalidUser);
     });
   });
 
-  describe('PUT /api/users/:id', () => {
+  describe('PUT /users/:id', () => {
     it('should update an existing user', async () => {
       const createdUser = await db.createUser(sampleUsers[0]);
       const updateData = {
@@ -193,7 +193,7 @@ describe('Users API Integration Tests', () => {
       };
 
       const response = await apiTester.testUpdate(
-        '/api/users',
+        '/users',
         createdUser.id,
         updateData
       );
@@ -204,7 +204,7 @@ describe('Users API Integration Tests', () => {
 
     it('should return 404 for non-existent user', async () => {
       const updateData = { name: 'Updated Name' };
-      await apiTester.testUpdate('/api/users', 999, updateData, 404);
+      await apiTester.testUpdate('/users', 999, updateData, 404);
     });
 
     it('should return validation error for invalid update data', async () => {
@@ -214,18 +214,18 @@ describe('Users API Integration Tests', () => {
       };
 
       await apiTester.testValidationError(
-        `/api/users/${createdUser.id}`,
+        `/users/${createdUser.id}`,
         'put',
         invalidData
       );
     });
   });
 
-  describe('DELETE /api/users/:id', () => {
+  describe('DELETE /users/:id', () => {
     it('should delete an existing user', async () => {
       const createdUser = await db.createUser(sampleUsers[0]);
 
-      await apiTester.testDelete('/api/users', createdUser.id);
+      await apiTester.testDelete('/users', createdUser.id);
 
       // Verify user is deleted
       const deletedUser = await db.getUser(createdUser.id);
@@ -233,11 +233,11 @@ describe('Users API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      await apiTester.testDelete('/api/users', 999, 404);
+      await apiTester.testDelete('/users', 999, 404);
     });
   });
 
-  describe('GET /api/users/:id/posts', () => {
+  describe('GET /users/:id/posts', () => {
     it('should return user posts', async () => {
       const user = await db.createUser(sampleUsers[0]);
       const post1 = await db.createPost({
@@ -252,7 +252,7 @@ describe('Users API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/posts`)
+        .get(`/users/${user.id}/posts`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -274,7 +274,7 @@ describe('Users API Integration Tests', () => {
       const user = await db.createUser(sampleUsers[0]);
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/posts`)
+        .get(`/users/${user.id}/posts`)
         .expect(200);
 
       expect(response.body.data).toEqual([]);
@@ -294,7 +294,7 @@ describe('Users API Integration Tests', () => {
       }
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/posts?_page=1&_limit=3`)
+        .get(`/users/${user.id}/posts?_page=1&_limit=3`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(3);
@@ -303,7 +303,7 @@ describe('Users API Integration Tests', () => {
     });
   });
 
-  describe('GET /api/users/:id/todos', () => {
+  describe('GET /users/:id/todos', () => {
     it('should return user todos', async () => {
       const user = await db.createUser(sampleUsers[0]);
       const todo1 = await db.createTodo({
@@ -318,7 +318,7 @@ describe('Users API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/todos`)
+        .get(`/users/${user.id}/todos`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -340,7 +340,7 @@ describe('Users API Integration Tests', () => {
       const user = await db.createUser(sampleUsers[0]);
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/todos`)
+        .get(`/users/${user.id}/todos`)
         .expect(200);
 
       expect(response.body.data).toEqual([]);
@@ -360,7 +360,7 @@ describe('Users API Integration Tests', () => {
       }
 
       const response = await request(app)
-        .get(`/api/users/${user.id}/todos?_page=1&_limit=3`)
+        .get(`/users/${user.id}/todos?_page=1&_limit=3`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(3);
@@ -381,7 +381,7 @@ describe('Users API Integration Tests', () => {
 
         const expectedStatus = i < 100 ? 201 : 429;
         await request(app)
-          .post('/api/users')
+          .post('/users')
           .send(userData)
           .expect(expectedStatus);
       }

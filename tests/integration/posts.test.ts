@@ -30,9 +30,9 @@ describe('Posts API Integration Tests', () => {
     testUser = await db.createUser(sampleUsers[0]);
   });
 
-  describe('GET /api/posts', () => {
+  describe('GET /posts', () => {
     it('should return empty array when no posts exist', async () => {
-      const response = await apiTester.testGetAll('/api/posts');
+      const response = await apiTester.testGetAll('/posts');
 
       expect(response.body.data).toEqual([]);
       expect(response.body.pagination.total).toBe(0);
@@ -48,7 +48,7 @@ describe('Posts API Integration Tests', () => {
         userId: testUser.id,
       });
 
-      const response = await apiTester.testGetAll('/api/posts');
+      const response = await apiTester.testGetAll('/posts');
 
       expect(response.body.data).toHaveLength(2);
       expect(response.body.pagination.total).toBe(2);
@@ -78,7 +78,7 @@ describe('Posts API Integration Tests', () => {
         });
       }
 
-      const response = await apiTester.testPagination('/api/posts', 1, 3);
+      const response = await apiTester.testPagination('/posts', 1, 3);
 
       expect(response.body.data).toHaveLength(3);
       expect(response.body.pagination.page).toBe(1);
@@ -102,7 +102,7 @@ describe('Posts API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/posts?userId=${testUser.id}`)
+        .get(`/posts?userId=${testUser.id}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(1);
@@ -112,7 +112,7 @@ describe('Posts API Integration Tests', () => {
 
     it('should handle invalid pagination parameters', async () => {
       const response = await request(app)
-        .get('/api/posts?_page=invalid&_limit=invalid')
+        .get('/posts?_page=invalid&_limit=invalid')
         .expect(200);
 
       // Should use default values
@@ -121,7 +121,7 @@ describe('Posts API Integration Tests', () => {
     });
   });
 
-  describe('GET /api/posts/:id', () => {
+  describe('GET /posts/:id', () => {
     it('should return a specific post by ID', async () => {
       const createdPost = await db.createPost({
         ...samplePosts[0],
@@ -129,7 +129,7 @@ describe('Posts API Integration Tests', () => {
       });
 
       const response = await apiTester.testGetById(
-        '/api/posts',
+        '/posts',
         createdPost.id
       );
 
@@ -148,15 +148,15 @@ describe('Posts API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent post', async () => {
-      await apiTester.testGetById('/api/posts', 999, 404);
+      await apiTester.testGetById('/posts', 999, 404);
     });
 
     it('should handle invalid ID format', async () => {
-      await request(app).get('/api/posts/invalid').expect(400);
+      await request(app).get('/posts/invalid').expect(400);
     });
   });
 
-  describe('POST /api/posts', () => {
+  describe('POST /posts', () => {
     it('should create a new post with valid data', async () => {
       const newPost = {
         title: 'New Post Title',
@@ -164,7 +164,7 @@ describe('Posts API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      const response = await apiTester.testCreate('/api/posts', newPost);
+      const response = await apiTester.testCreate('/posts', newPost);
 
       expect(response.body).toMatchObject(newPost);
       expect(response.body.id).toBeDefined();
@@ -178,7 +178,7 @@ describe('Posts API Integration Tests', () => {
         body: '', // Empty body
       };
 
-      await apiTester.testValidationError('/api/posts', 'post', invalidPost);
+      await apiTester.testValidationError('/posts', 'post', invalidPost);
     });
 
     it('should return validation error for invalid userId', async () => {
@@ -188,7 +188,7 @@ describe('Posts API Integration Tests', () => {
         userId: 999, // Non-existent user
       };
 
-      await apiTester.testValidationError('/api/posts', 'post', invalidPost);
+      await apiTester.testValidationError('/posts', 'post', invalidPost);
     });
 
     it('should return validation error for title too long', async () => {
@@ -198,7 +198,7 @@ describe('Posts API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      await apiTester.testValidationError('/api/posts', 'post', invalidPost);
+      await apiTester.testValidationError('/posts', 'post', invalidPost);
     });
 
     it('should return validation error for body too long', async () => {
@@ -208,11 +208,11 @@ describe('Posts API Integration Tests', () => {
         userId: testUser.id,
       };
 
-      await apiTester.testValidationError('/api/posts', 'post', invalidPost);
+      await apiTester.testValidationError('/posts', 'post', invalidPost);
     });
   });
 
-  describe('PUT /api/posts/:id', () => {
+  describe('PUT /posts/:id', () => {
     it('should update an existing post', async () => {
       const createdPost = await db.createPost({
         ...samplePosts[0],
@@ -225,7 +225,7 @@ describe('Posts API Integration Tests', () => {
       };
 
       const response = await apiTester.testUpdate(
-        '/api/posts',
+        '/posts',
         createdPost.id,
         updateData
       );
@@ -237,7 +237,7 @@ describe('Posts API Integration Tests', () => {
 
     it('should return 404 for non-existent post', async () => {
       const updateData = { title: 'Updated Title' };
-      await apiTester.testUpdate('/api/posts', 999, updateData, 404);
+      await apiTester.testUpdate('/posts', 999, updateData, 404);
     });
 
     it('should return validation error for invalid update data', async () => {
@@ -251,21 +251,21 @@ describe('Posts API Integration Tests', () => {
       };
 
       await apiTester.testValidationError(
-        `/api/posts/${createdPost.id}`,
+        `/posts/${createdPost.id}`,
         'put',
         invalidData
       );
     });
   });
 
-  describe('DELETE /api/posts/:id', () => {
+  describe('DELETE /posts/:id', () => {
     it('should delete an existing post', async () => {
       const createdPost = await db.createPost({
         ...samplePosts[0],
         userId: testUser.id,
       });
 
-      await apiTester.testDelete('/api/posts', createdPost.id);
+      await apiTester.testDelete('/posts', createdPost.id);
 
       // Verify post is deleted
       const deletedPost = await db.getPost(createdPost.id);
@@ -273,7 +273,7 @@ describe('Posts API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent post', async () => {
-      await apiTester.testDelete('/api/posts', 999, 404);
+      await apiTester.testDelete('/posts', 999, 404);
     });
   });
 
@@ -299,7 +299,7 @@ describe('Posts API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/posts?userId=${testUser.id}`)
+        .get(`/posts?userId=${testUser.id}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -326,7 +326,7 @@ describe('Posts API Integration Tests', () => {
       }
 
       const response = await request(app)
-        .get(`/api/posts?userId=${testUser.id}&_page=1&_limit=3`)
+        .get(`/posts?userId=${testUser.id}&_page=1&_limit=3`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(3);
@@ -346,7 +346,7 @@ describe('Posts API Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get(`/api/posts/${post.id}`)
+        .get(`/posts/${post.id}`)
         .expect(200);
 
       expect(response.body.user).toMatchObject({
@@ -367,11 +367,11 @@ describe('Posts API Integration Tests', () => {
       // Delete the user
       await db.disconnect();
       await db.connect();
-      await request(app).delete(`/api/users/${testUser.id}`).expect(200);
+      await request(app).delete(`/users/${testUser.id}`).expect(200);
 
       // Post should still exist but user should be null
       const response = await request(app)
-        .get(`/api/posts/${post.id}`)
+        .get(`/posts/${post.id}`)
         .expect(200);
 
       expect(response.body.userId).toBe(testUser.id);
@@ -392,7 +392,7 @@ describe('Posts API Integration Tests', () => {
 
         const expectedStatus = i < 100 ? 201 : 429;
         await request(app)
-          .post('/api/posts')
+          .post('/posts')
           .send(postData)
           .expect(expectedStatus);
       }

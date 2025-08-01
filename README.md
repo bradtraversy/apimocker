@@ -127,7 +127,7 @@ http://localhost:8000/api
 Search across all resources with the global search endpoint:
 
 ```http
-GET /api/search?q=development&type=posts
+GET /search?q=development&type=posts
 ```
 
 **Parameters:**
@@ -139,17 +139,17 @@ GET /api/search?q=development&type=posts
 Test loading states by adding delays to any request:
 
 ```http
-GET /api/posts?_delay=2000
+GET /posts?_delay=2000
 ```
 
 ### Error Simulation
 Test error handling with dedicated error endpoints:
 
 ```http
-GET /api/error/404
-GET /api/error/500
-GET /api/error/validation
-GET /api/error/timeout
+GET /error/404
+GET /error/500
+GET /error/validation
+GET /error/timeout
 ```
 
 ### Health Check
@@ -173,7 +173,7 @@ GET /health
 #### Get All Users
 
 ```http
-GET /api/users
+GET /users
 ```
 
 **Query Parameters:**
@@ -184,7 +184,7 @@ GET /api/users
 **Example:**
 
 ```http
-GET /api/users?_page=1&_limit=5
+GET /users?_page=1&_limit=5
 ```
 
 **Response:**
@@ -229,19 +229,19 @@ GET /api/users?_page=1&_limit=5
 #### Get User by ID
 
 ```http
-GET /api/users/:id
+GET /users/:id
 ```
 
 **Example:**
 
 ```http
-GET /api/users/1
+GET /users/1
 ```
 
 #### Create User
 
 ```http
-POST /api/users
+POST /users
 Content-Type: application/json
 ```
 
@@ -272,14 +272,14 @@ Content-Type: application/json
 #### Update User
 
 ```http
-PUT /api/users/:id
+PUT /users/:id
 Content-Type: application/json
 ```
 
 **Example:**
 
 ```http
-PUT /api/users/1
+PUT /users/1
 {
   "name": "Updated Name"
 }
@@ -288,19 +288,19 @@ PUT /api/users/1
 #### Delete User
 
 ```http
-DELETE /api/users/:id
+DELETE /users/:id
 ```
 
 **Example:**
 
 ```http
-DELETE /api/users/1
+DELETE /users/1
 ```
 
 #### Get User's Posts
 
 ```http
-GET /api/users/:id/posts
+GET /users/:id/posts
 ```
 
 **Query Parameters:**
@@ -311,13 +311,13 @@ GET /api/users/:id/posts
 **Example:**
 
 ```http
-GET /api/users/1/posts?_page=1&_limit=5
+GET /users/1/posts?_page=1&_limit=5
 ```
 
 #### Get User's Todos
 
 ```http
-GET /api/users/:id/todos
+GET /users/:id/todos
 ```
 
 **Query Parameters:**
@@ -328,7 +328,7 @@ GET /api/users/:id/todos
 **Example:**
 
 ```http
-GET /api/users/1/todos?_page=1&_limit=5
+GET /users/1/todos?_page=1&_limit=5
 ```
 
 ### Posts
@@ -336,7 +336,7 @@ GET /api/users/1/todos?_page=1&_limit=5
 #### Get All Posts
 
 ```http
-GET /api/posts
+GET /posts
 ```
 
 **Query Parameters:**
@@ -348,7 +348,7 @@ GET /api/posts
 **Example:**
 
 ```http
-GET /api/posts?userId=1&_page=1&_limit=5
+GET /posts?userId=1&_page=1&_limit=5
 ```
 
 **Response:**
@@ -385,13 +385,13 @@ GET /api/posts?userId=1&_page=1&_limit=5
 #### Get Post by ID
 
 ```http
-GET /api/posts/:id
+GET /posts/:id
 ```
 
 #### Create Post
 
 ```http
-POST /api/posts
+POST /posts
 Content-Type: application/json
 ```
 
@@ -409,14 +409,14 @@ Content-Type: application/json
 #### Update Post
 
 ```http
-PUT /api/posts/:id
+PUT /posts/:id
 Content-Type: application/json
 ```
 
 #### Delete Post
 
 ```http
-DELETE /api/posts/:id
+DELETE /posts/:id
 ```
 
 ### Todos
@@ -424,7 +424,7 @@ DELETE /api/posts/:id
 #### Get All Todos
 
 ```http
-GET /api/todos
+GET /todos
 ```
 
 **Query Parameters:**
@@ -437,7 +437,7 @@ GET /api/todos
 **Example:**
 
 ```http
-GET /api/todos?completed=true&userId=1&_page=1&_limit=5
+GET /todos?completed=true&userId=1&_page=1&_limit=5
 ```
 
 **Response:**
@@ -474,13 +474,13 @@ GET /api/todos?completed=true&userId=1&_page=1&_limit=5
 #### Get Todo by ID
 
 ```http
-GET /api/todos/:id
+GET /todos/:id
 ```
 
 #### Create Todo
 
 ```http
-POST /api/todos
+POST /todos
 Content-Type: application/json
 ```
 
@@ -499,14 +499,14 @@ Content-Type: application/json
 #### Update Todo
 
 ```http
-PUT /api/todos/:id
+PUT /todos/:id
 Content-Type: application/json
 ```
 
 #### Delete Todo
 
 ```http
-DELETE /api/todos/:id
+DELETE /todos/:id
 ```
 
 ### Comments
@@ -514,7 +514,7 @@ DELETE /api/todos/:id
 #### Get All Comments
 
 ```http
-GET /api/comments
+GET /comments
 ```
 
 **Query Parameters:**
@@ -528,7 +528,7 @@ GET /api/comments
 **Example:**
 
 ```http
-GET /api/comments?postId=1&_page=1&_limit=5
+GET /comments?postId=1&_page=1&_limit=5
 ```
 
 **Response:**
@@ -564,13 +564,13 @@ GET /api/comments?postId=1&_page=1&_limit=5
 #### Get Comment by ID
 
 ```http
-GET /api/comments/:id
+GET /comments/:id
 ```
 
 #### Create Comment
 
 ```http
-POST /api/comments
+POST /comments
 Content-Type: application/json
 ```
 
@@ -588,14 +588,14 @@ Content-Type: application/json
 #### Update Comment
 
 ```http
-PUT /api/comments/:id
+PUT /comments/:id
 Content-Type: application/json
 ```
 
 #### Delete Comment
 
 ```http
-DELETE /api/comments/:id
+DELETE /comments/:id
 ```
 
 ## 🔍 Advanced Filtering & Querying
@@ -623,27 +623,27 @@ ApiMocker supports powerful filtering, sorting, and querying capabilities:
 
 **Basic pagination:**
 ```http
-GET /api/posts?_page=2&_limit=5
+GET /posts?_page=2&_limit=5
 ```
 
 **Sorting:**
 ```http
-GET /api/posts?_sort=title&_order=asc
+GET /posts?_sort=title&_order=asc
 ```
 
 **Text search:**
 ```http
-GET /api/posts?title_like=development
+GET /posts?title_like=development
 ```
 
 **Combined filtering:**
 ```http
-GET /api/todos?completed=true&userId=1&_sort=title&_order=desc&_page=1&_limit=10
+GET /todos?completed=true&userId=1&_sort=title&_order=desc&_page=1&_limit=10
 ```
 
 **With delay simulation:**
 ```http
-GET /api/posts?title_like=web&_delay=2000
+GET /posts?title_like=web&_delay=2000
 ```
 
 ## 🔒 Rate Limiting

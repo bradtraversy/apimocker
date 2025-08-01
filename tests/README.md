@@ -104,14 +104,14 @@ Integration tests test the full API endpoints with real database operations. The
 #### Example Integration Test
 
 ```typescript
-describe('GET /api/users', () => {
+describe('GET /users', () => {
   it('should return all users with pagination', async () => {
     // Create test data
     const user1 = await db.createUser(sampleUsers[0]);
     const user2 = await db.createUser(sampleUsers[1]);
 
     // Make API request
-    const response = await apiTester.testGetAll('/api/users');
+    const response = await apiTester.testGetAll('/users');
 
     // Verify response
     expect(response.body.data).toHaveLength(2);
@@ -172,13 +172,13 @@ Provides common API testing methods:
 const apiTester = new ApiTester(app);
 
 // Test common operations
-await apiTester.testGetAll('/api/users');
-await apiTester.testGetById('/api/users', 1);
-await apiTester.testCreate('/api/users', userData);
-await apiTester.testUpdate('/api/users', 1, updateData);
-await apiTester.testDelete('/api/users', 1);
-await apiTester.testPagination('/api/users', 1, 5);
-await apiTester.testValidationError('/api/users', 'post', invalidData);
+await apiTester.testGetAll('/users');
+await apiTester.testGetById('/users', 1);
+await apiTester.testCreate('/users', userData);
+await apiTester.testUpdate('/users', 1, updateData);
+await apiTester.testDelete('/users', 1);
+await apiTester.testPagination('/users', 1, 5);
+await apiTester.testValidationError('/users', 'post', invalidData);
 ```
 
 ### Sample Data
@@ -196,31 +196,31 @@ const user = await db.createUser(sampleUsers[0]);
 
 The test suite covers:
 
-### Users API (`/api/users`)
+### Users API (`/users`)
 
-- ✅ GET /api/users (with pagination and filtering)
-- ✅ GET /api/users/:id
-- ✅ POST /api/users (with validation)
-- ✅ PUT /api/users/:id
-- ✅ DELETE /api/users/:id
-- ✅ GET /api/users/:id/posts
-- ✅ GET /api/users/:id/todos
+- ✅ GET /users (with pagination and filtering)
+- ✅ GET /users/:id
+- ✅ POST /users (with validation)
+- ✅ PUT /users/:id
+- ✅ DELETE /users/:id
+- ✅ GET /users/:id/posts
+- ✅ GET /users/:id/todos
 
-### Posts API (`/api/posts`)
+### Posts API (`/posts`)
 
-- ✅ GET /api/posts (with pagination and userId filtering)
-- ✅ GET /api/posts/:id
-- ✅ POST /api/posts (with validation)
-- ✅ PUT /api/posts/:id
-- ✅ DELETE /api/posts/:id
+- ✅ GET /posts (with pagination and userId filtering)
+- ✅ GET /posts/:id
+- ✅ POST /posts (with validation)
+- ✅ PUT /posts/:id
+- ✅ DELETE /posts/:id
 
-### Todos API (`/api/todos`)
+### Todos API (`/todos`)
 
-- ✅ GET /api/todos (with pagination, userId, and completed filtering)
-- ✅ GET /api/todos/:id
-- ✅ POST /api/todos (with validation)
-- ✅ PUT /api/todos/:id
-- ✅ DELETE /api/todos/:id
+- ✅ GET /todos (with pagination, userId, and completed filtering)
+- ✅ GET /todos/:id
+- ✅ POST /todos (with validation)
+- ✅ PUT /todos/:id
+- ✅ DELETE /todos/:id
 
 ### Generic Controller
 
