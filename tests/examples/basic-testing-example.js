@@ -8,7 +8,7 @@
 const axios = require('axios');
 
 // Configuration
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://localhost:8000/api';
 const TEST_USER = {
   name: 'Test User',
   username: 'testuser',

@@ -59,7 +59,7 @@ A comprehensive fake REST API service for developers to test against, built with
    DATABASE_URL="postgresql://username:password@host/database?sslmode=require"
 
    # Server
-   PORT=3000
+   PORT=8000
    NODE_ENV=development
 
    # Rate Limiting
@@ -93,20 +93,20 @@ A comprehensive fake REST API service for developers to test against, built with
    npm run dev
    ```
 
-The API will be available at `http://localhost:3000`
+The API will be available at `http://localhost:8000`
 
 ## 📊 API Endpoints
 
 ### Base URL
 
 ```
-http://localhost:3000
+http://localhost:8000
 ```
 
 ### Web Interface
 
 ```
-http://localhost:3000/
+http://localhost:8000/
 ```
 
 A beautiful web interface with API documentation and quick testing links.
@@ -114,7 +114,7 @@ A beautiful web interface with API documentation and quick testing links.
 ### API Base URL
 
 ```
-http://localhost:3000/api
+http://localhost:8000/api
 ```
 
 ### Health Check
@@ -659,7 +659,7 @@ apimocker/
 | Variable                | Description                              | Default        |
 | ----------------------- | ---------------------------------------- | -------------- |
 | `DATABASE_URL`          | PostgreSQL connection string             | Required       |
-| `PORT`                  | Server port                              | 3000           |
+| `PORT`                  | Server port                              | 8000           |
 | `NODE_ENV`              | Environment (development/production)     | development    |
 | `RATE_LIMIT_WINDOW_MS`  | Rate limit window in milliseconds        | 86400000 (24h) |
 | `RATE_LIMIT_MAX_WRITES` | Maximum write operations per day per IP  | 100            |
@@ -710,7 +710,7 @@ RUN npm ci --only=production
 COPY . .
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 8000
 
 CMD ["npm", "start"]
 ```
