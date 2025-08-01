@@ -27,6 +27,11 @@ export class GenericController {
       const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
       const skip = (page - 1) * limit;
 
+      // Handle sorting
+      const sortField = req.query['_sort'] as string || 'id';
+      const sortOrder = req.query['_order'] as string || 'asc';
+      const orderBy = { [sortField]: sortOrder };
+
       // Build where clause from query parameters
       const where: any = {};
       Object.keys(req.query).forEach((key) => {
@@ -34,12 +39,21 @@ export class GenericController {
           key !== '_limit' &&
           key !== '_page' &&
           key !== 'page' &&
-          key !== 'limit'
+          key !== 'limit' &&
+          key !== '_sort' &&
+          key !== '_order'
         ) {
           const value = req.query[key];
 
-          // Convert query parameters to appropriate types
-          if (key === 'userId' || key === 'id') {
+          // Handle special filtering cases
+          if (key.endsWith('_like')) {
+            // Handle partial text matching (e.g., title_like)
+            const fieldName = key.replace('_like', '');
+            where[fieldName] = {
+              contains: value as string,
+              mode: 'insensitive', // Case-insensitive search
+            };
+          } else if (key === 'userId' || key === 'id') {
             where[key] = Number(value);
           } else if (key === 'completed') {
             where[key] = value === 'true';
@@ -56,12 +70,18 @@ export class GenericController {
           skip,
           take: Number(limit),
           include: this.includeRelations,
-          orderBy: { id: 'asc' },
+          orderBy,
         }),
         model.count({ where }),
       ]);
 
       const totalPages = Math.ceil(total / Number(limit));
+
+      // Add response headers like JSONPlaceholder
+      res.set({
+        'X-Total-Count': total.toString(),
+        'Access-Control-Expose-Headers': 'X-Total-Count',
+      });
 
       res.json({
         data,
