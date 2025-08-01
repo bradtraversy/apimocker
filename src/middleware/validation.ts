@@ -68,6 +68,7 @@ export const validatePost = [
     .withMessage('Body is required and must be between 1 and 5000 characters'),
   
   body('userId')
+    .optional()
     .isInt({ min: 1 })
     .withMessage('userId must be a positive integer'),
   
@@ -81,12 +82,19 @@ export const validateTodo = [
     .isLength({ min: 1, max: 200 })
     .withMessage('Title is required and must be between 1 and 200 characters'),
   
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('Description must be between 1 and 1000 characters'),
+  
   body('completed')
     .optional()
     .isBoolean()
     .withMessage('Completed must be a boolean value'),
   
   body('userId')
+    .optional()
     .isInt({ min: 1 })
     .withMessage('userId must be a positive integer'),
   

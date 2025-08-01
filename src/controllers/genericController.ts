@@ -107,8 +107,15 @@ export class GenericController {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const model = this.prisma[this.modelName as keyof PrismaClient] as any;
+      
+      // Set default userId to 1 for posts and todos if not provided
+      const createData = { ...req.body };
+      if ((this.modelName === 'post' || this.modelName === 'todo') && !createData.userId) {
+        createData.userId = 1;
+      }
+      
       const data = await model.create({
-        data: req.body,
+        data: createData,
         include: this.includeRelations,
       });
 
@@ -125,9 +132,15 @@ export class GenericController {
       const { id } = req.params;
       const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
+      // Set default userId to 1 for posts and todos if not provided
+      const updateData = { ...req.body };
+      if ((this.modelName === 'post' || this.modelName === 'todo') && !updateData.userId) {
+        updateData.userId = 1;
+      }
+
       const data = await model.update({
         where: { id: Number(id) },
-        data: req.body,
+        data: updateData,
         include: this.includeRelations,
       });
 

@@ -219,31 +219,92 @@ const generatePosts = (userId: number) => {
 };
 
 const generateTodos = (userId: number) => {
-  const todoTitles = [
-    'Review pull requests',
-    'Update documentation',
-    'Fix bug in authentication module',
-    'Write unit tests',
-    'Deploy to staging environment',
-    'Code review for team members',
-    'Update dependencies',
-    'Optimize database queries',
-    'Implement new feature',
-    'Refactor legacy code',
-    'Set up monitoring alerts',
-    'Create API documentation',
-    'Fix security vulnerabilities',
-    'Performance testing',
-    'User acceptance testing',
-    'Backup database',
-    'Update SSL certificates',
-    'Monitor system logs',
-    'Plan next sprint',
-    'Attend team meeting',
+  const todoData = [
+    {
+      title: 'Review pull requests',
+      description: 'Review and provide feedback on pending pull requests from team members',
+    },
+    {
+      title: 'Update documentation',
+      description: 'Update API documentation and README files with latest changes',
+    },
+    {
+      title: 'Fix bug in authentication module',
+      description: 'Investigate and fix the reported authentication issue in the login system',
+    },
+    {
+      title: 'Write unit tests',
+      description: 'Add comprehensive unit tests for the new user management features',
+    },
+    {
+      title: 'Deploy to staging environment',
+      description: 'Deploy the latest changes to the staging environment for testing',
+    },
+    {
+      title: 'Code review for team members',
+      description: 'Conduct thorough code reviews for the latest feature implementations',
+    },
+    {
+      title: 'Update dependencies',
+      description: 'Update npm packages and resolve any security vulnerabilities',
+    },
+    {
+      title: 'Optimize database queries',
+      description: 'Analyze and optimize slow database queries for better performance',
+    },
+    {
+      title: 'Implement new feature',
+      description: 'Implement the user notification system as per the requirements',
+    },
+    {
+      title: 'Refactor legacy code',
+      description: 'Refactor the old payment processing module to use modern patterns',
+    },
+    {
+      title: 'Set up monitoring alerts',
+      description: 'Configure monitoring alerts for system health and performance metrics',
+    },
+    {
+      title: 'Create API documentation',
+      description: 'Generate comprehensive API documentation using OpenAPI/Swagger',
+    },
+    {
+      title: 'Fix security vulnerabilities',
+      description: 'Address security issues identified in the latest security audit',
+    },
+    {
+      title: 'Performance testing',
+      description: 'Conduct load testing to ensure the system can handle expected traffic',
+    },
+    {
+      title: 'User acceptance testing',
+      description: 'Coordinate with stakeholders for user acceptance testing of new features',
+    },
+    {
+      title: 'Backup database',
+      description: 'Create a full backup of the production database before major updates',
+    },
+    {
+      title: 'Update SSL certificates',
+      description: 'Renew and update SSL certificates for all production domains',
+    },
+    {
+      title: 'Monitor system logs',
+      description: 'Monitor application logs for any errors or performance issues',
+    },
+    {
+      title: 'Plan next sprint',
+      description: 'Plan and prioritize tasks for the upcoming development sprint',
+    },
+    {
+      title: 'Attend team meeting',
+      description: 'Participate in the weekly team meeting to discuss progress and blockers',
+    },
   ];
 
-  return todoTitles.map((title) => ({
-    title,
+  return todoData.map((todo) => ({
+    title: todo.title,
+    description: todo.description,
     completed: Math.random() > 0.6, // 40% chance of being completed
     userId,
   }));

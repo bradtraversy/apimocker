@@ -365,10 +365,11 @@ Content-Type: application/json
 ```json
 {
   "title": "New Post Title",
-  "body": "This is the content of the new post...",
-  "userId": 1
+  "body": "This is the content of the new post..."
 }
 ```
+
+**Note:** `userId` is optional and defaults to user ID 1 if not provided.
 
 #### Update Post
 
@@ -453,10 +454,12 @@ Content-Type: application/json
 ```json
 {
   "title": "New Todo Item",
-  "completed": false,
-  "userId": 1
+  "description": "Optional description for the todo item",
+  "completed": false
 }
 ```
+
+**Note:** `userId` and `description` are optional. `userId` defaults to user ID 1 if not provided.
 
 #### Update Todo
 
@@ -527,13 +530,14 @@ All endpoints include comprehensive input validation:
 
 - **title**: Required, 1-200 characters
 - **body**: Required, 1-5000 characters
-- **userId**: Required, positive integer
+- **userId**: Optional, positive integer (defaults to user ID 1 if not provided)
 
 ### Todo Validation
 
 - **title**: Required, 1-200 characters
+- **description**: Optional, 1-1000 characters
 - **completed**: Optional, boolean value
-- **userId**: Required, positive integer
+- **userId**: Optional, positive integer (defaults to user ID 1 if not provided)
 
 ### Validation Error Response
 
