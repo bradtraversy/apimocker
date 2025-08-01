@@ -22,14 +22,21 @@ export class GenericController {
   // Get all resources with pagination and filtering
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { page = 1, limit = 10, ...filters } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
+      // Handle both page/limit and _page/_limit parameters
+      const page = Number(req.query.page || req.query._page || 1);
+      const limit = Number(req.query.limit || req.query._limit || 10);
+      const skip = (page - 1) * limit;
 
       // Build where clause from query parameters
       const where: any = {};
-      Object.keys(filters).forEach((key) => {
-        if (key !== '_limit' && key !== '_page') {
-          where[key] = filters[key];
+      Object.keys(req.query).forEach((key) => {
+        if (
+          key !== '_limit' &&
+          key !== '_page' &&
+          key !== 'page' &&
+          key !== 'limit'
+        ) {
+          where[key] = req.query[key];
         }
       });
 
@@ -149,8 +156,10 @@ export class GenericController {
   ) => {
     try {
       const { id } = req.params;
-      const { page = 1, limit = 10 } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
+      // Handle both page/limit and _page/_limit parameters
+      const page = Number(req.query.page || req.query._page || 1);
+      const limit = Number(req.query.limit || req.query._limit || 10);
+      const skip = (page - 1) * limit;
       const model = this.prisma[relationModel as keyof PrismaClient] as any;
 
       const [data, total] = await Promise.all([
