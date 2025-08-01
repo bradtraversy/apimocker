@@ -15,10 +15,10 @@ export class PostsController extends GenericController {
     });
   }
 
-  // Search posts by title and body
+  // Search posts by title and body with sorting and limiting
   search = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { q, _delay } = req.query;
+      const { q, _delay, _sort, _order, _limit, _page } = req.query;
       
       // Handle response delay simulation
       const delay = Number(_delay || 0);
@@ -35,28 +35,56 @@ export class PostsController extends GenericController {
 
       const searchTerm = q.trim();
       
-      const posts = await prisma.post.findMany({
-        where: {
-          OR: [
-            { title: { contains: searchTerm, mode: 'insensitive' } },
-            { body: { contains: searchTerm, mode: 'insensitive' } },
-          ],
-        },
-        take: 10,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              username: true,
+      // Handle sorting and limiting
+      const sortField = (_sort as string) || 'id';
+      const sortOrder = (_order as string) || 'asc';
+      const limit = Number(_limit || 10);
+      const page = Number(_page || 1);
+      const skip = (page - 1) * limit;
+      
+      const orderBy = { [sortField]: sortOrder };
+      
+      const [posts, total] = await Promise.all([
+        prisma.post.findMany({
+          where: {
+            OR: [
+              { title: { contains: searchTerm, mode: 'insensitive' } },
+              { body: { contains: searchTerm, mode: 'insensitive' } },
+            ],
+          },
+          take: limit,
+          skip,
+          orderBy,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+              },
             },
           },
-        },
-      });
+        }),
+        prisma.post.count({
+          where: {
+            OR: [
+              { title: { contains: searchTerm, mode: 'insensitive' } },
+              { body: { contains: searchTerm, mode: 'insensitive' } },
+            ],
+          },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(total / limit);
 
       res.json({
         query: searchTerm,
-        total: posts.length,
+        total,
+        totalPages,
+        page,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
         results: posts,
       });
       return;
