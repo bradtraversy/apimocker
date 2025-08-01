@@ -6,7 +6,11 @@ const writeCounts = new Map<string, { count: number; resetTime: number }>();
 
 // Rate limiter for write operations (POST, PUT, DELETE)
 export const writeRateLimiter = (req: Request, res: Response, next: Function) => {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  // Get IP address, handling proxy scenarios
+  const ip = req.ip || 
+             req.headers['x-forwarded-for']?.toString().split(',')[0] || 
+             req.connection.remoteAddress || 
+             'unknown';
   const now = Date.now();
   const windowMs = parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '86400000'); // 24 hours
   const maxWrites = parseInt(process.env['RATE_LIMIT_MAX_WRITES'] || '100');

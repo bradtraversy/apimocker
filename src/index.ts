@@ -23,6 +23,9 @@ dotenv.config();
 const app = express();
 const port = process.env['PORT'] || 8000;
 
+// Trust proxy for rate limiting behind load balancers/proxies
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet());
 app.use(cors());
