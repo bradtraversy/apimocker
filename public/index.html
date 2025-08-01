@@ -368,8 +368,14 @@
                 <h3>Advanced Features</h3>
                 <div class="endpoint">
                     <span class="method get">GET</span>
-                    <span class="url">/search?q=term</span>
-                    <div class="description">Global search across all resources</div>
+                    <span class="url">/posts/search?q=development</span>
+                    <div class="description">Search posts by title and content</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/users/search?q=john</span>
+                    <div class="description">Search users by name, username, or email</div>
                 </div>
                 
                 <div class="endpoint">
@@ -398,7 +404,7 @@
                 <a href="/posts" class="btn">Get Posts</a>
                 <a href="/todos" class="btn">Get Todos</a>
                 <a href="/comments" class="btn">Get Comments</a>
-                <a href="/search?q=development" class="btn">Search</a>
+                <a href="/posts/search?q=development" class="btn">Search Posts</a>
                 <a href="/health" class="btn">Health Check</a>
             </div>
 
@@ -437,11 +443,17 @@
                     <div class="description">Advanced filtering with text search and sorting</div>
                 </div>
                 
-                <h3>Global Search</h3>
+                <h3>Resource Search</h3>
                 <div class="endpoint">
                     <span class="method get">GET</span>
-                    <span class="url">/search?q=development&type=posts</span>
-                    <div class="description">Search across all resources or specific types</div>
+                    <span class="url">/posts/search?q=development</span>
+                    <div class="description">Search posts by title and content</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/users/search?q=john</span>
+                    <div class="description">Search users by name, username, or email</div>
                 </div>
                 
                 <h3>Response Delay</h3>
