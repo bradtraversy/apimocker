@@ -611,7 +611,11 @@ npm run db:reset     # Reset and reseed database
 npm run db:studio    # Open Prisma Studio
 
 # Testing
-npm test             # Run tests (when implemented)
+npm test             # Run all tests
+npm run test:watch   # Run tests in watch mode
+npm run test:coverage # Run tests with coverage
+npm run test:integration # Run only integration tests
+npm run test:unit    # Run only unit tests
 ```
 
 ## 📁 Project Structure
@@ -711,13 +715,64 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
+## 🧪 Testing
+
+ApiMocker includes a comprehensive testing suite with both integration and unit tests.
+
+### Quick Start
+
+1. **Set up test environment**:
+
+   ```bash
+   # Create test database
+   createdb apimocker_test
+
+   # Set up test environment variables
+   cp .env.example .env.test
+   # Edit .env.test with test database URL
+   ```
+
+2. **Run tests**:
+
+   ```bash
+   # Run all tests
+   npm test
+
+   # Run with coverage
+   npm run test:coverage
+
+   # Run specific test types
+   npm run test:integration
+   npm run test:unit
+   ```
+
+### Test Types
+
+- **Integration Tests**: Full API endpoint testing with real database operations
+- **Unit Tests**: Individual component testing with mocked dependencies
+- **Manual Testing**: Example scripts for manual API testing
+
+### Test Coverage
+
+The test suite covers:
+
+- ✅ All CRUD operations for Users, Posts, and Todos
+- ✅ Pagination and filtering
+- ✅ Input validation and error handling
+- ✅ Rate limiting enforcement
+- ✅ Database relationships
+- ✅ Edge cases and boundary conditions
+
+For detailed testing information, see [tests/README.md](tests/README.md).
+
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
 ## 📄 License
 
