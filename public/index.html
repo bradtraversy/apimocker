@@ -52,6 +52,14 @@
             margin-bottom: 1rem;
             font-size: 1.5rem;
         }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.5rem;
+        }
         .endpoint {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -158,8 +166,8 @@
                     <p>Todos</p>
                 </div>
                 <div class="stat">
-                    <h3>24h</h3>
-                    <p>Daily Reset</p>
+                    <h3>500</h3>
+                    <p>Comments</p>
                 </div>
             </div>
 
@@ -179,8 +187,20 @@
                         <p>Built-in pagination with customizable limits</p>
                     </div>
                     <div class="feature">
-                        <h4>🔍 Filtering</h4>
-                        <p>Query-based filtering for all resources</p>
+                        <h4>🔍 Advanced Filtering</h4>
+                        <p>Text search, sorting, and complex filtering</p>
+                    </div>
+                    <div class="feature">
+                        <h4>🔎 Global Search</h4>
+                        <p>Search across all resources with type filtering</p>
+                    </div>
+                    <div class="feature">
+                        <h4>⏱️ Delay Simulation</h4>
+                        <p>Test loading states with configurable delays</p>
+                    </div>
+                    <div class="feature">
+                        <h4>🚨 Error Simulation</h4>
+                        <p>Dedicated endpoints for testing error handling</p>
                     </div>
                     <div class="feature">
                         <h4>📝 Logging</h4>
@@ -197,6 +217,7 @@
                 <h2>🔗 API Endpoints</h2>
                 <p>All endpoints are available under <code>/api</code> prefix:</p>
                 
+                <h3>Users</h3>
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     <span class="url">/api/users</span>
@@ -216,11 +237,61 @@
                 </div>
                 
                 <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/users/:id</span>
+                    <div class="description">Update user</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="url">/api/users/:id</span>
+                    <div class="description">Partial update user</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/users/:id</span>
+                    <div class="description">Delete user</div>
+                </div>
+                
+                <h3>Posts</h3>
+                <div class="endpoint">
                     <span class="method get">GET</span>
                     <span class="url">/api/posts</span>
                     <div class="description">Get all posts with filtering</div>
                 </div>
                 
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/posts/:id</span>
+                    <div class="description">Get post by ID</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/posts</span>
+                    <div class="description">Create a new post</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/posts/:id</span>
+                    <div class="description">Update post</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="url">/api/posts/:id</span>
+                    <div class="description">Partial update post</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/posts/:id</span>
+                    <div class="description">Delete post</div>
+                </div>
+                
+                <h3>Todos</h3>
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     <span class="url">/api/todos</span>
@@ -229,14 +300,94 @@
                 
                 <div class="endpoint">
                     <span class="method get">GET</span>
-                    <span class="url">/api/users/:id/posts</span>
-                    <div class="description">Get posts by user ID</div>
+                    <span class="url">/api/todos/:id</span>
+                    <div class="description">Get todo by ID</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/todos</span>
+                    <div class="description">Create a new todo</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/todos/:id</span>
+                    <div class="description">Update todo</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="url">/api/todos/:id</span>
+                    <div class="description">Partial update todo</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/todos/:id</span>
+                    <div class="description">Delete todo</div>
+                </div>
+                
+                <h3>Comments</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/comments</span>
+                    <div class="description">Get all comments with post filtering</div>
                 </div>
                 
                 <div class="endpoint">
                     <span class="method get">GET</span>
-                    <span class="url">/api/users/:id/todos</span>
-                    <div class="description">Get todos by user ID</div>
+                    <span class="url">/api/comments/:id</span>
+                    <div class="description">Get comment by ID</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/comments</span>
+                    <div class="description">Create a new comment</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/comments/:id</span>
+                    <div class="description">Update comment</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="url">/api/comments/:id</span>
+                    <div class="description">Partial update comment</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/comments/:id</span>
+                    <div class="description">Delete comment</div>
+                </div>
+                
+                <h3>Advanced Features</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/search?q=term</span>
+                    <div class="description">Global search across all resources</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/posts?title_like=web</span>
+                    <div class="description">Advanced filtering with text search</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/posts?_delay=2000</span>
+                    <div class="description">Response delay simulation</div>
+                </div>
+                
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/error/404</span>
+                    <div class="description">Simulate 404 error for testing</div>
                 </div>
             </div>
 
@@ -246,6 +397,8 @@
                 <a href="/api/users" class="btn">Get Users</a>
                 <a href="/api/posts" class="btn">Get Posts</a>
                 <a href="/api/todos" class="btn">Get Todos</a>
+                <a href="/api/comments" class="btn">Get Comments</a>
+                <a href="/api/search?q=development" class="btn">Search</a>
                 <a href="/health" class="btn">Health Check</a>
             </div>
 

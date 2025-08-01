@@ -5,11 +5,15 @@ A comprehensive fake REST API service for developers to test against, built with
 ## ✨ Features
 
 - **Full CRUD Operations** - Create, Read, Update, Delete for all resources
-- **Realistic Data** - 10 users, 100 posts, 200 todos with realistic content
+- **PATCH Method Support** - Partial updates for posts and todos
+- **Advanced Filtering** - `_like`, `_sort`, `_order` parameters with `X-Total-Count` headers
+- **Global Search** - Search across all resources with type filtering
+- **Response Delay Simulation** - `_delay` parameter for testing loading states
+- **Error Simulation** - Dedicated endpoints for testing error handling
+- **Realistic Data** - 10 users, 100 posts, 200 todos, 500 comments with realistic content
 - **Rate Limiting** - Configurable limits to prevent abuse
 - **Input Validation** - Comprehensive validation for all endpoints
-- **Pagination** - Built-in pagination support
-- **Filtering** - Query-based filtering for all resources
+- **Pagination** - Built-in pagination support with `_page` and `_limit`
 - **Daily Reset** - Automatic database reset at midnight UTC
 - **Comprehensive Logging** - Request/response logging with Winston
 - **TypeScript** - Full type safety throughout the application
@@ -115,6 +119,37 @@ A beautiful web interface with API documentation and quick testing links.
 
 ```
 http://localhost:8000/api
+```
+
+## 🔍 Advanced Features
+
+### Global Search
+Search across all resources with the global search endpoint:
+
+```http
+GET /api/search?q=development&type=posts
+```
+
+**Parameters:**
+- `q` (required): Search query
+- `type` (optional): Resource type (users, posts, todos, comments, all)
+- `_delay` (optional): Response delay in milliseconds
+
+### Response Delay Simulation
+Test loading states by adding delays to any request:
+
+```http
+GET /api/posts?_delay=2000
+```
+
+### Error Simulation
+Test error handling with dedicated error endpoints:
+
+```http
+GET /api/error/404
+GET /api/error/500
+GET /api/error/validation
+GET /api/error/timeout
 ```
 
 ### Health Check
@@ -472,6 +507,143 @@ Content-Type: application/json
 
 ```http
 DELETE /api/todos/:id
+```
+
+### Comments
+
+#### Get All Comments
+
+```http
+GET /api/comments
+```
+
+**Query Parameters:**
+
+- `_page` (optional): Page number (default: 1)
+- `_limit` (optional): Items per page (default: 10)
+- `postId` (optional): Filter by post ID
+- `name_like` (optional): Search by commenter name
+- `email_like` (optional): Search by email
+
+**Example:**
+
+```http
+GET /api/comments?postId=1&_page=1&_limit=5
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "body": "Great article! This really helped me understand the concepts better.",
+      "postId": 1,
+      "post": {
+        "id": 1,
+        "title": "Getting Started with Modern Web Development"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 500,
+    "totalPages": 100,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+#### Get Comment by ID
+
+```http
+GET /api/comments/:id
+```
+
+#### Create Comment
+
+```http
+POST /api/comments
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "name": "Commenter Name",
+  "email": "commenter@example.com",
+  "body": "This is a comment on the post",
+  "postId": 1
+}
+```
+
+#### Update Comment
+
+```http
+PUT /api/comments/:id
+Content-Type: application/json
+```
+
+#### Delete Comment
+
+```http
+DELETE /api/comments/:id
+```
+
+## 🔍 Advanced Filtering & Querying
+
+ApiMocker supports powerful filtering, sorting, and querying capabilities:
+
+### Pagination
+- `_page` or `page`: Page number (default: 1)
+- `_limit` or `limit`: Items per page (default: 10, max: 100)
+
+### Sorting
+- `_sort`: Field to sort by (e.g., `title`, `id`, `createdAt`)
+- `_order`: Sort order (`asc` or `desc`)
+
+### Text Search
+- `field_like`: Partial text matching (case-insensitive)
+  - `title_like=web` - Search posts with "web" in title
+  - `name_like=john` - Search users with "john" in name
+  - `body_like=development` - Search posts with "development" in body
+
+### Response Headers
+- `X-Total-Count`: Total number of items (for pagination)
+
+### Examples
+
+**Basic pagination:**
+```http
+GET /api/posts?_page=2&_limit=5
+```
+
+**Sorting:**
+```http
+GET /api/posts?_sort=title&_order=asc
+```
+
+**Text search:**
+```http
+GET /api/posts?title_like=development
+```
+
+**Combined filtering:**
+```http
+GET /api/todos?completed=true&userId=1&_sort=title&_order=desc&_page=1&_limit=10
+```
+
+**With delay simulation:**
+```http
+GET /api/posts?title_like=web&_delay=2000
 ```
 
 ## 🔒 Rate Limiting
