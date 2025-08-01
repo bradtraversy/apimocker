@@ -84,7 +84,7 @@ export class GenericController {
 
       const totalPages = Math.ceil(total / Number(limit));
 
-      // Add response headers like JSONPlaceholder
+      // Add response headers for pagination info
       res.set({
         'X-Total-Count': total.toString(),
         'Access-Control-Expose-Headers': 'X-Total-Count',

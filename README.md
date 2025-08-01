@@ -1,6 +1,6 @@
 # ApiMocker 🚀
 
-A comprehensive fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL. Similar to JSONPlaceholder but with enhanced features including rate limiting, validation, and realistic data.
+A comprehensive fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL. Features include rate limiting, validation, realistic data, and advanced filtering capabilities.
 
 ## ✨ Features
 

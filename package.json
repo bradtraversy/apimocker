@@ -1,7 +1,7 @@
 {
   "name": "apimocker",
   "version": "1.0.0",
-  "description": "A fake REST API service like JSONPlaceholder for developers to test against",
+  "description": "A comprehensive fake REST API service for developers to test against",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
