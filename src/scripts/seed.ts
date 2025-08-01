@@ -258,7 +258,12 @@ export const seedDatabase = async () => {
     await prisma.post.deleteMany();
     await prisma.user.deleteMany();
 
-    logger.info('Existing data cleared');
+    // Reset auto-increment sequences to start from 1
+    await prisma.$executeRaw`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE posts_id_seq RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE todos_id_seq RESTART WITH 1`;
+
+    logger.info('Existing data cleared and sequences reset to start from 1');
 
     // Create users
     const users = await Promise.all(

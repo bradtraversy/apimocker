@@ -15,6 +15,13 @@ export const resetDatabase = async () => {
 
     logger.info('All data cleared successfully');
 
+    // Reset auto-increment sequences to start from 1
+    await prisma.$executeRaw`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE posts_id_seq RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE todos_id_seq RESTART WITH 1`;
+
+    logger.info('Auto-increment sequences reset to start from 1');
+
     // Reseed with fresh data
     await seedDatabase();
 
