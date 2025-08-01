@@ -1,28 +1,28 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 
 const router = Router();
 
 // Error simulation endpoints (for testing error handling)
-router.get('/404', (_req, res) => {
+router.get('/404', (_req: Request, res: Response) => {
   res.status(404).json({
     error: 'Not Found',
     message: 'This endpoint simulates a 404 error for testing purposes',
   });
 });
 
-router.get('/500', (_req, res) => {
+router.get('/500', (_req: Request, res: Response) => {
   res.status(500).json({
     error: 'Internal Server Error',
     message: 'This endpoint simulates a 500 error for testing purposes',
   });
 });
 
-router.get('/timeout', (_req, res) => {
+router.get('/timeout', (_req: Request, _res: Response) => {
   // Simulate a timeout by not responding
   // This will eventually timeout the request
 });
 
-router.get('/validation', (_req, res) => {
+router.get('/validation', (_req: Request, res: Response) => {
   res.status(400).json({
     error: 'Validation Error',
     message: 'This endpoint simulates a validation error for testing purposes',

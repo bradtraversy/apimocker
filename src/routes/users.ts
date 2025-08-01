@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { GenericController } from '../controllers/genericController';
 import { prisma } from '../lib/prisma';
 import { validateUser } from '../middleware/validation';
@@ -15,12 +15,12 @@ router.get('/', userController.getAll);
 router.get('/:id', userController.getById);
 
 // GET /users/:id/posts - Get user's posts
-router.get('/:id/posts', (req, res, next) => {
+router.get('/:id/posts', (req: Request, res: Response, next: NextFunction) => {
   userController.getRelated(req, res, next, 'post', 'userId');
 });
 
 // GET /users/:id/todos - Get user's todos
-router.get('/:id/todos', (req, res, next) => {
+router.get('/:id/todos', (req: Request, res: Response, next: NextFunction) => {
   userController.getRelated(req, res, next, 'todo', 'userId');
 });
 
