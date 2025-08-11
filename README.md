@@ -4,6 +4,8 @@ A comprehensive fake REST API service for developers to test against, built with
 
 **Live Demo:** https://apimocker.com
 
+<img src="./public/screen.png" width="500">
+
 ## ⚡ Quick Usage (Hosted)
 
 - **Hosted Base URL**: https://apimocker.com
