@@ -2,6 +2,50 @@
 
 A comprehensive fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL. Features include rate limiting, validation, realistic data, and advanced filtering capabilities.
 
+**Live Demo:** https://apimocker.com
+
+## ⚡ Quick Usage (Hosted)
+
+- **Hosted Base URL**: https://apimocker.com
+- All responses are JSON and support pagination, filtering, and sorting.
+
+### Core Endpoints
+
+- Users
+  - GET `https://apimocker.com/users`
+  - GET `https://apimocker.com/users/1`
+  - GET `https://apimocker.com/users/1/posts`
+  - GET `https://apimocker.com/users/1/todos`
+  - GET `https://apimocker.com/users/search?q=john`
+- Posts
+  - GET `https://apimocker.com/posts`
+  - GET `https://apimocker.com/posts/1`
+  - GET `https://apimocker.com/posts?userId=1&_page=1&_limit=10`
+  - GET `https://apimocker.com/posts/search?q=development&_sort=id&_order=desc&_page=1&_limit=5`
+- Todos
+  - GET `https://apimocker.com/todos`
+  - GET `https://apimocker.com/todos/1`
+  - GET `https://apimocker.com/todos?completed=true&_page=1&_limit=10`
+  - GET `https://apimocker.com/todos/search?q=review`
+- Comments
+  - GET `https://apimocker.com/comments`
+  - GET `https://apimocker.com/comments/1`
+  - GET `https://apimocker.com/comments?postId=1&_page=1&_limit=5`
+  - GET `https://apimocker.com/comments/search?q=great`
+
+### Useful Query Params
+
+- Pagination: `_page`, `_limit`
+- Sorting: `_sort`, `_order` (e.g., `_sort=title&_order=asc`)
+- Text search: `field_like` (e.g., `title_like=web`)
+- Response delay (simulate latency): `_delay=2000`
+
+### Health Check
+
+- GET `https://apimocker.com/health`
+
+---
+
 ## ✨ Features
 
 - **Full CRUD Operations** - Create, Read, Update, Delete for all resources
