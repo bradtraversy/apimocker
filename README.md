@@ -4,6 +4,8 @@ A comprehensive fake REST API service for developers to test against, built with
 
 **Live Demo:** https://apimocker.com
 
+You can test it out with my API probe tool - https://apiprobe.dev
+
 <img src="./public/screen.png" width="500">
 
 ## ⚡ Quick Usage (Hosted)
