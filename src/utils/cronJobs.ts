@@ -12,11 +12,20 @@ export const setupCronJobs = () => {
 
       try {
         // Clear all data
+        await prisma.comment.deleteMany();
         await prisma.todo.deleteMany();
         await prisma.post.deleteMany();
         await prisma.user.deleteMany();
 
         logger.info('Database cleared successfully');
+
+        // Reset auto-increment sequences to start from 1
+        await prisma.$executeRaw`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+        await prisma.$executeRaw`ALTER SEQUENCE posts_id_seq RESTART WITH 1`;
+        await prisma.$executeRaw`ALTER SEQUENCE todos_id_seq RESTART WITH 1`;
+        await prisma.$executeRaw`ALTER SEQUENCE comments_id_seq RESTART WITH 1`;
+
+        logger.info('Sequences reset successfully');
 
         // Reseed with fresh data
         await seedDatabase();
