@@ -100,6 +100,11 @@ body {
     color: #856404; 
 }
 
+.patch { 
+    background: #ceb4f2; 
+    color: #6e3db8; 
+}
+
 .delete { 
     background: #f8d7da; 
     color: #721c24; 
@@ -176,5 +181,5 @@ body {
 .footer {
     text-align: center;
     margin-top: 2rem;
-    color: #666;
+    color: #d2d2d2;
 } 
