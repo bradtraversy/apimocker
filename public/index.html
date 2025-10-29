@@ -257,7 +257,19 @@
                     <span class="url">/posts/:id</span>
                     <div class="description">Delete post</div>
                 </div>
-                
+
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="url">/posts/:id/likes</span>
+                    <div class="description">Get number of likes for a post</div>
+                </div>
+
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="url">/posts/:id/likes</span>
+                    <div class="description">Add a like to a post (optional userId in body)</div>
+                </div>
+
                 <h3>Todos</h3>
                 <div class="endpoint">
                     <span class="method get">GET</span>
@@ -467,6 +479,21 @@
                         &nbsp;&nbsp;"completed": true<br>
                         }
                         </code>
+                    </div>
+                </div>
+
+                <h3>Add a Like to a Post</h3>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="url">/posts/1/likes</span>
+                    <div class="description">
+                        <strong>Body (optional):</strong><br>
+                        <code style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: block; margin-top: 0.5rem;">
+                        {<br>
+                        &nbsp;&nbsp;"userId": 1<br>
+                        }
+                        </code>
+                        <br><strong>Response:</strong> Returns like object with total likes count
                     </div>
                 </div>
             </div>

@@ -26,6 +26,8 @@ You can test it out with my API probe tool - https://apiprobe.dev
   - GET `https://apimocker.com/posts/1`
   - GET `https://apimocker.com/posts?userId=1&_page=1&_limit=10`
   - GET `https://apimocker.com/posts/search?q=development&_sort=id&_order=desc&_page=1&_limit=5`
+  - GET `https://apimocker.com/posts/1/likes`
+  - POST `https://apimocker.com/posts/1/likes`
 - Todos
   - GET `https://apimocker.com/todos`
   - GET `https://apimocker.com/todos/1`
@@ -465,6 +467,59 @@ Content-Type: application/json
 
 ```http
 DELETE /posts/:id
+```
+
+#### Get Post Likes
+
+```http
+GET /posts/:id/likes
+```
+
+**Example:**
+
+```http
+GET /posts/1/likes
+```
+
+**Response:**
+
+```json
+{
+  "postId": 1,
+  "likes": 42
+}
+```
+
+#### Add Like to Post
+
+```http
+POST /posts/:id/likes
+Content-Type: application/json
+```
+
+**Request Body (optional):**
+
+```json
+{
+  "userId": 1
+}
+```
+
+**Note:** `userId` is optional. Omit it for anonymous likes.
+
+**Response:**
+
+```json
+{
+  "message": "Like added successfully",
+  "like": {
+    "id": 123,
+    "postId": 1,
+    "userId": 1,
+    "createdAt": "2024-01-15T10:30:00.000Z"
+  },
+  "totalLikes": 43
+}
 ```
 
 ### Todos
