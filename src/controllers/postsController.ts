@@ -93,4 +93,96 @@ export class PostsController extends GenericController {
       return;
     }
   };
+
+  // GET /posts/:id/likes - Get number of likes for a post
+  getLikes = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const postId = parseInt(id || '0');
+
+      if (isNaN(postId)) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Invalid post ID',
+        });
+      }
+
+      // Check if post exists
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+      });
+
+      if (!post) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: `Post with id ${postId} not found`,
+        });
+      }
+
+      // Count likes for the post
+      const likesCount = await prisma.like.count({
+        where: { postId },
+      });
+
+      res.json({
+        postId,
+        likes: likesCount,
+      });
+      return;
+    } catch (error) {
+      next(error);
+      return;
+    }
+  };
+
+  // POST /posts/:id/likes - Add a like to a post
+  addLike = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const postId = parseInt(id || '0');
+      const { userId } = req.body;
+
+      if (isNaN(postId)) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Invalid post ID',
+        });
+      }
+
+      // Check if post exists
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+      });
+
+      if (!post) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: `Post with id ${postId} not found`,
+        });
+      }
+
+      // Create the like
+      const like = await prisma.like.create({
+        data: {
+          postId,
+          userId: userId ? parseInt(userId) : null,
+        },
+      });
+
+      // Get updated likes count
+      const likesCount = await prisma.like.count({
+        where: { postId },
+      });
+
+      res.status(201).json({
+        message: 'Like added successfully',
+        like,
+        totalLikes: likesCount,
+      });
+      return;
+    } catch (error) {
+      next(error);
+      return;
+    }
+  };
 } 
