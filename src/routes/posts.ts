@@ -14,6 +14,12 @@ router.get('/search', postsController.search);
 // GET /posts/:id - Get single post
 router.get('/:id', postsController.getById);
 
+// GET /posts/:id/likes - Get number of likes for a post
+router.get('/:id/likes', postsController.getLikes);
+
+// POST /posts/:id/likes - Add a like to a post
+router.post('/:id/likes', postsController.addLike);
+
 // POST /posts - Create post
 router.post('/', validatePost, postsController.create);
 
