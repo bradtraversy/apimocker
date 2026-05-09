@@ -132,7 +132,7 @@ export class GenericController {
         });
       }
 
-      return res.json({ data });
+      return res.json(data);
     } catch (error) {
       return next(error);
     }
@@ -155,7 +155,7 @@ export class GenericController {
       });
 
       logger.info(`Created ${this.modelName}`, { id: data.id });
-      res.status(201).json({ data });
+      res.status(201).json(data);
     } catch (error) {
       next(error);
     }
@@ -180,7 +180,7 @@ export class GenericController {
       });
 
       logger.info(`Updated ${this.modelName}`, { id: data.id });
-      res.json({ data });
+      res.json(data);
     } catch (error) {
       next(error);
     }

@@ -163,19 +163,26 @@ The API will be available at `http://localhost:8000`
 http://localhost:8000
 ```
 
-### Web Interface
+The web interface lives at the same root (`http://localhost:8000/`) and serves
+API documentation and quick testing links.
 
-```
-http://localhost:8000/
-```
+### Response Format
 
-A beautiful web interface with API documentation and quick testing links.
+- **List endpoints** (e.g. `GET /posts`, `GET /users/:id/posts`) wrap the array
+  so pagination metadata can ride along:
 
-### API Base URL
+  ```json
+  { "data": [ ... ], "pagination": { "page": 1, "total": 100, ... } }
+  ```
 
-```
-http://localhost:8000
-```
+- **Single-resource endpoints** (e.g. `GET /posts/1`, `POST /posts`,
+  `PUT /posts/1`) return the bare resource object — no wrapper:
+
+  ```json
+  { "id": 1, "title": "...", "body": "...", "user": { ... } }
+  ```
+
+- `DELETE` returns `204 No Content` with an empty body.
 
 ## 🔍 Advanced Features
 
