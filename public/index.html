@@ -27,45 +27,30 @@
     <meta property="twitter:image" content="https://apimocker.com/favicon.ico">
     
     <!-- Additional SEO Meta Tags -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="msapplication-TileColor" content="#0a0a0a">
     <meta name="application-name" content="ApiMocker">
     <meta name="apple-mobile-web-app-title" content="ApiMocker">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="color-scheme" content="dark">
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://apimocker.com/">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.ico">
-    
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <!-- Stylesheet -->
     <link rel="stylesheet" href="/styles.css">
 
-    <!-- GitHub Icon Styles -->
-    <style>
-      .github-icon {
-        position: fixed;
-        top: 16px;
-        right: 16px;
-        z-index: 1000;
-        color: #fff;
-        opacity: 0.9;
-        transition: transform 0.15s ease, opacity 0.15s ease;
-      }
-      .github-icon:hover { opacity: 1; transform: scale(1.06); }
-      .github-icon svg { display: block; }
-      .sr-only {
-        position: absolute;
-        width: 1px; height: 1px;
-        padding: 0; margin: -1px;
-        overflow: hidden; clip: rect(0, 0, 1px, 1px);
-        white-space: nowrap; border: 0;
-      }
-    </style>
-    
+
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -83,10 +68,10 @@
         },
         "featureList": [
             "Rate Limiting",
-            "Input Validation", 
+            "Input Validation",
             "Pagination",
             "Advanced Filtering",
-            "Global Search",
+            "Per-Resource Search",
             "Delay Simulation",
             "Error Simulation",
             "Request Logging",
@@ -405,7 +390,7 @@
                 <p>No authentication required! This is a public API for testing purposes.</p>
                 
                 <h3>Rate Limiting</h3>
-                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <ul>
                     <li><strong>Write Operations:</strong> 100 requests per day per IP</li>
                     <li><strong>Read Operations:</strong> 1000 requests per 15 minutes per IP</li>
                     <li><strong>Reset:</strong> Daily at midnight UTC</li>
@@ -459,7 +444,7 @@
                     <span class="url">/posts</span>
                     <div class="description">
                         <strong>Body:</strong><br>
-                        <code style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: block; margin-top: 0.5rem;">
+                        <code class="code-block">
                         {<br>
                         &nbsp;&nbsp;"title": "My New Post",<br>
                         &nbsp;&nbsp;"body": "This is the content of my post"<br>
@@ -474,7 +459,7 @@
                     <span class="url">/todos/1</span>
                     <div class="description">
                         <strong>Body:</strong><br>
-                        <code style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: block; margin-top: 0.5rem;">
+                        <code class="code-block">
                         {<br>
                         &nbsp;&nbsp;"completed": true<br>
                         }
@@ -488,7 +473,7 @@
                     <span class="url">/posts/1/likes</span>
                     <div class="description">
                         <strong>Body (optional):</strong><br>
-                        <code style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: block; margin-top: 0.5rem;">
+                        <code class="code-block">
                         {<br>
                         &nbsp;&nbsp;"userId": 1<br>
                         }
