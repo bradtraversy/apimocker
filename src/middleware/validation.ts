@@ -101,6 +101,16 @@ export const validateTodo = [
   handleValidationErrors,
 ];
 
+// Like validation rules — userId is the only optional body field.
+export const validateLike = [
+  body('userId')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('userId must be a positive integer'),
+
+  handleValidationErrors,
+];
+
 // Comment validation rules
 export const validateComment = [
   body('name')

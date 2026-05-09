@@ -28,9 +28,11 @@ export class GenericController {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      // Handle both page/limit and _page/_limit parameters
+      // Handle both page/limit and _page/_limit parameters. Cap _limit at 100
+      // to match the documented maximum and protect the database.
       const page = Number(req.query['page'] || req.query['_page'] || 1);
-      const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
+      const requestedLimit = Number(req.query['limit'] || req.query['_limit'] || 10);
+      const limit = Math.min(Math.max(requestedLimit, 1), 100);
       const skip = (page - 1) * limit;
 
       // Handle sorting
@@ -211,9 +213,10 @@ export class GenericController {
   ) => {
     try {
       const { id } = req.params;
-      // Handle both page/limit and _page/_limit parameters
+      // Handle both page/limit and _page/_limit parameters. Cap at 100.
       const page = Number(req.query['page'] || req.query['_page'] || 1);
-      const limit = Number(req.query['limit'] || req.query['_limit'] || 10);
+      const requestedLimit = Number(req.query['limit'] || req.query['_limit'] || 10);
+      const limit = Math.min(Math.max(requestedLimit, 1), 100);
       const skip = (page - 1) * limit;
       const model = this.prisma[relationModel as keyof PrismaClient] as any;
 

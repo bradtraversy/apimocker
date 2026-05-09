@@ -58,9 +58,12 @@ export class TestDatabase {
   }
 
   async cleanup() {
-    await this.prisma.user.deleteMany();
-    await this.prisma.post.deleteMany();
+    // Delete children before parents to respect foreign keys.
+    await this.prisma.like.deleteMany();
+    await this.prisma.comment.deleteMany();
     await this.prisma.todo.deleteMany();
+    await this.prisma.post.deleteMany();
+    await this.prisma.user.deleteMany();
   }
 
   async createUser(userData: TestUser) {
@@ -166,7 +169,8 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 200) {
-      expect(response.body).toHaveProperty('id', id);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('id', id);
     }
 
     return response;
@@ -179,8 +183,9 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 201) {
-      expect(response.body).toHaveProperty('id');
-      expect(response.body).toMatchObject(data);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('id');
+      expect(response.body.data).toMatchObject(data);
     }
 
     return response;
@@ -198,14 +203,15 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 200) {
-      expect(response.body).toHaveProperty('id', id);
-      expect(response.body).toMatchObject(data);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('id', id);
+      expect(response.body.data).toMatchObject(data);
     }
 
     return response;
   }
 
-  async testDelete(endpoint: string, id: number, expectedStatus = 200) {
+  async testDelete(endpoint: string, id: number, expectedStatus = 204) {
     const response = await request(this.app)
       .delete(`${endpoint}/${id}`)
       .expect(expectedStatus);
@@ -321,6 +327,6 @@ export const sampleTodos: TestTodo[] = [
 // Helper function to create a test app instance
 export const createTestApp = async () => {
   // Import the app dynamically to avoid circular dependencies
-  const { default: app } = await import('../src/index');
+  const { default: app } = await import('../../src/index');
   return app;
 };

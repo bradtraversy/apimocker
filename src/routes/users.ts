@@ -30,6 +30,9 @@ router.post('/', validateUser, usersController.create);
 // PUT /users/:id - Update user
 router.put('/:id', validateUser, usersController.update);
 
+// PATCH /users/:id - Partial update user
+router.patch('/:id', validateUser, usersController.update);
+
 // DELETE /users/:id - Delete user
 router.delete('/:id', usersController.delete);
 

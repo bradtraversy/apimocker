@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PostsController } from '../controllers/postsController';
-import { validatePost } from '../middleware/validation';
+import { validatePost, validateLike } from '../middleware/validation';
 
 const router = Router();
 const postsController = new PostsController();
@@ -18,7 +18,7 @@ router.get('/:id', postsController.getById);
 router.get('/:id/likes', postsController.getLikes);
 
 // POST /posts/:id/likes - Add a like to a post
-router.post('/:id/likes', postsController.addLike);
+router.post('/:id/likes', validateLike, postsController.addLike);
 
 // POST /posts - Create post
 router.post('/', validatePost, postsController.create);
