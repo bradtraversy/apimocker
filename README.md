@@ -55,9 +55,9 @@ You can test it out with my API probe tool - https://apiprobe.dev
 ## ✨ Features
 
 - **Full CRUD Operations** - Create, Read, Update, Delete for all resources
-- **PATCH Method Support** - Partial updates for posts and todos
+- **PATCH Method Support** - Partial updates for posts, todos, and comments
 - **Advanced Filtering** - `_like`, `_sort`, `_order` parameters with `X-Total-Count` headers
-- **Global Search** - Search across all resources with type filtering
+- **Per-Resource Search** - Dedicated `/search` endpoints on users, posts, todos, and comments
 - **Response Delay Simulation** - `_delay` parameter for testing loading states
 - **Error Simulation** - Dedicated endpoints for testing error handling
 - **Realistic Data** - 10 users, 100 posts, 200 todos, 500 comments with realistic content
@@ -179,17 +179,21 @@ http://localhost:8000
 
 ## 🔍 Advanced Features
 
-### Global Search
-Search across all resources with the global search endpoint:
+### Per-Resource Search
+Each main resource exposes its own `/search` endpoint that searches the relevant
+text fields (case-insensitive):
 
 ```http
-GET /search?q=development&type=posts
+GET /users/search?q=john
+GET /posts/search?q=development
+GET /todos/search?q=review
+GET /comments/search?q=great
 ```
 
 **Parameters:**
 - `q` (required): Search query
-- `type` (optional): Resource type (users, posts, todos, comments, all)
 - `_delay` (optional): Response delay in milliseconds
+- Posts search additionally supports `_sort`, `_order`, `_page`, and `_limit`.
 
 ### Response Delay Simulation
 Test loading states by adding delays to any request:
@@ -844,7 +848,7 @@ The database automatically resets at **midnight UTC** every day:
 
 - All existing data is cleared
 - Fresh seed data is inserted
-- 10 users, 100 posts, and 200 todos are created
+- 10 users, 100 posts, 200 todos, and 500 comments are created
 - Reset includes realistic data with proper relationships
 
 This ensures a consistent testing environment and prevents data accumulation.
@@ -909,7 +913,11 @@ npm run test:unit    # Run only unit tests
 apimocker/
 ├── src/
 │   ├── controllers/
-│   │   └── genericController.ts    # Generic CRUD controller
+│   │   ├── genericController.ts    # Shared CRUD logic
+│   │   ├── usersController.ts      # User search
+│   │   ├── postsController.ts      # Post search + likes
+│   │   ├── todosController.ts      # Todo search
+│   │   └── commentsController.ts   # Comment search
 │   ├── middleware/
 │   │   ├── errorHandler.ts         # Error handling middleware
 │   │   ├── rateLimiter.ts          # Rate limiting middleware
@@ -917,8 +925,10 @@ apimocker/
 │   │   └── validation.ts           # Input validation middleware
 │   ├── routes/
 │   │   ├── users.ts                # User routes
-│   │   ├── posts.ts                # Post routes
-│   │   └── todos.ts                # Todo routes
+│   │   ├── posts.ts                # Post routes (incl. likes)
+│   │   ├── todos.ts                # Todo routes
+│   │   ├── comments.ts             # Comment routes
+│   │   └── errors.ts               # Error simulation routes
 │   ├── scripts/
 │   │   ├── seed.ts                 # Database seeding
 │   │   └── reset.ts                # Database reset
@@ -930,8 +940,15 @@ apimocker/
 │   └── index.ts                    # Main application file
 ├── prisma/
 │   └── schema.prisma               # Database schema
+├── tests/
+│   ├── integration/                # API endpoint tests
+│   ├── unit/                       # Unit tests
+│   ├── utils/testHelpers.ts        # Shared test utilities
+│   └── setup.ts                    # Jest global setup
+├── public/                         # Landing page + static assets
 ├── logs/                           # Log files (auto-generated)
-├── .env                            # Environment variables
+├── .env.example                    # Example env vars (committed)
+├── .env                            # Environment variables (gitignored)
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -952,13 +969,16 @@ apimocker/
 
 ### Database Schema
 
-The application uses three main models:
+The application uses five models:
 
 - **User**: Personal information, contact details, address, company
 - **Post**: Blog posts with title, body, and user relationship
 - **Todo**: Task items with title, completion status, and user relationship
+- **Comment**: Comments on posts with name, email, and body
+- **Like**: Likes on posts (optional userId for anonymous likes)
 
-All models include timestamps and proper foreign key relationships.
+All models include timestamps and proper foreign key relationships, with cascade
+deletes from parents to children.
 
 ## 🚀 Deployment
 

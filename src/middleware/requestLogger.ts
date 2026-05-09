@@ -8,7 +8,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
   logger.info('Incoming request', {
     method: req.method,
     url: req.originalUrl,
-    ip: req.ip || req.connection.remoteAddress,
+    ip: req.ip || req.socket.remoteAddress,
     userAgent: req.get('User-Agent'),
     timestamp: new Date().toISOString(),
   });

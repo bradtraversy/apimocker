@@ -20,11 +20,13 @@ beforeAll(async () => {
     },
   });
 
-  // Clean up database before all tests
+  // Clean up database before all tests (children before parents).
   await prisma.$connect();
-  await prisma.user.deleteMany();
-  await prisma.post.deleteMany();
+  await prisma.like.deleteMany();
+  await prisma.comment.deleteMany();
   await prisma.todo.deleteMany();
+  await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.$disconnect();
 });
 
@@ -40,11 +42,13 @@ afterAll(async () => {
     },
   });
 
-  // Clean up database after all tests
+  // Clean up database after all tests (children before parents).
   await prisma.$connect();
-  await prisma.user.deleteMany();
-  await prisma.post.deleteMany();
+  await prisma.like.deleteMany();
+  await prisma.comment.deleteMany();
   await prisma.todo.deleteMany();
+  await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.$disconnect();
 });
 

@@ -7,17 +7,24 @@ const writeCounts = new Map<string, { count: number; resetTime: number }>();
 // Rate limiter for write operations (POST, PUT, DELETE)
 export const writeRateLimiter = (req: Request, res: Response, next: Function) => {
   // Get IP address, handling proxy scenarios
-  const ip = req.ip || 
-             req.headers['x-forwarded-for']?.toString().split(',')[0] || 
-             req.connection.remoteAddress || 
+  const ip = req.ip ||
+             req.headers['x-forwarded-for']?.toString().split(',')[0] ||
+             req.socket.remoteAddress ||
              'unknown';
   const now = Date.now();
   const windowMs = parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '86400000'); // 24 hours
   const maxWrites = parseInt(process.env['RATE_LIMIT_MAX_WRITES'] || '100');
 
+  // Opportunistically evict expired entries so the Map doesn't grow unbounded.
+  if (writeCounts.size > 1000) {
+    for (const [key, entry] of writeCounts) {
+      if (now > entry.resetTime) writeCounts.delete(key);
+    }
+  }
+
   // Get current count for this IP
   const current = writeCounts.get(ip);
-  
+
   if (!current || now > current.resetTime) {
     // First request or window expired
     writeCounts.set(ip, { count: 1, resetTime: now + windowMs });

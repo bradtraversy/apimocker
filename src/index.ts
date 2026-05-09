@@ -72,19 +72,6 @@ app.use('*', (req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
 // Start server
 const startServer = async () => {
   try {
@@ -107,4 +94,22 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Only start the server (and attach process signal handlers) when this file
+// is executed directly. Tests import the app without these side effects.
+if (require.main === module) {
+  process.on('SIGINT', async () => {
+    logger.info('SIGINT received, shutting down gracefully');
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM received, shutting down gracefully');
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+
+  startServer();
+}
+
+export default app;
