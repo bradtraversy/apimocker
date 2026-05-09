@@ -6,6 +6,7 @@ import {
   sampleTodos,
   createTestApp,
 } from '../utils/testHelpers';
+import { _resetWriteCountsForTesting } from '../../src/middleware/rateLimiter';
 
 describe('Todos API Integration Tests', () => {
   let app: any;
@@ -488,26 +489,18 @@ describe('Todos API Integration Tests', () => {
       });
     });
 
-    it('should maintain referential integrity', async () => {
+    it('should cascade-delete todos when their user is deleted', async () => {
       const todo = await db.createTodo({
         title: 'Test Todo',
         completed: false,
         userId: testUser.id,
       });
 
-      // Delete the user
-      await db.disconnect();
-      await db.connect();
-      await request(app).delete(`/users/${testUser.id}`).expect(200);
+      // Delete the user — schema declares onDelete: Cascade for Todo.userId,
+      // so the todo should be removed alongside the user.
+      await request(app).delete(`/users/${testUser.id}`).expect(204);
 
-      // Todo should still exist but user should be null
-      const response = await request(app)
-        .get(`/todos/${todo.id}`)
-        .expect(200);
-
-      expect(response.body.userId).toBe(testUser.id);
-      // Note: In a real application, you might want to handle this differently
-      // depending on your foreign key constraints
+      await request(app).get(`/todos/${todo.id}`).expect(404);
     });
   });
 
@@ -571,6 +564,10 @@ describe('Todos API Integration Tests', () => {
   });
 
   describe('Rate Limiting', () => {
+    beforeEach(() => {
+      _resetWriteCountsForTesting();
+    });
+
     it('should enforce rate limits on write operations', async () => {
       // Create many todos to trigger rate limit
       for (let i = 0; i < 101; i++) {

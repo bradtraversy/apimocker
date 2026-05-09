@@ -5,6 +5,7 @@ import {
   sampleUsers,
   createTestApp,
 } from '../utils/testHelpers';
+import { _resetWriteCountsForTesting } from '../../src/middleware/rateLimiter';
 
 describe('Users API Integration Tests', () => {
   let app: any;
@@ -370,6 +371,10 @@ describe('Users API Integration Tests', () => {
   });
 
   describe('Rate Limiting', () => {
+    beforeEach(() => {
+      _resetWriteCountsForTesting();
+    });
+
     it('should enforce rate limits on write operations', async () => {
       // Create many users to trigger rate limit
       for (let i = 0; i < 101; i++) {
