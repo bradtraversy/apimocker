@@ -169,8 +169,7 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 200) {
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', id);
+      expect(response.body).toHaveProperty('id', id);
     }
 
     return response;
@@ -183,9 +182,8 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 201) {
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id');
-      expect(response.body.data).toMatchObject(data);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toMatchObject(data);
     }
 
     return response;
@@ -203,9 +201,8 @@ export class ApiTester {
       .expect(expectedStatus);
 
     if (expectedStatus === 200) {
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', id);
-      expect(response.body.data).toMatchObject(data);
+      expect(response.body).toHaveProperty('id', id);
+      expect(response.body).toMatchObject(data);
     }
 
     return response;

@@ -529,7 +529,7 @@
 
             <div class="section">
                 <h2>📊 Data Structure</h2>
-                <p>All responses follow a consistent structure:</p>
+                <p>List endpoints wrap results so pagination metadata can ride along. Single-resource endpoints return the bare object.</p>
                 
                 <h3>List Response</h3>
                 <div class="endpoint">
@@ -548,8 +548,8 @@
                     <span class="method get">GET</span>
                     <span class="url">/posts/1</span>
                     <div class="description">
-                        <strong>Response includes:</strong><br>
-                        • <code>data</code> - Single resource object<br>
+                        <strong>Returns the resource directly</strong> (no wrapper):<br>
+                        • Resource fields (<code>id</code>, <code>title</code>, etc.)<br>
                         • Related data (user info, comments, etc.)
                     </div>
                 </div>
