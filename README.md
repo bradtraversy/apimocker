@@ -106,7 +106,13 @@ You can test it out with my API probe tool - https://apiprobe.dev
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file in the root directory:
+   Copy the example file and fill in your values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Then edit `.env` to set your `DATABASE_URL`. The full set of supported variables:
 
    ```env
    # Database
@@ -168,7 +174,7 @@ A beautiful web interface with API documentation and quick testing links.
 ### API Base URL
 
 ```
-http://localhost:8000/api
+http://localhost:8000
 ```
 
 ## 🔍 Advanced Features
