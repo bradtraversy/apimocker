@@ -6,6 +6,7 @@ import {
   samplePosts,
   createTestApp,
 } from '../utils/testHelpers';
+import { _resetWriteCountsForTesting } from '../../src/middleware/rateLimiter';
 
 describe('Posts API Integration Tests', () => {
   let app: any;
@@ -357,30 +358,28 @@ describe('Posts API Integration Tests', () => {
       });
     });
 
-    it('should maintain referential integrity', async () => {
+    it('should cascade-delete posts when their user is deleted', async () => {
       const post = await db.createPost({
         title: 'Test Post',
         body: 'Test content',
         userId: testUser.id,
       });
 
-      // Delete the user
-      await db.disconnect();
-      await db.connect();
-      await request(app).delete(`/users/${testUser.id}`).expect(200);
+      // Delete the user — schema declares onDelete: Cascade for Post.userId,
+      // so the post should be removed alongside the user.
+      await request(app).delete(`/users/${testUser.id}`).expect(204);
 
-      // Post should still exist but user should be null
-      const response = await request(app)
-        .get(`/posts/${post.id}`)
-        .expect(200);
-
-      expect(response.body.userId).toBe(testUser.id);
-      // Note: In a real application, you might want to handle this differently
-      // depending on your foreign key constraints
+      await request(app).get(`/posts/${post.id}`).expect(404);
     });
   });
 
   describe('Rate Limiting', () => {
+    beforeEach(() => {
+      // Rate limiter state is process-scoped — reset so other tests in this
+      // file haven't already consumed the daily IP quota.
+      _resetWriteCountsForTesting();
+    });
+
     it('should enforce rate limits on write operations', async () => {
       // Create many posts to trigger rate limit
       for (let i = 0; i < 101; i++) {

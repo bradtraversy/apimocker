@@ -4,6 +4,11 @@ import { Request, Response } from 'express';
 // Store for tracking write operations per IP
 const writeCounts = new Map<string, { count: number; resetTime: number }>();
 
+// Test-only helper: clear the write counter so tests don't share IP quota.
+export const _resetWriteCountsForTesting = () => {
+  writeCounts.clear();
+};
+
 // Rate limiter for write operations (POST, PUT, DELETE)
 export const writeRateLimiter = (req: Request, res: Response, next: Function) => {
   // Get IP address, handling proxy scenarios
