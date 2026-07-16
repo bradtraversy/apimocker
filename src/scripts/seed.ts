@@ -195,25 +195,162 @@ const usersData = [
   },
 ];
 
-const generatePosts = (userId: number) => {
-  const postTitles = [
-    'Getting Started with Modern Web Development',
-    'The Future of Artificial Intelligence',
-    'Building Scalable Microservices',
-    'Design Patterns in Software Engineering',
-    'Optimizing Database Performance',
-    'Security Best Practices for Web Applications',
-    'Cloud Computing Trends in 2024',
-    'Mobile App Development Strategies',
-    'DevOps and Continuous Integration',
-    'User Experience Design Principles',
-  ];
+const postTitles = [
+  'Getting Started with Modern Web Development',
+  'The Future of Artificial Intelligence',
+  'Building Scalable Microservices',
+  'Design Patterns in Software Engineering',
+  'Optimizing Database Performance',
+  'Security Best Practices for Web Applications',
+  'Cloud Computing Trends in 2024',
+  'Mobile App Development Strategies',
+  'DevOps and Continuous Integration',
+  'User Experience Design Principles',
+] as const;
 
-  return postTitles.map((title) => ({
-    title,
-    body: `This is a comprehensive article about ${title.toLowerCase()}. It covers various aspects including best practices, common pitfalls, and real-world examples. The content is designed to be both educational and practical for developers at all levels.`,
-    userId,
-  }));
+const postSubtitles = [
+  [
+    'A Practical First Project',
+    'Models That Explain Their Choices',
+    'Boundaries That Scale Calmly',
+    'Factories Without Hidden Coupling',
+    'Indexes Worth Their Storage',
+    'Sessions, Tokens, and Safer Defaults',
+    'Kubernetes Bills That Bite',
+    'Offline Flows Users Trust',
+    'Pipelines That Fail Clearly',
+    'Small Frictions, Big Consequences',
+  ],
+  [
+    'A Roadmap for Busy Teams',
+    'Human Review at the Right Moments',
+    'Tracing Calls Across Services',
+    'Adapters That Keep Change Local',
+    'Reading Query Plans with Purpose',
+    'Safer Cookies in Production',
+    'Capacity Planning Without Guesswork',
+    'Battery Life as a Product Feature',
+    'Shorter Feedback Loops',
+    'Research Notes That Shape Better Choices',
+  ],
+  [
+    'From Blank Folder to First Release',
+    'Training Data with Fewer Surprises',
+    'Queues, Retries, and Backpressure',
+    'Choosing Abstractions That Last',
+    'When a Composite Index Wins',
+    'Handling Secrets Without Leaks',
+    'Regions, Latency, and Cost Tradeoffs',
+    'State Sync on Unreliable Networks',
+    'Build Gates Teams Will Actually Use',
+    'Navigation That Feels Predictable',
+  ],
+  [
+    'Tooling Choices That Age Well',
+    'Where Automation Needs Judgment',
+    'Versioning APIs Without Drama',
+    'Composition Over Cleverness',
+    'Finding the Slowest Join',
+    'Permissions That Match Real Roles',
+    'Autoscaling Beyond Simple Thresholds',
+    'Crash Recovery Without Lost Work',
+    'Release Trains Without Bottlenecks',
+    'Clear Labels for Complex Tasks',
+  ],
+  [
+    'A Checklist for the First Month',
+    'Keeping Bias Out of Evaluation',
+    'Splitting Systems at Natural Seams',
+    'Dependency Injection in Plain Terms',
+    'Cache Hits That Actually Matter',
+    'Threat Modeling Before Launch',
+    'Forecasting Demand from Real Traffic',
+    'Touch Targets That Prevent Mistakes',
+    'Rollback Plans for Friday Releases',
+    'Onboarding Without a Manual',
+  ],
+  [
+    'Standards That Reduce Rework',
+    'Measuring Accuracy Beyond a Single Score',
+    'Event Contracts That Survive Change',
+    'State Machines for Messy Workflows',
+    'Connection Pools Under Pressure',
+    'Audit Trails People Can Follow',
+    'Storage Tiers and Their Hidden Costs',
+    'Background Tasks That Respect the Battery',
+    'Tests That Catch Integration Drift',
+    'Error Messages That Help People Recover',
+  ],
+  [
+    'Progressive Enhancement in Practice',
+    'Prompts, Context, and Reliable Outputs',
+    'Service Ownership Without Silos',
+    'Immutability Where It Pays Off',
+    'Pagination at Million-Row Scale',
+    'Rate Limits with Useful Feedback',
+    'Moving Workloads Without Downtime',
+    'Sync Conflicts Users Can Resolve',
+    'Observability Before Optimization',
+    'Forms That Ask Only What Matters',
+  ],
+  [
+    'Shipping Accessible Interfaces',
+    'Small Models for Focused Tasks',
+    'Idempotency from Request to Queue',
+    'Strategy Objects Without Ceremony',
+    'Vacuuming, Bloat, and Healthy Tables',
+    'Least Privilege for Everyday Teams',
+    'Multi-Region Failover Drills',
+    'Local Persistence That Stays Consistent',
+    'Deployment Metrics That Tell the Truth',
+    'Empty States with a Clear Next Step',
+  ],
+  [
+    'Performance Budgets from Day One',
+    'Evaluations That Mirror Real Use',
+    'Breaking Up a Growing Monolith',
+    'Decorators with a Real Job',
+    'Lock Contention Under Heavy Writes',
+    'Incident Response Without Panic',
+    'Reserved Capacity or Pay as You Go',
+    'Platform Conventions Across Devices',
+    'Branch Policies That Keep Work Moving',
+    'Inclusive Copy for Stressful Moments',
+  ],
+  [
+    'Maintaining Momentum After Launch',
+    'Retrieval That Cites Its Sources',
+    'Schemas for Long-Lived Events',
+    'Patterns Teams Can Explain',
+    'Backups You Have Actually Restored',
+    'Safer Defaults for Public Endpoints',
+    'Cost Alerts Before the Invoice Arrives',
+    'Permission Prompts at the Right Time',
+    'Keeping Main Ready to Ship',
+    'Measuring Success Beyond Clicks',
+  ],
+] as const;
+
+export const generatePosts = (userId: number, userIndex: number) => {
+  const subtitles = postSubtitles[userIndex];
+
+  if (!subtitles) {
+    throw new Error(`No post subtitles configured for user index ${userIndex}`);
+  }
+
+  return postTitles.map((baseTitle, titleIndex) => {
+    const subtitle = subtitles[titleIndex];
+
+    if (!subtitle) {
+      throw new Error(`No post subtitle configured for title index ${titleIndex}`);
+    }
+
+    return {
+      title: `${baseTitle}: ${subtitle}`,
+      body: `This is a comprehensive article about ${baseTitle.toLowerCase()}. It covers various aspects including best practices, common pitfalls, and real-world examples. The content is designed to be both educational and practical for developers at all levels.`,
+      userId,
+    };
+  });
 };
 
 const generateComments = (postId: number) => {
@@ -372,8 +509,8 @@ export const seedDatabase = async () => {
 
     // Create posts for each user
     const posts = [];
-    for (const user of users) {
-      const userPosts = generatePosts(user.id);
+    for (const [userIndex, user] of users.entries()) {
+      const userPosts = generatePosts(user.id, userIndex);
       const createdPosts = await Promise.all(
         userPosts.map(postData => prisma.post.create({ data: postData }))
       );
@@ -426,4 +563,4 @@ if (require.main === module) {
       logger.error('Seeding failed:', error);
       process.exit(1);
     });
-} 
+}
