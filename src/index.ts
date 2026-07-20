@@ -6,6 +6,10 @@ import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import { requestLogger } from './middleware/requestLogger';
+import {
+  environmentAttemptRateLimiter,
+  environmentPayloadError,
+} from './middleware/environmentAccess';
 import { setupCronJobs } from './utils/cronJobs';
 import { prisma } from './lib/prisma';
 
@@ -15,6 +19,7 @@ import postRoutes from './routes/posts';
 import todoRoutes from './routes/todos';
 import commentRoutes from './routes/comments';
 import errorRoutes from './routes/errors';
+import environmentRoutes from './routes/environments';
 
 
 // Load environment variables
@@ -29,6 +34,25 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors());
+
+if (process.env['ENABLE_ISOLATED_ENVIRONMENTS'] === 'true') {
+  app.use(
+    '/v1/environments/:slug',
+    environmentAttemptRateLimiter,
+    express.json({ limit: '64kb' }),
+    express.urlencoded({ extended: true, limit: '64kb' }),
+    requestLogger,
+    environmentRoutes,
+    (req: express.Request, res: express.Response) => {
+      res.status(404).json({
+        error: 'Not Found',
+        message: `Route ${req.method} ${req.originalUrl} not found`,
+      });
+    },
+    environmentPayloadError
+  );
+}
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

@@ -13,11 +13,14 @@
     "db:seed": "prisma generate && tsx src/scripts/seed.ts",
     "db:reset": "prisma generate && tsx src/scripts/reset.ts",
     "db:studio": "prisma studio",
+    "env:create": "prisma generate && tsx src/scripts/createEnvironment.ts",
+    "env:revoke": "prisma generate && tsx src/scripts/revokeEnvironment.ts",
     "test": "prisma generate && jest",
     "test:watch": "prisma generate && jest --watch",
     "test:coverage": "prisma generate && jest --coverage",
     "test:integration": "prisma generate && jest --testPathPattern=integration",
-    "test:unit": "prisma generate && jest --testPathPattern=unit"
+    "test:unit": "prisma generate && jest --testPathPattern=unit",
+    "test:environment": "prisma generate && jest --config jest.environment.config.js"
   },
   "keywords": [
     "api",
