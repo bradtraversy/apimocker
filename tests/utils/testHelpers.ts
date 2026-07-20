@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../../src/generated/prisma/client';
 import request from 'supertest';
 import { Express } from 'express';
 
@@ -38,14 +39,15 @@ export class TestDatabase {
   private prisma: PrismaClient;
 
   constructor() {
+    const databaseUrl =
+      process.env['DATABASE_URL'] ||
+      'postgresql://test:test@localhost:5432/apimocker_test';
+
     this.prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url:
-            process.env.DATABASE_URL ||
-            'postgresql://test:test@localhost:5432/apimocker_test',
-        },
-      },
+      adapter: new PrismaPg({
+        connectionString: databaseUrl,
+        connectionTimeoutMillis: 5_000,
+      }),
     });
   }
 

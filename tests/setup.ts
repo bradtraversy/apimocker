@@ -1,8 +1,21 @@
 import { config } from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../src/generated/prisma/client';
 
 // Load environment variables
 config({ path: '.env.test' });
+
+const testDatabaseUrl = () =>
+  process.env['DATABASE_URL'] ||
+  'postgresql://test:test@localhost:5432/apimocker_test';
+
+const createTestPrisma = () =>
+  new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString: testDatabaseUrl(),
+      connectionTimeoutMillis: 5_000,
+    }),
+  });
 
 // Global test setup
 beforeAll(async () => {
@@ -10,15 +23,7 @@ beforeAll(async () => {
   process.env['NODE_ENV'] = 'test';
 
   // Initialize test database connection
-  const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url:
-          process.env['DATABASE_URL'] ||
-          'postgresql://test:test@localhost:5432/apimocker_test',
-      },
-    },
-  });
+  const prisma = createTestPrisma();
 
   // Clean up database before all tests (children before parents).
   await prisma.$connect();
@@ -32,15 +37,7 @@ beforeAll(async () => {
 
 // Global test teardown
 afterAll(async () => {
-  const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url:
-          process.env['DATABASE_URL'] ||
-          'postgresql://test:test@localhost:5432/apimocker_test',
-      },
-    },
-  });
+  const prisma = createTestPrisma();
 
   // Clean up database after all tests (children before parents).
   await prisma.$connect();

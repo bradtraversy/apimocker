@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { GenericController } from '../../src/controllers/genericController';
-import { PrismaClient } from '@prisma/client';
 
 // Mock Prisma client
 const mockPrisma = {

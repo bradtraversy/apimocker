@@ -94,4 +94,4 @@ ehthumbs.db
 Thumbs.db
 
 # Prisma
-prisma/migrations/ 
+src/generated/prisma/

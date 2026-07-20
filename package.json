@@ -4,19 +4,20 @@
   "description": "A comprehensive fake REST API service for developers to test against",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "dev": "prisma generate && tsx watch src/index.ts",
+    "build": "prisma generate && tsc",
     "start": "node dist/index.js",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "tsx src/scripts/seed.ts",
-    "db:reset": "tsx src/scripts/reset.ts",
+    "db:migrate": "prisma migrate deploy",
+    "db:push": "prisma db push && prisma generate",
+    "db:seed": "prisma generate && tsx src/scripts/seed.ts",
+    "db:reset": "prisma generate && tsx src/scripts/reset.ts",
     "db:studio": "prisma studio",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:integration": "jest --testPathPattern=integration",
-    "test:unit": "jest --testPathPattern=unit"
+    "test": "prisma generate && jest",
+    "test:watch": "prisma generate && jest --watch",
+    "test:coverage": "prisma generate && jest --coverage",
+    "test:integration": "prisma generate && jest --testPathPattern=integration",
+    "test:unit": "prisma generate && jest --testPathPattern=unit"
   },
   "keywords": [
     "api",
@@ -26,8 +27,12 @@
   ],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12 <23"
+  },
   "dependencies": {
-    "@prisma/client": "^5.7.1",
+    "@prisma/adapter-pg": "7.8.0",
+    "@prisma/client": "7.8.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.23",
     "@types/node": "^20.19.9",
@@ -39,13 +44,15 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "node-cron": "^3.0.3",
+    "pg": "8.22.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",
+    "@types/pg": "8.20.0",
     "@types/supertest": "^2.0.16",
     "jest": "^29.7.0",
-    "prisma": "^5.7.1",
+    "prisma": "7.8.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "tsx": "^4.6.2",
