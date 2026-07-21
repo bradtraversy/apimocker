@@ -1,0 +1,67 @@
+---
+import { API_BASE_URL, resources } from '../../config/site';
+
+const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
+const capabilities = [
+  {
+    title: 'Search and filter',
+    copy: 'Use resource-specific search plus familiar field filters and case-insensitive matching.',
+    example: '/posts/search?q=development',
+    href: '/posts/search?q=development',
+  },
+  {
+    title: 'Sort and paginate',
+    copy: 'Build realistic list screens with deterministic ordering, page sizes, and pagination metadata.',
+    example: '/posts?_sort=id&_order=desc&_page=1&_limit=5',
+    href: '/posts?_sort=id&_order=desc&_page=1&_limit=5',
+  },
+  {
+    title: 'Test edge states',
+    copy: 'Add controlled latency or request known error responses without changing your frontend code.',
+    example: '/posts?_delay=2000',
+    href: '/posts?_delay=2000',
+  },
+] as const;
+---
+
+<section class="section overview-section" id="api-overview" aria-labelledby="overview-title">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">API overview</div>
+      <h2 id="overview-title">Enough behavior to build the whole interface.</h2>
+    </div>
+    <p>Base URL: <code>{API_BASE_URL}</code></p>
+  </div>
+
+  <div class="method-strip" aria-label="Supported HTTP methods">
+    <span>Core resources support</span>
+    {methods.map((method) => <strong class={`method method-${method.toLowerCase()}`}>{method}</strong>)}
+  </div>
+
+  <div class="overview-grid">
+    <article class="overview-card resources-card">
+      <div class="card-label">Four connected resources</div>
+      <h3>Start with data your UI already understands.</h3>
+      <p>Each resource supports CRUD operations, and relationships connect users, posts, todos, comments, and likes.</p>
+      <div class="endpoint-links">
+        {resources.map((resource) => (
+          <a href={`${API_BASE_URL}${resource.path}`}>
+            <span>{resource.path}</span>
+            <small>{resource.count} seeded</small>
+          </a>
+        ))}
+      </div>
+    </article>
+
+    {capabilities.map((capability) => (
+      <article class="overview-card">
+        <h3>{capability.title}</h3>
+        <p>{capability.copy}</p>
+        <a class="endpoint-example" href={`${API_BASE_URL}${capability.href}`}>
+          <code>{capability.example}</code>
+          <span aria-hidden="true">&#8599;</span>
+        </a>
+      </article>
+    ))}
+  </div>
+</section>

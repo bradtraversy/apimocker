@@ -1,0 +1,46 @@
+---
+import Brand from './Brand.astro';
+import { GITHUB_URL } from '../config/site';
+
+const navigation = [
+  { label: 'Free API', href: '/#free-api' },
+  { label: 'Example', href: '/#example' },
+  { label: 'API overview', href: '/#api-overview' },
+  { label: 'Plans', href: '/#plans' },
+];
+---
+
+<header class="site-header">
+  <Brand />
+
+  <nav class="primary-nav" aria-label="Primary navigation">
+    {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+  </nav>
+
+  <div class="header-actions">
+    <a class="github-link" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+      GitHub
+    </a>
+    <a class="nav-cta" href="/#api-overview">Start free</a>
+  </div>
+
+  <details class="mobile-menu">
+    <summary aria-label="Open navigation menu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </summary>
+    <nav aria-label="Mobile navigation">
+      {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </details>
+</header>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.mobile-menu');
+
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => menu.removeAttribute('open'));
+  });
+</script>

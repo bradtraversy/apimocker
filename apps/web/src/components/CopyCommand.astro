@@ -1,0 +1,127 @@
+---
+interface Props {
+  command: string;
+  id: string;
+}
+
+const { command, id } = Astro.props;
+const statusId = `${id}-status`;
+---
+
+<div class="command-wrap">
+  <div class="command-bar">
+    <span class="command-prompt" aria-hidden="true">$</span>
+    <code id={id}>{command}</code>
+    <button
+      class="copy-button"
+      type="button"
+      data-copy-target={id}
+      aria-describedby={statusId}
+    >
+      Copy
+    </button>
+  </div>
+  <p class="copy-status" id={statusId} role="status" aria-live="polite"></p>
+</div>
+
+<script>
+  type CopyOutcome = 'copied' | 'selected';
+
+  const selectCommand = (target: HTMLElement, focusTarget: HTMLElement) => {
+    const selection = window.getSelection();
+
+    if (!selection) {
+      throw new Error('Text selection is unavailable');
+    }
+
+    const range = document.createRange();
+    range.selectNodeContents(target);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    focusTarget.focus();
+  };
+
+  const fallbackCopy = (
+    text: string,
+    target: HTMLElement,
+    focusTarget: HTMLElement,
+  ): CopyOutcome => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.append(textArea);
+    textArea.select();
+
+    const legacyDocument = document as unknown as {
+      execCommand(command: string): boolean;
+    };
+
+    let copied = false;
+
+    try {
+      copied = legacyDocument.execCommand('copy');
+    } finally {
+      textArea.remove();
+    }
+
+    if (copied) {
+      focusTarget.focus();
+      return 'copied';
+    }
+
+    selectCommand(target, focusTarget);
+    return 'selected';
+  };
+
+  const copyText = async (
+    text: string,
+    target: HTMLElement,
+    focusTarget: HTMLElement,
+  ): Promise<CopyOutcome> => {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return 'copied';
+      } catch {
+        return fallbackCopy(text, target, focusTarget);
+      }
+    }
+
+    return fallbackCopy(text, target, focusTarget);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-target]').forEach((button) => {
+    const defaultLabel = button.textContent || 'Copy';
+    let resetTimer: number | undefined;
+
+    button.addEventListener('click', async () => {
+      const targetId = button.dataset.copyTarget;
+      const target = targetId ? document.getElementById(targetId) : null;
+      const status = targetId ? document.getElementById(`${targetId}-status`) : null;
+
+      if (!target || !status) {
+        return;
+      }
+
+      window.clearTimeout(resetTimer);
+
+      try {
+        const outcome = await copyText(target.textContent || '', target, button);
+        button.textContent = outcome === 'copied' ? 'Copied' : 'Selected';
+        status.textContent =
+          outcome === 'copied'
+            ? 'API request copied to your clipboard.'
+            : 'API request selected. Use your keyboard to copy it.';
+        resetTimer = window.setTimeout(() => {
+          button.textContent = defaultLabel;
+          status.textContent = '';
+        }, 3000);
+      } catch {
+        button.textContent = defaultLabel;
+        status.textContent = 'Copy failed. Select the command and copy it manually.';
+      }
+    });
+  });
+</script>
