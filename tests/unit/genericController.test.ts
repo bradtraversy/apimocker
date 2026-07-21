@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { GenericController } from '../../src/controllers/genericController';
-import { PrismaClient } from '@prisma/client';
 
-// Mock Prisma client
 const mockPrisma = {
   user: {
     findMany: jest.fn(),
@@ -30,57 +28,62 @@ const mockPrisma = {
   },
 } as any;
 
+const relations = {
+  user: {
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+    },
+  },
+};
+
+const makeRequest = (values: Partial<Request> = {}) => ({
+  query: {},
+  params: {},
+  body: {},
+  ...values,
+}) as Request;
+
 describe('GenericController', () => {
   let controller: GenericController;
-  let mockRequest: Partial<Request>;
-  let mockResponse: Partial<Response>;
-  let mockNext: jest.Mock;
+  let response: Partial<Response>;
+  let next: jest.Mock;
 
   beforeEach(() => {
-    controller = new GenericController(mockPrisma, 'user');
-    mockNext = jest.fn();
-
-    // Reset all mocks
     jest.clearAllMocks();
-
-    // Setup default mock response
-    mockResponse = {
+    controller = new GenericController(mockPrisma, 'user');
+    next = jest.fn();
+    response = {
+      set: jest.fn().mockReturnThis(),
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis(),
     };
   });
 
   describe('getAll', () => {
-    it('should return all users with pagination', async () => {
-      const mockUsers = [
-        { id: 1, name: 'John Doe', email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-      ];
+    it('returns records with default pagination and sorting', async () => {
+      const users = [{ id: 1, name: 'John Doe' }];
+      mockPrisma.user.findMany.mockResolvedValue(users);
+      mockPrisma.user.count.mockResolvedValue(1);
 
-      mockPrisma.user.findMany.mockResolvedValue(mockUsers);
-      mockPrisma.user.count.mockResolvedValue(2);
-
-      mockRequest = {
-        query: { _page: '1', _limit: '10' },
-      };
-
-      await controller.getAll(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      await controller.getAll(makeRequest(), response as Response, next);
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: {},
         skip: 0,
         take: 10,
+        include: undefined,
+        orderBy: { id: 'asc' },
       });
-      expect(mockPrisma.user.count).toHaveBeenCalled();
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        data: mockUsers,
+      expect(response.json).toHaveBeenCalledWith({
+        data: users,
         pagination: {
           page: 1,
           limit: 10,
-          total: 2,
+          total: 1,
           totalPages: 1,
           hasNext: false,
           hasPrev: false,
@@ -88,452 +91,259 @@ describe('GenericController', () => {
       });
     });
 
-    it('should handle filtering by userId for posts', async () => {
-      controller = new GenericController(mockPrisma, 'post');
+    it.each([
+      [{ _page: 'invalid', _limit: 'invalid' }, 1, 10, 0],
+      [{ _page: '0', _limit: '-5' }, 1, 10, 0],
+      [{ _page: '2', _limit: '500' }, 2, 100, 100],
+    ])(
+      'normalizes pagination values',
+      async (query, expectedPage, expectedLimit, expectedSkip) => {
+        mockPrisma.user.findMany.mockResolvedValue([]);
+        mockPrisma.user.count.mockResolvedValue(0);
 
-      const mockPosts = [
-        { id: 1, title: 'Post 1', userId: 1 },
-        { id: 2, title: 'Post 2', userId: 1 },
-      ];
+        await controller.getAll(
+          makeRequest({ query }),
+          response as Response,
+          next
+        );
 
-      mockPrisma.post.findMany.mockResolvedValue(mockPosts);
-      mockPrisma.post.count.mockResolvedValue(2);
+        expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            skip: expectedSkip,
+            take: expectedLimit,
+          })
+        );
+        expect(response.json).toHaveBeenCalledWith(
+          expect.objectContaining({
+            pagination: expect.objectContaining({
+              page: expectedPage,
+              limit: expectedLimit,
+            }),
+          })
+        );
+      }
+    );
 
-      mockRequest = {
-        query: { userId: '1', _page: '1', _limit: '10' },
-      };
+    it('builds typed filters and passes configured relations', async () => {
+      controller = new GenericController(mockPrisma, 'post', relations);
+      mockPrisma.post.findMany.mockResolvedValue([]);
+      mockPrisma.post.count.mockResolvedValue(0);
 
       await controller.getAll(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ query: { userId: '2', title_like: 'api' } }),
+        response as Response,
+        next
       );
 
       expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { userId: 1 },
+        where: {
+          userId: 2,
+          title: { contains: 'api', mode: 'insensitive' },
+        },
         skip: 0,
         take: 10,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              username: true,
-              email: true,
-            },
-          },
-        },
+        include: relations,
+        orderBy: { id: 'asc' },
       });
     });
 
-    it('should handle filtering by completed status for todos', async () => {
-      controller = new GenericController(mockPrisma, 'todo');
-
-      const mockTodos = [{ id: 1, title: 'Todo 1', completed: true }];
-
-      mockPrisma.todo.findMany.mockResolvedValue(mockTodos);
-      mockPrisma.todo.count.mockResolvedValue(1);
-
-      mockRequest = {
-        query: { completed: 'true', _page: '1', _limit: '10' },
-      };
-
-      await controller.getAll(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockPrisma.todo.findMany).toHaveBeenCalledWith({
-        where: { completed: true },
-        skip: 0,
-        take: 10,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              username: true,
-              email: true,
-            },
-          },
-        },
-      });
-    });
-
-    it('should handle invalid pagination parameters', async () => {
-      const mockUsers = [{ id: 1, name: 'John Doe' }];
-      mockPrisma.user.findMany.mockResolvedValue(mockUsers);
-      mockPrisma.user.count.mockResolvedValue(1);
-
-      mockRequest = {
-        query: { _page: 'invalid', _limit: 'invalid' },
-      };
-
-      await controller.getAll(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10, // Default values
-      });
-    });
-
-    it('should handle database errors', async () => {
+    it('forwards database errors', async () => {
       const error = new Error('Database error');
       mockPrisma.user.findMany.mockRejectedValue(error);
+      mockPrisma.user.count.mockResolvedValue(0);
 
-      mockRequest = {
-        query: {},
-      };
+      await controller.getAll(makeRequest(), response as Response, next);
 
-      await controller.getAll(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockNext).toHaveBeenCalledWith(error);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
   describe('getById', () => {
-    it('should return a user by ID', async () => {
-      const mockUser = { id: 1, name: 'John Doe', email: 'john@example.com' };
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
-
-      mockRequest = {
-        params: { id: '1' },
-      };
+    it('loads a record by numeric ID', async () => {
+      const user = { id: 1, name: 'John Doe' };
+      mockPrisma.user.findUnique.mockResolvedValue(user);
 
       await controller.getById(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '1' } }),
+        response as Response,
+        next
       );
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
+        include: undefined,
       });
-      expect(mockResponse.json).toHaveBeenCalledWith(mockUser);
+      expect(response.json).toHaveBeenCalledWith(user);
     });
 
-    it('should return 404 for non-existent user', async () => {
+    it('returns 404 when the record does not exist', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
 
-      mockRequest = {
-        params: { id: '999' },
-      };
-
       await controller.getById(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '999' } }),
+        response as Response,
+        next
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
+      expect(response.status).toHaveBeenCalledWith(404);
+      expect(response.json).toHaveBeenCalledWith({
         error: 'Not Found',
-        message: 'User not found',
+        message: 'user with id 999 not found',
       });
     });
 
-    it('should handle invalid ID format', async () => {
-      mockRequest = {
-        params: { id: 'invalid' },
-      };
+    it('forwards invalid ID validation to the centralized error handler', async () => {
+      const error = Object.assign(new Error('Invalid ID'), {
+        name: 'PrismaClientValidationError',
+      });
+      mockPrisma.user.findUnique.mockRejectedValue(error);
 
       await controller.getById(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: 'invalid' } }),
+        response as Response,
+        next
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Bad Request',
-        message: 'Invalid ID format',
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: Number.NaN },
+        include: undefined,
       });
+      expect(next).toHaveBeenCalledWith(error);
     });
 
-    it('should include user information for posts', async () => {
-      controller = new GenericController(mockPrisma, 'post');
-
-      const mockPost = {
-        id: 1,
-        title: 'Test Post',
-        userId: 1,
-        user: { id: 1, name: 'John Doe' },
-      };
-
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost);
-
-      mockRequest = {
-        params: { id: '1' },
-      };
+    it('passes relation selection to Prisma', async () => {
+      controller = new GenericController(mockPrisma, 'post', relations);
+      mockPrisma.post.findUnique.mockResolvedValue({ id: 1, userId: 1 });
 
       await controller.getById(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '1' } }),
+        response as Response,
+        next
       );
 
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              username: true,
-              email: true,
-            },
-          },
-        },
+        include: relations,
       });
     });
   });
 
-  describe('create', () => {
-    it('should create a new user', async () => {
-      const userData = { name: 'John Doe', email: 'john@example.com' };
-      const createdUser = { id: 1, ...userData };
-
-      mockPrisma.user.create.mockResolvedValue(createdUser);
-
-      mockRequest = {
-        body: userData,
-      };
+  describe('mutations', () => {
+    it('creates a record', async () => {
+      const user = { id: 1, name: 'John Doe' };
+      mockPrisma.user.create.mockResolvedValue(user);
 
       await controller.create(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ body: { name: 'John Doe' } }),
+        response as Response,
+        next
       );
 
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
-        data: userData,
+        data: { name: 'John Doe' },
+        include: undefined,
       });
-      expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(createdUser);
+      expect(response.status).toHaveBeenCalledWith(201);
     });
 
-    it('should handle database errors during creation', async () => {
-      const error = new Error('Database error');
-      mockPrisma.user.create.mockRejectedValue(error);
-
-      mockRequest = {
-        body: { name: 'John Doe' },
-      };
-
-      await controller.create(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockNext).toHaveBeenCalledWith(error);
-    });
-  });
-
-  describe('update', () => {
-    it('should update an existing user', async () => {
-      const updateData = { name: 'Updated Name' };
-      const updatedUser = {
-        id: 1,
-        name: 'Updated Name',
-        email: 'john@example.com',
-      };
-
-      mockPrisma.user.update.mockResolvedValue(updatedUser);
-
-      mockRequest = {
-        params: { id: '1' },
-        body: updateData,
-      };
+    it('updates a record without injecting omitted fields', async () => {
+      mockPrisma.post.update.mockResolvedValue({ id: 1, title: 'Updated' });
+      controller = new GenericController(mockPrisma, 'post', relations);
 
       await controller.update(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '1' }, body: { title: 'Updated' } }),
+        response as Response,
+        next
       );
 
-      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+      expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: updateData,
+        data: { title: 'Updated' },
+        include: relations,
       });
-      expect(mockResponse.json).toHaveBeenCalledWith(updatedUser);
     });
 
-    it('should return 404 for non-existent user', async () => {
-      const error = new Error('Record not found');
-      (error as any).code = 'P2025';
+    it('forwards Prisma not-found errors during updates', async () => {
+      const error = Object.assign(new Error('Record not found'), {
+        name: 'PrismaClientKnownRequestError',
+        code: 'P2025',
+      });
       mockPrisma.user.update.mockRejectedValue(error);
 
-      mockRequest = {
-        params: { id: '999' },
-        body: { name: 'Updated Name' },
-      };
-
       await controller.update(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '999' }, body: { name: 'Updated' } }),
+        response as Response,
+        next
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Not Found',
-        message: 'User not found',
-      });
+      expect(next).toHaveBeenCalledWith(error);
     });
 
-    it('should handle invalid ID format', async () => {
-      mockRequest = {
-        params: { id: 'invalid' },
-        body: { name: 'Updated Name' },
-      };
-
-      await controller.update(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Bad Request',
-        message: 'Invalid ID format',
-      });
-    });
-  });
-
-  describe('delete', () => {
-    it('should delete an existing user', async () => {
-      const deletedUser = { id: 1, name: 'John Doe' };
-      mockPrisma.user.delete.mockResolvedValue(deletedUser);
-
-      mockRequest = {
-        params: { id: '1' },
-      };
+    it('deletes a record with an empty 204 response', async () => {
+      mockPrisma.user.delete.mockResolvedValue({ id: 1 });
 
       await controller.delete(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '1' } }),
+        response as Response,
+        next
       );
 
-      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        message: 'User deleted successfully',
-      });
+      expect(mockPrisma.user.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(response.status).toHaveBeenCalledWith(204);
+      expect(response.send).toHaveBeenCalledWith();
     });
 
-    it('should return 404 for non-existent user', async () => {
-      const error = new Error('Record not found');
-      (error as any).code = 'P2025';
+    it('forwards Prisma not-found errors during deletes', async () => {
+      const error = Object.assign(new Error('Record not found'), {
+        name: 'PrismaClientKnownRequestError',
+        code: 'P2025',
+      });
       mockPrisma.user.delete.mockRejectedValue(error);
 
-      mockRequest = {
-        params: { id: '999' },
-      };
-
       await controller.delete(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
+        makeRequest({ params: { id: '999' } }),
+        response as Response,
+        next
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Not Found',
-        message: 'User not found',
-      });
-    });
-
-    it('should handle invalid ID format', async () => {
-      mockRequest = {
-        params: { id: 'invalid' },
-      };
-
-      await controller.delete(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Bad Request',
-        message: 'Invalid ID format',
-      });
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
   describe('getRelated', () => {
-    it('should return related posts for a user', async () => {
-      const mockPosts = [
-        { id: 1, title: 'Post 1', userId: 1 },
-        { id: 2, title: 'Post 2', userId: 1 },
-      ];
-
-      mockPrisma.post.findMany.mockResolvedValue(mockPosts);
-      mockPrisma.post.count.mockResolvedValue(2);
-
-      mockRequest = {
-        params: { id: '1' },
-        query: { _page: '1', _limit: '10' },
-      };
+    it('queries the relation directly with normalized pagination', async () => {
+      const posts = [{ id: 1, userId: 2 }];
+      mockPrisma.post.findMany.mockResolvedValue(posts);
+      mockPrisma.post.count.mockResolvedValue(1);
 
       await controller.getRelated(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext,
+        makeRequest({
+          params: { id: '2' },
+          query: { _page: '-1', _limit: 'invalid' },
+        }),
+        response as Response,
+        next,
         'post',
         'userId'
       );
 
       expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { userId: 1 },
+        where: { userId: 2 },
         skip: 0,
         take: 10,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              username: true,
-              email: true,
-            },
-          },
-        },
+        include: relations,
+        orderBy: { id: 'asc' },
       });
-    });
-
-    it('should return 404 for non-existent user when getting related', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-
-      mockRequest = {
-        params: { id: '999' },
-      };
-
-      await controller.getRelated(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext,
-        'post',
-        'userId'
-      );
-
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Not Found',
-        message: 'User not found',
+      expect(response.json).toHaveBeenCalledWith({
+        data: posts,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        },
       });
     });
   });

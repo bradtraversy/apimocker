@@ -14,20 +14,19 @@ const handleValidationErrors = (req: Request, res: Response, next: NextFunction)
   return next();
 };
 
-// User validation rules
-export const validateUser = [
-  body('name')
+const userValidators = (partial = false) => [
+  (partial ? body('name').optional() : body('name'))
     .trim()
     .isLength({ min: 1, max: 100 })
     .withMessage('Name is required and must be between 1 and 100 characters'),
   
-  body('username')
+  (partial ? body('username').optional() : body('username'))
     .trim()
     .isLength({ min: 3, max: 50 })
     .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage('Username must be 3-50 characters and contain only letters, numbers, and underscores'),
   
-  body('email')
+  (partial ? body('email').optional() : body('email'))
     .isEmail()
     .normalizeEmail()
     .withMessage('Must be a valid email address'),
@@ -55,14 +54,16 @@ export const validateUser = [
   handleValidationErrors,
 ];
 
-// Post validation rules
-export const validatePost = [
-  body('title')
+export const validateUser = userValidators();
+export const validateUserPatch = userValidators(true);
+
+const postValidators = (partial = false) => [
+  (partial ? body('title').optional() : body('title'))
     .trim()
     .isLength({ min: 1, max: 200 })
     .withMessage('Title is required and must be between 1 and 200 characters'),
   
-  body('body')
+  (partial ? body('body').optional() : body('body'))
     .trim()
     .isLength({ min: 1, max: 5000 })
     .withMessage('Body is required and must be between 1 and 5000 characters'),
@@ -75,9 +76,11 @@ export const validatePost = [
   handleValidationErrors,
 ];
 
-// Todo validation rules
-export const validateTodo = [
-  body('title')
+export const validatePost = postValidators();
+export const validatePostPatch = postValidators(true);
+
+const todoValidators = (partial = false) => [
+  (partial ? body('title').optional() : body('title'))
     .trim()
     .isLength({ min: 1, max: 200 })
     .withMessage('Title is required and must be between 1 and 200 characters'),
@@ -101,6 +104,9 @@ export const validateTodo = [
   handleValidationErrors,
 ];
 
+export const validateTodo = todoValidators();
+export const validateTodoPatch = todoValidators(true);
+
 // Like validation rules — userId is the only optional body field.
 export const validateLike = [
   body('userId')
@@ -111,26 +117,28 @@ export const validateLike = [
   handleValidationErrors,
 ];
 
-// Comment validation rules
-export const validateComment = [
-  body('name')
+const commentValidators = (partial = false) => [
+  (partial ? body('name').optional() : body('name'))
     .trim()
     .isLength({ min: 1, max: 100 })
     .withMessage('Name is required and must be between 1 and 100 characters'),
   
-  body('email')
+  (partial ? body('email').optional() : body('email'))
     .isEmail()
     .normalizeEmail()
     .withMessage('Must be a valid email address'),
   
-  body('body')
+  (partial ? body('body').optional() : body('body'))
     .trim()
     .isLength({ min: 1, max: 1000 })
     .withMessage('Body is required and must be between 1 and 1000 characters'),
   
-  body('postId')
+  (partial ? body('postId').optional() : body('postId'))
     .isInt({ min: 1 })
     .withMessage('postId must be a positive integer'),
   
   handleValidationErrors,
 ];
+
+export const validateComment = commentValidators();
+export const validateCommentPatch = commentValidators(true);

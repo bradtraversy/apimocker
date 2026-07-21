@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CommentsController } from '../controllers/commentsController';
-import { validateComment } from '../middleware/validation';
+import { validateComment, validateCommentPatch } from '../middleware/validation';
 
 const router = Router();
 const commentsController = new CommentsController();
@@ -21,9 +21,9 @@ router.post('/', validateComment, commentsController.create);
 router.put('/:id', validateComment, commentsController.update);
 
 // PATCH /comments/:id - Partial update comment
-router.patch('/:id', validateComment, commentsController.update);
+router.patch('/:id', validateCommentPatch, commentsController.update);
 
 // DELETE /comments/:id - Delete comment
 router.delete('/:id', commentsController.delete);
 
-export default router; 
+export default router;

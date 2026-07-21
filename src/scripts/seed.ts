@@ -551,16 +551,3 @@ export const seedDatabase = async () => {
     throw error;
   }
 };
-
-// Run seeding if this file is executed directly
-if (require.main === module) {
-  seedDatabase()
-    .then(() => {
-      logger.info('Seeding completed');
-      process.exit(0);
-    })
-    .catch((error) => {
-      logger.error('Seeding failed:', error);
-      process.exit(1);
-    });
-}

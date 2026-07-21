@@ -2,12 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -103,4 +104,43 @@ model Like {
   createdAt DateTime @default(now())
 
   @@map("likes")
-} 
+}
+
+model ApiEnvironment {
+  id                String                  @id @default(cuid())
+  slug              String                  @unique
+  name              String
+  apiKeyHash        String                  @unique
+  managementKeyHash String                  @unique
+  plan              String                  @default("developer")
+  active            Boolean                 @default(true)
+  requestLimit      Int
+  requestsUsed      Int                     @default(0)
+  periodStart       DateTime
+  periodEnd         DateTime
+  burstLimit        Int
+  burstRequests     Int                     @default(0)
+  burstWindowStart  DateTime
+  maxRecords        Int
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  collections       EnvironmentCollection[]
+
+  @@map("api_environments")
+}
+
+model EnvironmentCollection {
+  environmentId String
+  resource      String
+  seedData      Json
+  data          Json
+  nextId        Int
+  seedNextId    Int
+  version       Int            @default(1)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  environment   ApiEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+
+  @@id([environmentId, resource])
+  @@map("environment_collections")
+}

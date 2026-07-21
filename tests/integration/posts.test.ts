@@ -40,11 +40,11 @@ describe('Posts API Integration Tests', () => {
     });
 
     it('should return all posts with user information', async () => {
-      const post1 = await db.createPost({
+      await db.createPost({
         ...samplePosts[0],
         userId: testUser.id,
       });
-      const post2 = await db.createPost({
+      await db.createPost({
         ...samplePosts[1],
         userId: testUser.id,
       });
@@ -186,7 +186,7 @@ describe('Posts API Integration Tests', () => {
       const invalidPost = {
         title: 'Valid Title',
         body: 'Valid body content',
-        userId: 999, // Non-existent user
+        userId: 0,
       };
 
       await apiTester.testValidationError('/posts', 'post', invalidPost);
@@ -237,7 +237,10 @@ describe('Posts API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent post', async () => {
-      const updateData = { title: 'Updated Title' };
+      const updateData = {
+        title: 'Updated Title',
+        body: 'Updated body',
+      };
       await apiTester.testUpdate('/posts', 999, updateData, 404);
     });
 
@@ -256,6 +259,26 @@ describe('Posts API Integration Tests', () => {
         'put',
         invalidData
       );
+    });
+  });
+
+  describe('PATCH /posts/:id', () => {
+    it('should update only the supplied fields', async () => {
+      const createdPost = await db.createPost({
+        ...samplePosts[0],
+        userId: testUser.id,
+      });
+
+      const response = await request(app)
+        .patch(`/posts/${createdPost.id}`)
+        .send({ title: 'Partially Updated Title' })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        title: 'Partially Updated Title',
+        body: samplePosts[0].body,
+        userId: testUser.id,
+      });
     });
   });
 

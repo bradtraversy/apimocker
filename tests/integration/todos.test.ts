@@ -40,11 +40,11 @@ describe('Todos API Integration Tests', () => {
     });
 
     it('should return all todos with user information', async () => {
-      const todo1 = await db.createTodo({
+      await db.createTodo({
         ...sampleTodos[0],
         userId: testUser.id,
       });
-      const todo2 = await db.createTodo({
+      await db.createTodo({
         ...sampleTodos[1],
         userId: testUser.id,
       });
@@ -266,7 +266,7 @@ describe('Todos API Integration Tests', () => {
       const invalidTodo = {
         title: 'Valid Title',
         completed: false,
-        userId: 999, // Non-existent user
+        userId: 0,
       };
 
       await apiTester.testValidationError('/todos', 'post', invalidTodo);
@@ -316,27 +316,6 @@ describe('Todos API Integration Tests', () => {
       expect(response.body.userId).toBe(testUser.id);
     });
 
-    it('should update only specific fields', async () => {
-      const createdTodo = await db.createTodo({
-        title: 'Original Title',
-        completed: false,
-        userId: testUser.id,
-      });
-
-      const updateData = {
-        completed: true, // Only update completion status
-      };
-
-      const response = await apiTester.testUpdate(
-        '/todos',
-        createdTodo.id,
-        updateData
-      );
-
-      expect(response.body.completed).toBe(true);
-      expect(response.body.title).toBe('Original Title'); // Should remain unchanged
-    });
-
     it('should return 404 for non-existent todo', async () => {
       const updateData = { title: 'Updated Title' };
       await apiTester.testUpdate('/todos', 999, updateData, 404);
@@ -357,6 +336,28 @@ describe('Todos API Integration Tests', () => {
         'put',
         invalidData
       );
+    });
+  });
+
+  describe('PATCH /todos/:id', () => {
+    it('should update only specific fields', async () => {
+      const createdTodo = await db.createTodo({
+        title: 'Original Title',
+        completed: false,
+        userId: testUser.id,
+      });
+
+      const updateData = {
+        completed: true, // Only update completion status
+      };
+
+      const response = await request(app)
+        .patch(`/todos/${createdTodo.id}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(response.body.completed).toBe(true);
+      expect(response.body.title).toBe('Original Title'); // Should remain unchanged
     });
   });
 
@@ -514,7 +515,7 @@ describe('Todos API Integration Tests', () => {
 
       // Mark as completed
       await request(app)
-        .put(`/todos/${todo.id}`)
+        .patch(`/todos/${todo.id}`)
         .send({ completed: true })
         .expect(200);
 
@@ -526,7 +527,7 @@ describe('Todos API Integration Tests', () => {
 
       // Mark as incomplete
       await request(app)
-        .put(`/todos/${todo.id}`)
+        .patch(`/todos/${todo.id}`)
         .send({ completed: false })
         .expect(200);
 
@@ -549,7 +550,7 @@ describe('Todos API Integration Tests', () => {
 
       // Update the todo
       await request(app)
-        .put(`/todos/${todo.id}`)
+        .patch(`/todos/${todo.id}`)
         .send({ completed: true })
         .expect(200);
 

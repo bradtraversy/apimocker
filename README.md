@@ -50,12 +50,103 @@ You can test it out with my API probe tool - https://apiprobe.dev
 
 - GET `https://apimocker.com/health`
 
+## Isolated Environments Beta
+
+The shared `/users`, `/posts`, `/todos`, and `/comments` API remains free and
+resets every day. Paid beta environments keep a private copy of those five
+collections, including likes, behind an API key. Data written to one environment
+cannot affect the shared API or another customer environment.
+
+Environment routes use this base path:
+
+```http
+/v1/environments/:slug
+```
+
+Send the API key with every environment request. This key is a browser-visible
+metering token for non-sensitive mock data, so it is not an authorization
+boundary for confidential information:
+
+```http
+X-API-Key: am_env_your_key
+```
+
+The four main resources support CRUD plus the common filtering, sorting,
+pagination, search, relationship, and post-like flows used by the shared API.
+
+The intentional beta differences that remain are:
+
+- Every isolated request requires an API key and limits request bodies to 64 KB.
+- Authenticated requests to active environments consume persistent monthly and
+  burst quota after payload parsing.
+- Usage and reset are environment-only routes. Reset also requires the
+  management key.
+- Isolated environments do not expose `/health` or `/error` routes.
+- Isolated routes do not support `_delay` response simulation.
+- Isolated writes discard unknown input fields, while shared Prisma-backed
+  writes reject fields outside the resource schema.
+- Isolated domain errors can use a different response envelope from shared
+  Prisma errors.
+
+The environment-only routes are:
+
+```http
+GET /v1/environments/:slug/usage
+POST /v1/environments/:slug/reset
+```
+
+Reset also requires a server-side management key:
+
+```http
+X-Management-Key: am_mgmt_your_key
+```
+
+Usage is enforced with persistent monthly and per-minute counters in PostgreSQL.
+Each resource also has a record cap. The reset route restores the private data
+snapshot captured when the environment was created. The global midnight reset
+does not modify paid environments. Keep the management key on the server and
+never include it in browser code.
+
+Billing and customer self-service are not part of this beta. Provision and
+revoke environments from the server:
+
+```bash
+npm run env:create -- --slug acme-course --name "Acme Course" --plan classroom
+npm run env:revoke -- --slug acme-course
+```
+
+The `developer` plan defaults to 25,000 monthly requests, 120 requests per
+minute, and 1,000 records per resource. The `classroom` plan defaults to
+100,000 monthly requests, 240 requests per minute, and 2,000 records per
+resource. Provisioning arguments can override those limits for a manual beta
+customer.
+
+The create command copies all current global tables in ID order inside one
+repeatable-read transaction. It displays the API and management keys once and
+stores only their SHA-256 hashes.
+
+Existing deployments that were created with `prisma db push` must mark the
+tracked baseline as already applied before deploying the environment tables:
+
+```bash
+npx prisma migrate resolve --applied 20260720112500_baseline_existing_schema
+npm run db:migrate
+```
+
+Run these commands with `DIRECT_URL` pointing to the target database. A fresh
+database only needs `npm run db:migrate`. Keep
+`ENABLE_ISOLATED_ENVIRONMENTS=false` during the migration, then enable it and
+restart the server after provisioning the first environment.
+
+The routes stay unavailable while `ENABLE_ISOLATED_ENVIRONMENTS` is `false`.
+Keep both displayed keys in a password manager or secrets service.
+
 ---
 
 ## ✨ Features
 
 - **Full CRUD Operations** - Create, Read, Update, Delete for all resources
-- **PATCH Method Support** - Partial updates for posts, todos, and comments
+- **PATCH Method Support** - Partial updates for users, posts, todos, and comments
 - **Advanced Filtering** - `_like`, `_sort`, `_order` parameters with `X-Total-Count` headers
 - **Per-Resource Search** - Dedicated `/search` endpoints on users, posts, todos, and comments
 - **Response Delay Simulation** - `_delay` parameter for testing loading states
@@ -86,7 +177,7 @@ You can test it out with my API probe tool - https://apiprobe.dev
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22.12 or newer
 - npm or yarn
 - Neon PostgreSQL database
 
@@ -117,10 +208,12 @@ You can test it out with my API probe tool - https://apiprobe.dev
    ```env
    # Database
    DATABASE_URL="postgresql://username:password@host/database?sslmode=require"
+   # DIRECT_URL="postgresql://username:password@host/database?sslmode=require"
 
    # Server
    PORT=8000
    NODE_ENV=development
+   ENABLE_ISOLATED_ENVIRONMENTS=false
 
    # Rate Limiting
    RATE_LIMIT_WINDOW_MS=86400000 # 24 hours
@@ -129,6 +222,10 @@ You can test it out with my API probe tool - https://apiprobe.dev
    # Logging
    LOG_LEVEL=info
    ```
+
+   Prisma 7 reads its CLI connection URL from `prisma.config.ts`. It uses
+   `DATABASE_URL` by default. Set `DIRECT_URL` only when schema commands need a
+   separate direct database connection.
 
 4. **Generate Prisma client**
 
@@ -348,9 +445,13 @@ Content-Type: application/json
 ```http
 PUT /users/1
 {
-  "name": "Updated Name"
+  "name": "Updated Name",
+  "username": "updateduser",
+  "email": "updated@example.com"
 }
 ```
+
+Use `PATCH /users/1` when sending only the fields that should change.
 
 #### Delete User
 
@@ -901,6 +1002,7 @@ npm run start        # Start production server
 
 # Database
 npm run db:generate  # Generate Prisma client
+npm run db:migrate   # Apply tracked database migrations
 npm run db:push      # Push schema to database
 npm run db:seed      # Seed database with sample data
 npm run db:reset     # Reset and reseed database
@@ -968,15 +1070,18 @@ apimocker/
 | Variable                | Description                              | Default        |
 | ----------------------- | ---------------------------------------- | -------------- |
 | `DATABASE_URL`          | PostgreSQL connection string             | Required       |
+| `TEST_DATABASE_URL`     | Dedicated database used only by the default Jest suite | Required for database tests |
+| `DIRECT_URL`            | Optional direct URL for Prisma CLI commands | DATABASE_URL |
 | `PORT`                  | Server port                              | 8000           |
 | `NODE_ENV`              | Environment (development/production)     | development    |
+| `ENABLE_ISOLATED_ENVIRONMENTS` | Enable paid environment routes after schema setup | false |
 | `RATE_LIMIT_WINDOW_MS`  | Rate limit window in milliseconds        | 86400000 (24h) |
 | `RATE_LIMIT_MAX_WRITES` | Maximum write operations per day per IP  | 100            |
 | `LOG_LEVEL`             | Logging level (error, warn, info, debug) | info           |
 
 ### Database Schema
 
-The application uses five models:
+The shared API uses five models:
 
 - **User**: Personal information, contact details, address, company
 - **Post**: Blog posts with title, body, and user relationship
@@ -987,6 +1092,10 @@ The application uses five models:
 All models include timestamps and proper foreign key relationships, with cascade
 deletes from parents to children.
 
+The isolated-environments beta adds `ApiEnvironment` for credentials and quotas,
+plus `EnvironmentCollection` for private JSON resource snapshots. These models
+are not touched by the shared API's daily reset.
+
 ## 🚀 Deployment
 
 ### Production Deployment
@@ -996,6 +1105,7 @@ deletes from parents to children.
    ```bash
    NODE_ENV=production
    DATABASE_URL=your_production_database_url
+   # DIRECT_URL=your_direct_database_url
    ```
 
 2. **Build the application**
@@ -1003,6 +1113,8 @@ deletes from parents to children.
    ```bash
    npm run build
    ```
+
+   The build generates the Prisma 7 client before compiling TypeScript.
 
 3. **Start the server**
    ```bash
@@ -1012,7 +1124,7 @@ deletes from parents to children.
 ### Docker Deployment (Optional)
 
 ```dockerfile
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -1041,7 +1153,7 @@ ApiMocker includes a comprehensive testing suite with both integration and unit 
 
    # Set up test environment variables
    cp .env.example .env.test
-   # Edit .env.test with test database URL
+   # Edit TEST_DATABASE_URL in .env.test to point to a dedicated test database
    ```
 
 2. **Run tests**:
