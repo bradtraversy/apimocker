@@ -25,7 +25,7 @@ import environmentRoutes from './routes/environments';
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app: express.Express = express();
 const port = process.env['PORT'] || 8000;
 
 // Trust proxy for rate limiting behind load balancers/proxies
@@ -56,9 +56,6 @@ if (process.env['ENABLE_ISOLATED_ENVIRONMENTS'] === 'true') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from public folder
-app.use(express.static('public'));
-
 // Custom middleware
 app.use(requestLogger);
 app.use(rateLimiter);
@@ -72,9 +69,12 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Web interface at root - serves static HTML file
 app.get('/', (_req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+  res.json({
+    name: 'ApiMocker API',
+    status: 'running',
+    health: '/health',
+  });
 });
 
 // API routes
@@ -109,7 +109,7 @@ const startServer = async () => {
     app.listen(port, () => {
       logger.info(`🚀 ApiMocker server running on port ${port}`);
       logger.info(`📊 Health check: http://localhost:${port}/health`);
-      logger.info(`🌐 Web interface: http://localhost:${port}/`);
+      logger.info(`🌐 API status: http://localhost:${port}/`);
       logger.info(`🔗 API base: http://localhost:${port}`);
     });
   } catch (error) {

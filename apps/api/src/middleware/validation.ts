@@ -107,7 +107,7 @@ const todoValidators = (partial = false) => [
 export const validateTodo = todoValidators();
 export const validateTodoPatch = todoValidators(true);
 
-// Like validation rules — userId is the only optional body field.
+// userId is the only optional field in a like body.
 export const validateLike = [
   body('userId')
     .optional()

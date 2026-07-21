@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { UsersController } from '../controllers/usersController';
 import { validateUser, validateUserPatch } from '../middleware/validation';
 
-const router = Router();
+const router: Router = Router();
 const usersController = new UsersController();
 
 // Search users

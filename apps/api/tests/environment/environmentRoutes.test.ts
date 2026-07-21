@@ -282,6 +282,20 @@ const environmentRequest = (
   path: string
 ) => request(app).get(`/v1/environments/${slug}${path}`).set('X-API-Key', apiKeys[slug]);
 
+describe('API root', () => {
+  it('returns API status without serving legacy frontend assets', async () => {
+    const status = await request(exportedApp).get('/').expect(200);
+
+    expect(status.body).toEqual({
+      name: 'ApiMocker API',
+      status: 'running',
+      health: '/health',
+    });
+
+    await request(exportedApp).get('/styles.css').expect(404);
+  });
+});
+
 describe('isolated environment routes', () => {
   let app: ReturnType<typeof makeIsolatedApp>;
 

@@ -33,12 +33,14 @@ tests/
 ### 1. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
+
+Run all commands in this guide from the repository root.
 
 ### 2. Set Up Test Environment
 
-Create a `.env.test` file in the root directory:
+Create `apps/api/.env.test`:
 
 ```env
 # Test Environment Variables
@@ -64,33 +66,33 @@ LOG_LEVEL=error # Only log errors during tests
 createdb apimocker_test
 
 # Generate Prisma client
-npm run db:generate
+pnpm run db:generate
 
 # Push schema with both Prisma URLs pinned to the test database
-TEST_DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test"
-DATABASE_URL="$TEST_DATABASE_URL" DIRECT_URL="$TEST_DATABASE_URL" npm run db:push
+export TEST_DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test"
+DATABASE_URL="$TEST_DATABASE_URL" DIRECT_URL="$TEST_DATABASE_URL" pnpm run db:push
 ```
 
 ### 4. Run Tests
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run tests in watch mode
-npm run test:watch
+pnpm run test:watch
 
 # Run with coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # Run only integration tests
-npm run test:integration
+pnpm run test:integration
 
 # Run only unit tests
-npm run test:unit
+pnpm run test:unit
 
 # Run isolated environment tests without a database
-npm run test:environment -- --runInBand
+pnpm run test:environment
 ```
 
 ## 🧪 Test Types
@@ -273,20 +275,20 @@ The test setup (`tests/setup.ts`) handles:
 
 ```bash
 # Run specific test file
-npm test -- users.test.ts
+pnpm test -- users.test.ts
 
 # Run specific test suite
-npm test -- --testNamePattern="should return all users"
+pnpm test -- --testNamePattern="should return all users"
 
 # Run tests with verbose output
-npm test -- --verbose
+pnpm test -- --verbose
 ```
 
 ### Debug Mode
 
 ```bash
 # Run tests in debug mode
-node --inspect-brk node_modules/.bin/jest --runInBand
+pnpm --filter @apimocker/api exec node --inspect-brk node_modules/jest/bin/jest.js --runInBand
 ```
 
 ### Database Debugging
@@ -328,17 +330,21 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm ci
-      - run: npm run db:generate
-      - run: npm run db:push
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run db:generate
+      - run: pnpm run db:push
         env:
           DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
           DIRECT_URL: ${{ env.TEST_DATABASE_URL }}
-      - run: npm test
-      - run: npm run test:coverage
+      - run: pnpm test
+      - run: pnpm run test:coverage
 ```
 
 ## 🎯 Best Practices
@@ -391,7 +397,7 @@ createdb apimocker_test
 jest.setTimeout(30000);
 
 # Run tests with longer timeout
-npm test -- --testTimeout=30000
+pnpm test -- --testTimeout=30000
 ```
 
 ### Environment Variable Issues
@@ -401,7 +407,7 @@ npm test -- --testTimeout=30000
 test -n "$TEST_DATABASE_URL" && echo "TEST_DATABASE_URL is configured"
 
 # Set test environment explicitly
-NODE_ENV=test npm test
+NODE_ENV=test pnpm test
 ```
 
 ## 📚 Additional Resources

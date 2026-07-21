@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { TodosController } from '../controllers/todosController';
 import { validateTodo, validateTodoPatch } from '../middleware/validation';
 
-const router = Router();
+const router: Router = Router();
 const todosController = new TodosController();
 
 // Search todos

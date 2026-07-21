@@ -6,7 +6,7 @@ A comprehensive fake REST API service for developers to test against, built with
 
 You can test it out with my API probe tool - https://apiprobe.dev
 
-<img src="./public/screen.png" width="500">
+<img src="./apps/api/public/screen.png" width="500">
 
 ## ⚡ Quick Usage (Hosted)
 
@@ -111,8 +111,8 @@ Billing and customer self-service are not part of this beta. Provision and
 revoke environments from the server:
 
 ```bash
-npm run env:create -- --slug acme-course --name "Acme Course" --plan classroom
-npm run env:revoke -- --slug acme-course
+pnpm run env:create -- --slug acme-course --name "Acme Course" --plan classroom
+pnpm run env:revoke -- --slug acme-course
 ```
 
 The `developer` plan defaults to 25,000 monthly requests, 120 requests per
@@ -129,12 +129,12 @@ Existing deployments that were created with `prisma db push` must mark the
 tracked baseline as already applied before deploying the environment tables:
 
 ```bash
-npx prisma migrate resolve --applied 20260720112500_baseline_existing_schema
-npm run db:migrate
+pnpm --filter @apimocker/api exec prisma migrate resolve --applied 20260720112500_baseline_existing_schema
+pnpm run db:migrate
 ```
 
 Run these commands with `DIRECT_URL` pointing to the target database. A fresh
-database only needs `npm run db:migrate`. Keep
+database only needs `pnpm run db:migrate`. Keep
 `ENABLE_ISOLATED_ENVIRONMENTS=false` during the migration, then enable it and
 restart the server after provisioning the first environment.
 
@@ -177,8 +177,8 @@ Keep both displayed keys in a password manager or secrets service.
 
 ### Prerequisites
 
-- Node.js 22.12 or newer
-- npm or yarn
+- Node.js 22.12.x
+- pnpm 11.9.0
 - Neon PostgreSQL database
 
 ### Installation
@@ -193,17 +193,17 @@ Keep both displayed keys in a password manager or secrets service.
 2. **Install dependencies**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Set up environment variables**
    Copy the example file and fill in your values:
 
    ```bash
-   cp .env.example .env
+   cp apps/api/.env.example apps/api/.env
    ```
 
-   Then edit `.env` to set your `DATABASE_URL`. The full set of supported variables:
+   Then edit `apps/api/.env` to set your `DATABASE_URL`. The full set of supported variables:
 
    ```env
    # Database
@@ -230,24 +230,24 @@ Keep both displayed keys in a password manager or secrets service.
 4. **Generate Prisma client**
 
    ```bash
-   npm run db:generate
+   pnpm run db:generate
    ```
 
 5. **Push database schema**
 
    ```bash
-   npm run db:push
+   pnpm run db:push
    ```
 
 6. **Seed the database**
 
    ```bash
-   npm run db:seed
+   pnpm run db:seed
    ```
 
 7. **Start the server**
    ```bash
-   npm run dev
+   pnpm run dev:api
    ```
 
 The API will be available at `http://localhost:8000`
@@ -260,8 +260,8 @@ The API will be available at `http://localhost:8000`
 http://localhost:8000
 ```
 
-The web interface lives at the same root (`http://localhost:8000/`) and serves
-API documentation and quick testing links.
+The API root (`http://localhost:8000/`) returns a small status payload. The Astro
+frontend is developed separately with `pnpm run dev:web`.
 
 ### Response Format
 
@@ -273,7 +273,7 @@ API documentation and quick testing links.
   ```
 
 - **Single-resource endpoints** (e.g. `GET /posts/1`, `POST /posts`,
-  `PUT /posts/1`) return the bare resource object — no wrapper:
+  `PUT /posts/1`) return the bare resource object with no wrapper:
 
   ```json
   { "id": 1, "title": "...", "body": "...", "user": { ... } }
@@ -996,70 +996,55 @@ ApiMocker uses Winston for comprehensive logging:
 
 ```bash
 # Development
-npm run dev          # Start development server
-npm run build        # Build TypeScript
-npm run start        # Start production server
+pnpm run dev         # Start both development servers
+pnpm run dev:api     # Start the API development server
+pnpm run dev:web     # Start the Astro development server
+pnpm run build       # Build both workspace apps
+pnpm run build:api   # Build the API
+pnpm run build:web   # Build the Astro app
+pnpm run typecheck   # Type-check both workspace apps
+pnpm run start       # Start the built API
+pnpm run start:api   # Start the built API
+pnpm run start:web   # Start the built Astro Node server
 
 # Database
-npm run db:generate  # Generate Prisma client
-npm run db:migrate   # Apply tracked database migrations
-npm run db:push      # Push schema to database
-npm run db:seed      # Seed database with sample data
-npm run db:reset     # Reset and reseed database
-npm run db:studio    # Open Prisma Studio
+pnpm run db:generate # Generate Prisma client
+pnpm run db:migrate  # Apply tracked database migrations
+pnpm run db:push     # Push schema to database
+pnpm run db:seed     # Seed database with sample data
+pnpm run db:reset    # Reset and reseed database
+pnpm run db:studio   # Open Prisma Studio
 
 # Testing
-npm test             # Run all tests
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage
-npm run test:integration # Run only integration tests
-npm run test:unit    # Run only unit tests
+pnpm test                 # Run all API tests
+pnpm run test:watch       # Run API tests in watch mode
+pnpm run test:coverage    # Run API tests with coverage
+pnpm run test:integration # Run only integration tests
+pnpm run test:unit        # Run only unit tests
+pnpm run test:environment # Run isolated environment tests
 ```
 
 ## 📁 Project Structure
 
 ```
 apimocker/
-├── src/
-│   ├── controllers/
-│   │   ├── genericController.ts    # Shared CRUD logic
-│   │   ├── usersController.ts      # User search
-│   │   ├── postsController.ts      # Post search + likes
-│   │   ├── todosController.ts      # Todo search
-│   │   └── commentsController.ts   # Comment search
-│   ├── middleware/
-│   │   ├── errorHandler.ts         # Error handling middleware
-│   │   ├── rateLimiter.ts          # Rate limiting middleware
-│   │   ├── requestLogger.ts        # Request logging middleware
-│   │   └── validation.ts           # Input validation middleware
-│   ├── routes/
-│   │   ├── users.ts                # User routes
-│   │   ├── posts.ts                # Post routes (incl. likes)
-│   │   ├── todos.ts                # Todo routes
-│   │   ├── comments.ts             # Comment routes
-│   │   └── errors.ts               # Error simulation routes
-│   ├── scripts/
-│   │   ├── seed.ts                 # Database seeding
-│   │   └── reset.ts                # Database reset
-│   ├── utils/
-│   │   ├── logger.ts               # Winston logger configuration
-│   │   └── cronJobs.ts             # Daily reset scheduling
-│   ├── lib/
-│   │   └── prisma.ts               # Prisma client initialization
-│   └── index.ts                    # Main application file
-├── prisma/
-│   └── schema.prisma               # Database schema
-├── tests/
-│   ├── integration/                # API endpoint tests
-│   ├── unit/                       # Unit tests
-│   ├── utils/testHelpers.ts        # Shared test utilities
-│   └── setup.ts                    # Jest global setup
-├── public/                         # Landing page + static assets
-├── logs/                           # Log files (auto-generated)
-├── .env.example                    # Example env vars (committed)
-├── .env                            # Environment variables (gitignored)
-├── package.json
-├── tsconfig.json
+├── apps/
+│   ├── api/
+│   │   ├── prisma/                 # Database schema and migrations
+│   │   ├── public/                 # Preserved legacy homepage source
+│   │   ├── src/                    # Express API source
+│   │   ├── tests/                  # API test suites and guide
+│   │   ├── .env.example            # API environment template
+│   │   ├── package.json
+│   │   └── prisma.config.ts
+│   └── web/
+│       ├── public/                 # Astro static assets
+│       ├── src/                    # Astro pages and components
+│       ├── astro.config.mjs
+│       └── package.json
+├── prototypes/                     # Design prototypes
+├── package.json                    # Workspace scripts
+├── pnpm-workspace.yaml
 └── README.md
 ```
 
@@ -1098,46 +1083,11 @@ are not touched by the shared API's daily reset.
 
 ## 🚀 Deployment
 
-### Production Deployment
-
-1. **Set environment variables**
-
-   ```bash
-   NODE_ENV=production
-   DATABASE_URL=your_production_database_url
-   # DIRECT_URL=your_direct_database_url
-   ```
-
-2. **Build the application**
-
-   ```bash
-   npm run build
-   ```
-
-   The build generates the Prisma 7 client before compiling TypeScript.
-
-3. **Start the server**
-   ```bash
-   npm start
-   ```
-
-### Docker Deployment (Optional)
-
-```dockerfile
-FROM node:22-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-RUN npm run build
-
-EXPOSE 8000
-
-CMD ["npm", "start"]
-```
+Production deployment and Docker packaging have not yet been updated for the
+pnpm workspace. The API can be built with `pnpm run build:api` and started with
+`pnpm run start:api`. The Astro app builds with the Node adapter in standalone
+mode and starts with `pnpm run start:web`, but Render configuration, production
+migration, web deployment, and container configuration remain future work.
 
 ## 🧪 Testing
 
@@ -1152,22 +1102,22 @@ ApiMocker includes a comprehensive testing suite with both integration and unit 
    createdb apimocker_test
 
    # Set up test environment variables
-   cp .env.example .env.test
-   # Edit TEST_DATABASE_URL in .env.test to point to a dedicated test database
+   cp apps/api/.env.example apps/api/.env.test
+   # Edit TEST_DATABASE_URL in apps/api/.env.test to use a dedicated test database
    ```
 
 2. **Run tests**:
 
    ```bash
    # Run all tests
-   npm test
+   pnpm test
 
    # Run with coverage
-   npm run test:coverage
+   pnpm run test:coverage
 
    # Run specific test types
-   npm run test:integration
-   npm run test:unit
+   pnpm run test:integration
+   pnpm run test:unit
    ```
 
 ### Test Types
@@ -1187,7 +1137,8 @@ The test suite covers:
 - ✅ Database relationships
 - ✅ Edge cases and boundary conditions
 
-For detailed testing information, see [tests/README.md](tests/README.md).
+For detailed testing information, see
+[apps/api/tests/README.md](apps/api/tests/README.md).
 
 ## 🤝 Contributing
 

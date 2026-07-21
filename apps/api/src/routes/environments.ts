@@ -16,7 +16,7 @@ import {
   validateUserPatch,
 } from '../middleware/validation';
 
-const router = Router({ mergeParams: true });
+const router: Router = Router({ mergeParams: true });
 const controller = new EnvironmentController();
 
 router.use(requireEnvironmentAccess);

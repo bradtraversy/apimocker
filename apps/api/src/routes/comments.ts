@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { CommentsController } from '../controllers/commentsController';
 import { validateComment, validateCommentPatch } from '../middleware/validation';
 
-const router = Router();
+const router: Router = Router();
 const commentsController = new CommentsController();
 
 // Search comments

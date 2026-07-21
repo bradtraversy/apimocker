@@ -497,7 +497,7 @@ describe('Todos API Integration Tests', () => {
         userId: testUser.id,
       });
 
-      // Delete the user — schema declares onDelete: Cascade for Todo.userId,
+      // The schema declares onDelete: Cascade for Todo.userId,
       // so the todo should be removed alongside the user.
       await request(app).delete(`/users/${testUser.id}`).expect(204);
 

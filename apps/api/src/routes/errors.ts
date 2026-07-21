@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 
-const router = Router();
+const router: Router = Router();
 
 // Error simulation endpoints (for testing error handling)
 router.get('/404', (_req: Request, res: Response) => {
@@ -38,4 +38,4 @@ router.get('/validation', (_req: Request, res: Response) => {
   });
 });
 
-export default router; 
+export default router;

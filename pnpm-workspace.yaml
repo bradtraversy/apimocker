@@ -1,0 +1,16 @@
+packages:
+  - apps/*
+
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  sharp: true
+
+minimumReleaseAgeExclude:
+  - astro@7.1.3
+
+overrides:
+  '@types/node': 20.19.9
+  tsx: 4.20.3
+  typescript: 5.8.3

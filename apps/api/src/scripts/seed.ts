@@ -484,7 +484,7 @@ export const seedDatabase = async () => {
   try {
     logger.info('Starting database seeding...');
 
-    // Clear existing data — children before parents.
+    // Clear children before parents.
     await prisma.like.deleteMany();
     await prisma.comment.deleteMany();
     await prisma.todo.deleteMany();

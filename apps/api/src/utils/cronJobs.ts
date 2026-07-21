@@ -11,7 +11,7 @@ export const setupCronJobs = () => {
       logger.info('Starting daily database reset...');
 
       try {
-        // Clear all data — children before parents.
+        // Clear children before parents.
         await prisma.like.deleteMany();
         await prisma.comment.deleteMany();
         await prisma.todo.deleteMany();

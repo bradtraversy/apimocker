@@ -388,7 +388,7 @@ describe('Posts API Integration Tests', () => {
         userId: testUser.id,
       });
 
-      // Delete the user — schema declares onDelete: Cascade for Post.userId,
+      // The schema declares onDelete: Cascade for Post.userId,
       // so the post should be removed alongside the user.
       await request(app).delete(`/users/${testUser.id}`).expect(204);
 
@@ -398,7 +398,7 @@ describe('Posts API Integration Tests', () => {
 
   describe('Rate Limiting', () => {
     beforeEach(() => {
-      // Rate limiter state is process-scoped — reset so other tests in this
+      // Reset process-scoped rate limiter state so other tests in this
       // file haven't already consumed the daily IP quota.
       _resetWriteCountsForTesting();
     });

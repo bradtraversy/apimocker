@@ -6,7 +6,7 @@ import {
   validatePostPatch,
 } from '../middleware/validation';
 
-const router = Router();
+const router: Router = Router();
 const postsController = new PostsController();
 
 // GET /posts - Get all posts
