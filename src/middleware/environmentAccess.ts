@@ -9,6 +9,8 @@ export const environmentAttemptRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 60,
   skipSuccessfulRequests: true,
+  requestWasSuccessful: (_req, res) =>
+    res.locals['environmentAuthFailed'] !== true,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -150,6 +152,7 @@ export const requireEnvironmentAccess = async (
     const apiKey = req.header('X-API-Key');
 
     if (!slug || !apiKey) {
+      res.locals['environmentAuthFailed'] = true;
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'A valid X-API-Key header is required',
@@ -162,6 +165,7 @@ export const requireEnvironmentAccess = async (
     });
 
     if (!environment || !apiKeyMatches(apiKey, environment.apiKeyHash)) {
+      res.locals['environmentAuthFailed'] = true;
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'A valid X-API-Key header is required',
@@ -180,6 +184,13 @@ export const requireEnvironmentAccess = async (
       return res.status(403).json({
         error: 'Forbidden',
         message: 'This environment is unavailable',
+      });
+    }
+
+    if (!metered.environment.active) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'This environment is inactive',
       });
     }
 

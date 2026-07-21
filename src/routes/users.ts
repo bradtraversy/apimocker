@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { UsersController } from '../controllers/usersController';
-import { validateUser } from '../middleware/validation';
+import { validateUser, validateUserPatch } from '../middleware/validation';
 
 const router = Router();
 const usersController = new UsersController();
@@ -31,7 +31,7 @@ router.post('/', validateUser, usersController.create);
 router.put('/:id', validateUser, usersController.update);
 
 // PATCH /users/:id - Partial update user
-router.patch('/:id', validateUser, usersController.update);
+router.patch('/:id', validateUserPatch, usersController.update);
 
 // DELETE /users/:id - Delete user
 router.delete('/:id', usersController.delete);

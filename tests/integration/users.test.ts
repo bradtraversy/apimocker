@@ -37,8 +37,8 @@ describe('Users API Integration Tests', () => {
 
     it('should return all users with pagination', async () => {
       // Create test users
-      const user1 = await db.createUser(sampleUsers[0]);
-      const user2 = await db.createUser(sampleUsers[1]);
+      await db.createUser(sampleUsers[0]);
+      await db.createUser(sampleUsers[1]);
 
       const response = await apiTester.testGetAll('/users');
 
@@ -115,7 +115,7 @@ describe('Users API Integration Tests', () => {
         name: 'New User',
         username: 'newuser',
         email: 'newuser@example.com',
-        phone: '+1-555-0125',
+        phone: '+12025550125',
         website: 'https://newuser.com',
         address: {
           street: '789 Pine St',
@@ -190,6 +190,7 @@ describe('Users API Integration Tests', () => {
       const createdUser = await db.createUser(sampleUsers[0]);
       const updateData = {
         name: 'Updated Name',
+        username: 'updateduser',
         email: 'updated@example.com',
       };
 
@@ -204,7 +205,11 @@ describe('Users API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      const updateData = { name: 'Updated Name' };
+      const updateData = {
+        name: 'Updated Name',
+        username: 'updateduser',
+        email: 'updated@example.com',
+      };
       await apiTester.testUpdate('/users', 999, updateData, 404);
     });
 
@@ -241,12 +246,12 @@ describe('Users API Integration Tests', () => {
   describe('GET /users/:id/posts', () => {
     it('should return user posts', async () => {
       const user = await db.createUser(sampleUsers[0]);
-      const post1 = await db.createPost({
+      await db.createPost({
         title: 'User Post 1',
         body: 'Content 1',
         userId: user.id,
       });
-      const post2 = await db.createPost({
+      await db.createPost({
         title: 'User Post 2',
         body: 'Content 2',
         userId: user.id,
@@ -307,12 +312,12 @@ describe('Users API Integration Tests', () => {
   describe('GET /users/:id/todos', () => {
     it('should return user todos', async () => {
       const user = await db.createUser(sampleUsers[0]);
-      const todo1 = await db.createTodo({
+      await db.createTodo({
         title: 'User Todo 1',
         completed: true,
         userId: user.id,
       });
-      const todo2 = await db.createTodo({
+      await db.createTodo({
         title: 'User Todo 2',
         completed: false,
         userId: user.id,

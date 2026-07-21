@@ -13,6 +13,8 @@ import {
   generateManagementKey,
   hashApiKey,
 } from '../../src/utils/apiKey';
+import { assertMaxRecordsCoversSnapshots } from '../../src/scripts/environmentArgs';
+import { assertTestDatabaseIsIsolated } from '../utils/testDatabaseSafety';
 
 const records = (values: EnvironmentRecord[]) => makeCollectionState(values);
 
@@ -142,5 +144,38 @@ describe('isolated environment access helpers', () => {
     expect(managementKey.startsWith('am_mgmt_')).toBe(true);
     expect(apiKeyMatches(managementKey, hash)).toBe(true);
     expect(apiKeyMatches(generateApiKey(), hash)).toBe(false);
+  });
+});
+
+describe('isolated environment provisioning limits', () => {
+  it('rejects a record cap smaller than the largest seed snapshot', () => {
+    expect(() =>
+      assertMaxRecordsCoversSnapshots(2, {
+        users: [{ id: 1 }],
+        posts: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      })
+    ).toThrow('--max-records must be at least 3 to fit the posts seed data');
+  });
+});
+
+describe('test database safety', () => {
+  it('rejects the same database through Neon pooled and direct hostnames', () => {
+    expect(() =>
+      assertTestDatabaseIsIsolated(
+        'postgresql://test:test@ep-example-pooler.us-east-2.aws.neon.tech/app_test',
+        'postgresql://app:secret@ep-example.us-east-2.aws.neon.tech/app_test'
+      )
+    ).toThrow(
+      'TEST_DATABASE_URL must not target the same host and database as DATABASE_URL'
+    );
+  });
+
+  it('allows a separate database on the same host', () => {
+    expect(() =>
+      assertTestDatabaseIsIsolated(
+        'postgresql://test:test@localhost:5432/apimocker_test',
+        'postgresql://app:secret@localhost:5432/apimocker'
+      )
+    ).not.toThrow();
   });
 });

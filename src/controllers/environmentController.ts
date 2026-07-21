@@ -186,7 +186,7 @@ export class EnvironmentController {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const q = req.query['q'];
-        if (typeof q !== 'string') {
+        if (typeof q !== 'string' || !q.trim()) {
           return res.status(400).json({
             error: 'Bad Request',
             message: 'Query parameter "q" is required',
@@ -239,13 +239,17 @@ export class EnvironmentController {
       try {
         const userId = parseId(req.params['id']);
         const environment = getEnvironmentContext(res);
-        const state = await store.read(environment.id, [relation]);
+        const state = await store.read(environment.id, [relation, 'users']);
 
         const query = {
           ...req.query,
           userId: userId.toString(),
         } as Record<string, unknown>;
-        return res.json(listRecords(getCollection(state, relation).data, query));
+        const listed = listRecords(getCollection(state, relation).data, query);
+        return res.json({
+          ...listed,
+          data: listed.data.map(record => hydrateRecord(relation, record, state)),
+        });
       } catch (error) {
         return environmentError(error, res, next);
       }

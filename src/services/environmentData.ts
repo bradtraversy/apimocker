@@ -286,9 +286,6 @@ export const updateRecord = (
 
   const current = collection.data[index] as EnvironmentRecord;
   const data = pickFields(resource, input);
-  if ((resource === 'posts' || resource === 'todos') && !data['userId']) {
-    data['userId'] = 1;
-  }
   normalizeFields(resource, data, false);
 
   const updated: EnvironmentRecord = {
@@ -369,6 +366,7 @@ const userSummary = (user: EnvironmentRecord | undefined) =>
         id: user.id,
         name: user['name'],
         username: user['username'],
+        email: user['email'],
       }
     : null;
 

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { GenericController } from './genericController';
+import { GenericController, parsePagination } from './genericController';
 import { prisma } from '../lib/prisma';
 
 export class PostsController extends GenericController {
@@ -10,6 +10,7 @@ export class PostsController extends GenericController {
           id: true,
           name: true,
           username: true,
+          email: true,
         },
       },
     });
@@ -18,7 +19,7 @@ export class PostsController extends GenericController {
   // Search posts by title and body with sorting and limiting
   search = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { q, _delay, _sort, _order, _limit, _page } = req.query;
+      const { q, _delay, _sort, _order } = req.query;
       
       // Handle response delay simulation
       const delay = Number(_delay || 0);
@@ -38,9 +39,7 @@ export class PostsController extends GenericController {
       // Handle sorting and limiting
       const sortField = (_sort as string) || 'id';
       const sortOrder = (_order as string) || 'asc';
-      const limit = Number(_limit || 10);
-      const page = Number(_page || 1);
-      const skip = (page - 1) * limit;
+      const { page, limit, skip } = parsePagination(req.query);
       
       const orderBy = { [sortField]: sortOrder };
       
@@ -61,6 +60,7 @@ export class PostsController extends GenericController {
                 id: true,
                 name: true,
                 username: true,
+                email: true,
               },
             },
           },
@@ -185,4 +185,4 @@ export class PostsController extends GenericController {
       return;
     }
   };
-} 
+}

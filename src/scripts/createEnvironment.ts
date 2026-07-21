@@ -7,7 +7,11 @@ import {
   hashApiKey,
 } from '../utils/apiKey';
 import { addMonth } from '../utils/environmentQuota';
-import { parseEnvironmentArgs, positiveIntegerArg } from './environmentArgs';
+import {
+  assertMaxRecordsCoversSnapshots,
+  parseEnvironmentArgs,
+  positiveIntegerArg,
+} from './environmentArgs';
 
 const toJson = (value: unknown) =>
   JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -85,6 +89,7 @@ const createEnvironment = async () => {
         comments: toJson(comments) as unknown as EnvironmentRecord[],
         likes: toJson(likes) as unknown as EnvironmentRecord[],
       };
+      assertMaxRecordsCoversSnapshots(maxRecords, snapshots);
 
       await transaction.apiEnvironment.create({
         data: {

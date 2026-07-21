@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { PostsController } from '../controllers/postsController';
-import { validatePost, validateLike } from '../middleware/validation';
+import {
+  validateLike,
+  validatePost,
+  validatePostPatch,
+} from '../middleware/validation';
 
 const router = Router();
 const postsController = new PostsController();
@@ -27,7 +31,7 @@ router.post('/', validatePost, postsController.create);
 router.put('/:id', validatePost, postsController.update);
 
 // PATCH /posts/:id - Partial update post
-router.patch('/:id', validatePost, postsController.update);
+router.patch('/:id', validatePostPatch, postsController.update);
 
 // DELETE /posts/:id - Delete post
 router.delete('/:id', postsController.delete);

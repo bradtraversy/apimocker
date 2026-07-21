@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { TodosController } from '../controllers/todosController';
-import { validateTodo } from '../middleware/validation';
+import { validateTodo, validateTodoPatch } from '../middleware/validation';
 
 const router = Router();
 const todosController = new TodosController();
@@ -21,7 +21,7 @@ router.post('/', validateTodo, todosController.create);
 router.put('/:id', validateTodo, todosController.update);
 
 // PATCH /todos/:id - Partial update todo
-router.patch('/:id', validateTodo, todosController.update);
+router.patch('/:id', validateTodoPatch, todosController.update);
 
 // DELETE /todos/:id - Delete todo
 router.delete('/:id', todosController.delete);

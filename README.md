@@ -73,8 +73,22 @@ X-API-Key: am_env_your_key
 
 The four main resources support CRUD plus the common filtering, sorting,
 pagination, search, relationship, and post-like flows used by the shared API.
-Some edge-case behavior can differ during the beta. Two environment-only routes
-are also available:
+
+The intentional beta differences that remain are:
+
+- Every isolated request requires an API key and limits request bodies to 64 KB.
+- Authenticated requests to active environments consume persistent monthly and
+  burst quota after payload parsing.
+- Usage and reset are environment-only routes. Reset also requires the
+  management key.
+- Isolated environments do not expose `/health` or `/error` routes.
+- Isolated routes do not support `_delay` response simulation.
+- Isolated writes discard unknown input fields, while shared Prisma-backed
+  writes reject fields outside the resource schema.
+- Isolated domain errors can use a different response envelope from shared
+  Prisma errors.
+
+The environment-only routes are:
 
 ```http
 GET /v1/environments/:slug/usage
@@ -132,7 +146,7 @@ Keep both displayed keys in a password manager or secrets service.
 ## ✨ Features
 
 - **Full CRUD Operations** - Create, Read, Update, Delete for all resources
-- **PATCH Method Support** - Partial updates for posts, todos, and comments
+- **PATCH Method Support** - Partial updates for users, posts, todos, and comments
 - **Advanced Filtering** - `_like`, `_sort`, `_order` parameters with `X-Total-Count` headers
 - **Per-Resource Search** - Dedicated `/search` endpoints on users, posts, todos, and comments
 - **Response Delay Simulation** - `_delay` parameter for testing loading states
@@ -431,9 +445,13 @@ Content-Type: application/json
 ```http
 PUT /users/1
 {
-  "name": "Updated Name"
+  "name": "Updated Name",
+  "username": "updateduser",
+  "email": "updated@example.com"
 }
 ```
+
+Use `PATCH /users/1` when sending only the fields that should change.
 
 #### Delete User
 
@@ -1052,6 +1070,7 @@ apimocker/
 | Variable                | Description                              | Default        |
 | ----------------------- | ---------------------------------------- | -------------- |
 | `DATABASE_URL`          | PostgreSQL connection string             | Required       |
+| `TEST_DATABASE_URL`     | Dedicated database used only by the default Jest suite | Required for database tests |
 | `DIRECT_URL`            | Optional direct URL for Prisma CLI commands | DATABASE_URL |
 | `PORT`                  | Server port                              | 8000           |
 | `NODE_ENV`              | Environment (development/production)     | development    |
@@ -1134,7 +1153,7 @@ ApiMocker includes a comprehensive testing suite with both integration and unit 
 
    # Set up test environment variables
    cp .env.example .env.test
-   # Edit .env.test with test database URL
+   # Edit TEST_DATABASE_URL in .env.test to point to a dedicated test database
    ```
 
 2. **Run tests**:

@@ -30,3 +30,22 @@ export const positiveIntegerArg = (
 
   return parsed;
 };
+
+export const assertMaxRecordsCoversSnapshots = (
+  maxRecords: number,
+  snapshots: Record<string, unknown[]>
+) => {
+  const largestSnapshot = Object.entries(snapshots).reduce(
+    (largest, [resource, records]) =>
+      records.length > largest.count
+        ? { resource, count: records.length }
+        : largest,
+    { resource: '', count: 0 }
+  );
+
+  if (maxRecords < largestSnapshot.count) {
+    throw new Error(
+      `--max-records must be at least ${largestSnapshot.count} to fit the ${largestSnapshot.resource} seed data`
+    );
+  }
+};

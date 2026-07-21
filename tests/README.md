@@ -8,6 +8,7 @@ The testing suite includes:
 
 - **Integration Tests**: Full API endpoint testing with real database operations
 - **Unit Tests**: Individual component testing with mocked dependencies
+- **Environment Tests**: Isolated route testing with mocked persistence
 - **Test Utilities**: Reusable testing helpers and data generators
 - **Test Database**: Isolated test database for consistent testing
 
@@ -44,12 +45,13 @@ Create a `.env.test` file in the root directory:
 NODE_ENV=test
 PORT=3001
 
-# Test Database (use a separate test database)
-DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test"
+# Test Database (must be separate from development and production)
+TEST_DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test"
+# For a disposable schema, append ?schema=apimocker_test to this URL
 
 # Rate Limiting (lower limits for testing)
 RATE_LIMIT_WINDOW_MS=60000 # 1 minute for testing
-RATE_LIMIT_MAX_WRITES=10 # 10 writes per minute for testing
+RATE_LIMIT_MAX_WRITES=100 # Matches the integration test expectation
 
 # Logging
 LOG_LEVEL=error # Only log errors during tests
@@ -64,8 +66,9 @@ createdb apimocker_test
 # Generate Prisma client
 npm run db:generate
 
-# Push schema to test database
-DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test" npm run db:push
+# Push schema with both Prisma URLs pinned to the test database
+TEST_DATABASE_URL="postgresql://test:test@localhost:5432/apimocker_test"
+DATABASE_URL="$TEST_DATABASE_URL" DIRECT_URL="$TEST_DATABASE_URL" npm run db:push
 ```
 
 ### 4. Run Tests
@@ -85,6 +88,9 @@ npm run test:integration
 
 # Run only unit tests
 npm run test:unit
+
+# Run isolated environment tests without a database
+npm run test:environment -- --runInBand
 ```
 
 ## 🧪 Test Types
@@ -256,7 +262,7 @@ The Jest configuration (`jest.config.js`) includes:
 
 The test setup (`tests/setup.ts`) handles:
 
-- **Environment Variables**: Loads test-specific environment
+- **Environment Variables**: Requires `TEST_DATABASE_URL` and uses its optional `?schema=` value for every test client
 - **Database Cleanup**: Cleans database before and after all tests
 - **Global Configuration**: Sets up test environment
 - **Timeout Configuration**: Increases timeout for database operations
@@ -305,12 +311,16 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:test@localhost:5432/apimocker_test
     services:
       postgres:
         image: postgres:13
         env:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: apimocker_test
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -320,10 +330,13 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '22'
       - run: npm ci
       - run: npm run db:generate
       - run: npm run db:push
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DIRECT_URL: ${{ env.TEST_DATABASE_URL }}
       - run: npm test
       - run: npm run test:coverage
 ```
@@ -339,6 +352,7 @@ jobs:
 ### Test Data Management
 
 - Use isolated test database
+- Never point `TEST_DATABASE_URL` at development or production data
 - Clean up data between tests
 - Use consistent sample data
 - Avoid test interdependencies
@@ -383,8 +397,8 @@ npm test -- --testTimeout=30000
 ### Environment Variable Issues
 
 ```bash
-# Check environment variables
-echo $DATABASE_URL
+# Confirm the dedicated test URL is configured without printing it
+test -n "$TEST_DATABASE_URL" && echo "TEST_DATABASE_URL is configured"
 
 # Set test environment explicitly
 NODE_ENV=test npm test

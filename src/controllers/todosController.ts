@@ -10,6 +10,7 @@ export class TodosController extends GenericController {
           id: true,
           name: true,
           username: true,
+          email: true,
         },
       },
     });
@@ -49,6 +50,7 @@ export class TodosController extends GenericController {
               id: true,
               name: true,
               username: true,
+              email: true,
             },
           },
         },
@@ -65,4 +67,4 @@ export class TodosController extends GenericController {
       return;
     }
   };
-} 
+}

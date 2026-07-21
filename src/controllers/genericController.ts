@@ -8,6 +8,18 @@ export interface QueryOptions {
   [key: string]: any;
 }
 
+const positiveInteger = (value: unknown, fallback: number) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+export const parsePagination = (query: Request['query']) => {
+  const page = positiveInteger(query['page'] || query['_page'], 1);
+  const requestedLimit = positiveInteger(query['limit'] || query['_limit'], 10);
+  const limit = Math.min(requestedLimit, 100);
+  return { page, limit, skip: (page - 1) * limit };
+};
+
 export class GenericController {
   private prisma: PrismaClient;
   private modelName: string;
@@ -30,10 +42,7 @@ export class GenericController {
 
       // Handle both page/limit and _page/_limit parameters. Cap _limit at 100
       // to match the documented maximum and protect the database.
-      const page = Number(req.query['page'] || req.query['_page'] || 1);
-      const requestedLimit = Number(req.query['limit'] || req.query['_limit'] || 10);
-      const limit = Math.min(Math.max(requestedLimit, 1), 100);
-      const skip = (page - 1) * limit;
+      const { page, limit, skip } = parsePagination(req.query);
 
       // Handle sorting
       const sortField = req.query['_sort'] as string || 'id';
@@ -167,11 +176,7 @@ export class GenericController {
       const { id } = req.params;
       const model = this.prisma[this.modelName as keyof PrismaClient] as any;
 
-      // Set default userId to 1 for posts and todos if not provided
       const updateData = { ...req.body };
-      if ((this.modelName === 'post' || this.modelName === 'todo') && !updateData.userId) {
-        updateData.userId = 1;
-      }
 
       const data = await model.update({
         where: { id: Number(id) },
@@ -214,10 +219,7 @@ export class GenericController {
     try {
       const { id } = req.params;
       // Handle both page/limit and _page/_limit parameters. Cap at 100.
-      const page = Number(req.query['page'] || req.query['_page'] || 1);
-      const requestedLimit = Number(req.query['limit'] || req.query['_limit'] || 10);
-      const limit = Math.min(Math.max(requestedLimit, 1), 100);
-      const skip = (page - 1) * limit;
+      const { page, limit, skip } = parsePagination(req.query);
       const model = this.prisma[relationModel as keyof PrismaClient] as any;
 
       const [data, total] = await Promise.all([
@@ -225,6 +227,16 @@ export class GenericController {
           where: { [foreignKey]: Number(id) },
           skip,
           take: Number(limit),
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                email: true,
+              },
+            },
+          },
           orderBy: { id: 'asc' },
         }),
         model.count({

@@ -10,8 +10,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push && prisma generate",
-    "db:seed": "prisma generate && tsx src/scripts/seed.ts",
-    "db:reset": "prisma generate && tsx src/scripts/reset.ts",
+    "db:seed": "prisma generate && tsx src/scripts/seedCli.ts",
+    "db:reset": "prisma generate && tsx src/scripts/resetCli.ts",
     "db:studio": "prisma studio",
     "env:create": "prisma generate && tsx src/scripts/createEnvironment.ts",
     "env:revoke": "prisma generate && tsx src/scripts/revokeEnvironment.ts",
@@ -19,7 +19,7 @@
     "test:watch": "prisma generate && jest --watch",
     "test:coverage": "prisma generate && jest --coverage",
     "test:integration": "prisma generate && jest --testPathPattern=integration",
-    "test:unit": "prisma generate && jest --testPathPattern=unit",
+    "test:unit": "prisma generate && jest --config jest.unit.config.js",
     "test:environment": "prisma generate && jest --config jest.environment.config.js"
   },
   "keywords": [

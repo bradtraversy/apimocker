@@ -34,16 +34,3 @@ export const resetDatabase = async () => {
     throw error;
   }
 };
-
-// Run reset if this file is executed directly
-if (require.main === module) {
-  resetDatabase()
-    .then(() => {
-      logger.info('Reset completed');
-      process.exit(0);
-    })
-    .catch((error) => {
-      logger.error('Reset failed:', error);
-      process.exit(1);
-    });
-} 

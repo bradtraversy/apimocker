@@ -2,6 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../src/generated/prisma/client';
 import request from 'supertest';
 import { Express } from 'express';
+import { databaseSchemaFromUrl } from '../../src/utils/databaseUrl';
 
 export type TestUser = {
   name: string;
@@ -39,15 +40,25 @@ export class TestDatabase {
   private prisma: PrismaClient;
 
   constructor() {
-    const databaseUrl =
-      process.env['DATABASE_URL'] ||
-      'postgresql://test:test@localhost:5432/apimocker_test';
+    const databaseUrl = process.env['TEST_DATABASE_URL'];
+    const databaseSchema = databaseUrl
+      ? databaseSchemaFromUrl(databaseUrl)
+      : undefined;
+
+    if (!databaseUrl || process.env['DATABASE_URL'] !== databaseUrl) {
+      throw new Error(
+        'TestDatabase requires TEST_DATABASE_URL to be active'
+      );
+    }
 
     this.prisma = new PrismaClient({
-      adapter: new PrismaPg({
-        connectionString: databaseUrl,
-        connectionTimeoutMillis: 5_000,
-      }),
+      adapter: new PrismaPg(
+        {
+          connectionString: databaseUrl,
+          connectionTimeoutMillis: 5_000,
+        },
+        databaseSchema ? { schema: databaseSchema } : undefined
+      ),
     });
   }
 
@@ -256,12 +267,12 @@ export class ApiTester {
 }
 
 // Sample data generators
-export const sampleUsers: TestUser[] = [
+export const sampleUsers = [
   {
     name: 'John Doe',
     username: 'johndoe',
     email: 'john.doe@example.com',
-    phone: '+1-555-0123',
+    phone: '+12025550123',
     website: 'https://johndoe.dev',
     address: {
       street: '123 Main St',
@@ -280,7 +291,7 @@ export const sampleUsers: TestUser[] = [
     name: 'Jane Smith',
     username: 'janesmith',
     email: 'jane.smith@example.com',
-    phone: '+1-555-0124',
+    phone: '+12025550124',
     website: 'https://janesmith.com',
     address: {
       street: '456 Oak Ave',
@@ -295,9 +306,9 @@ export const sampleUsers: TestUser[] = [
       bs: 'synergize scalable supply-chains',
     },
   },
-];
+] satisfies [TestUser, TestUser];
 
-export const samplePosts: TestPost[] = [
+export const samplePosts = [
   {
     title: 'Getting Started with Modern Web Development',
     body: 'This is a comprehensive guide to modern web development practices...',
@@ -308,9 +319,9 @@ export const samplePosts: TestPost[] = [
     body: 'JavaScript continues to evolve with new features and capabilities...',
     userId: 1,
   },
-];
+] satisfies [TestPost, TestPost];
 
-export const sampleTodos: TestTodo[] = [
+export const sampleTodos = [
   {
     title: 'Review pull requests',
     completed: true,
@@ -321,7 +332,7 @@ export const sampleTodos: TestTodo[] = [
     completed: false,
     userId: 1,
   },
-];
+] satisfies [TestTodo, TestTodo];
 
 // Helper function to create a test app instance
 export const createTestApp = async () => {
