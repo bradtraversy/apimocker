@@ -19,7 +19,7 @@ const {
 } = Astro.props;
 
 const canonicalUrl = new URL(canonicalPath, SITE_URL).toString();
-const socialImageUrl = new URL('/favicon.ico', SITE_URL).toString();
+const socialImageUrl = new URL('/brand-mark.png', SITE_URL).toString();
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
@@ -62,7 +62,7 @@ const structuredData = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={socialDescription} />
     <meta property="og:image" content={socialImageUrl} />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content="summary" />
     <meta name="twitter:url" content={canonicalUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={socialDescription} />
@@ -70,7 +70,7 @@ const structuredData = {
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
