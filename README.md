@@ -214,6 +214,7 @@ Keep both displayed keys in a password manager or secrets service.
    PORT=8000
    NODE_ENV=development
    ENABLE_ISOLATED_ENVIRONMENTS=false
+   RESET_SCHEDULER=in_process
 
    # Rate Limiting
    RATE_LIMIT_WINDOW_MS=86400000 # 24 hours
@@ -961,6 +962,10 @@ The database automatically resets at **midnight UTC** every day:
 
 This ensures a consistent testing environment and prevents data accumulation.
 
+Set `RESET_SCHEDULER=in_process` to run the midnight reset inside the API
+process. Use `external` when a platform cron service runs `pnpm run db:reset`,
+or `disabled` when no scheduled reset should run.
+
 ## 📝 Logging
 
 ApiMocker uses Winston for comprehensive logging:
@@ -1059,6 +1064,7 @@ apimocker/
 | `PORT`                  | Server port                              | 8000           |
 | `NODE_ENV`              | Environment (development/production)     | development    |
 | `ENABLE_ISOLATED_ENVIRONMENTS` | Enable paid environment routes after schema setup | false |
+| `RESET_SCHEDULER`       | Reset mode: in_process, external, or disabled | in_process |
 | `RATE_LIMIT_WINDOW_MS`  | Rate limit window in milliseconds        | 86400000 (24h) |
 | `RATE_LIMIT_MAX_WRITES` | Maximum write operations per day per IP  | 100            |
 | `LOG_LEVEL`             | Logging level (error, warn, info, debug) | info           |

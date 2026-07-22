@@ -11,6 +11,7 @@ import {
   environmentPayloadError,
 } from './middleware/environmentAccess';
 import { setupCronJobs } from './utils/cronJobs';
+import { resolveResetSchedulerMode } from './utils/resetScheduler';
 import { prisma } from './lib/prisma';
 
 // Import routes
@@ -103,8 +104,15 @@ const startServer = async () => {
     await prisma.$connect();
     logger.info('Database connected successfully');
 
-    // Setup cron jobs
-    setupCronJobs();
+    const resetSchedulerMode = resolveResetSchedulerMode();
+
+    if (resetSchedulerMode === 'in_process') {
+      setupCronJobs();
+    } else {
+      logger.info(
+        `In-process reset scheduler disabled (RESET_SCHEDULER=${resetSchedulerMode})`
+      );
+    }
 
     app.listen(port, () => {
       logger.info(`🚀 ApiMocker server running on port ${port}`);
