@@ -1042,7 +1042,6 @@ apimocker/
 │       ├── src/                    # Astro pages and components
 │       ├── astro.config.mjs
 │       └── package.json
-├── prototypes/                     # Design prototypes
 ├── package.json                    # Workspace scripts
 ├── pnpm-workspace.yaml
 └── README.md
