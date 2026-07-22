@@ -1,0 +1,17 @@
+---
+import ResourceDocs from '../../components/docs/ResourceDocs.astro';
+import { resourceDocs } from '../../config/docs';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const resource = resourceDocs[Astro.params.resource || ''];
+
+if (!resource) {
+  return Astro.redirect('/docs');
+}
+
+const description = `${resource.name} API endpoints, schema, validation rules, and request examples for the free ApiMocker REST API.`;
+---
+
+<DocsLayout title={`${resource.name} API`} description={description}>
+  <ResourceDocs resource={resource} />
+</DocsLayout>

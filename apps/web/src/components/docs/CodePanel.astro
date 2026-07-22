@@ -1,0 +1,66 @@
+---
+interface Props {
+  code: string;
+  id: string;
+  label?: string;
+  language?: string;
+}
+
+const { code, id, label = 'Example', language = 'text' } = Astro.props;
+const codeId = `code-${id}`;
+const statusId = `${codeId}-status`;
+---
+
+<div class="code-panel">
+  <div class="code-panel-bar">
+    <span>{label}</span>
+    <button type="button" data-docs-copy={codeId} aria-describedby={statusId}>Copy</button>
+  </div>
+  <pre><code id={codeId} class={`language-${language}`}>{code}</code></pre>
+  <p class="copy-status" id={statusId} role="status" aria-live="polite"></p>
+</div>
+
+<script>
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>('[data-docs-copy]');
+
+  copyButtons.forEach((button) => {
+    if (button.dataset.copyReady === 'true') {
+      return;
+    }
+
+    button.dataset.copyReady = 'true';
+    const defaultLabel = button.textContent || 'Copy';
+    let resetTimer: number | undefined;
+
+    button.addEventListener('click', async () => {
+      const targetId = button.dataset.docsCopy;
+      const target = targetId ? document.getElementById(targetId) : null;
+      const status = targetId ? document.getElementById(`${targetId}-status`) : null;
+
+      if (!target || !status) {
+        return;
+      }
+
+      window.clearTimeout(resetTimer);
+
+      try {
+        await navigator.clipboard.writeText(target.textContent || '');
+        button.textContent = 'Copied';
+        status.textContent = 'Copied to your clipboard.';
+      } catch {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        button.textContent = 'Selected';
+        status.textContent = 'Text selected. Use your keyboard to copy it.';
+      }
+
+      resetTimer = window.setTimeout(() => {
+        button.textContent = defaultLabel;
+        status.textContent = '';
+      }, 3000);
+    });
+  });
+</script>

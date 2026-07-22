@@ -1,0 +1,40 @@
+---
+import DocsNav from '../components/docs/DocsNav.astro';
+import SiteLayout from './SiteLayout.astro';
+import '../styles/docs.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const currentPath = Astro.url.pathname;
+const pageTitle = `${title} | ApiMocker Docs`;
+---
+
+<SiteLayout title={pageTitle} description={description} canonicalPath={currentPath}>
+  <div class="docs-shell">
+    <aside class="docs-sidebar">
+      <a class="docs-home" href="/docs">
+        <span>Documentation</span>
+        <small>Free API reference</small>
+      </a>
+      <DocsNav currentPath={currentPath} />
+    </aside>
+
+    <div class="docs-mobile-menu">
+      <details>
+        <summary>
+          <span>Documentation menu</span>
+          <span aria-hidden="true">+</span>
+        </summary>
+        <DocsNav currentPath={currentPath} mobile />
+      </details>
+    </div>
+
+    <article class="docs-content">
+      <slot />
+    </article>
+  </div>
+</SiteLayout>

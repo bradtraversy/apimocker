@@ -1,0 +1,80 @@
+---
+import type { DocEndpoint } from '../../config/docs';
+import CodePanel from './CodePanel.astro';
+import DocTable from './DocTable.astro';
+
+interface Props {
+  endpoint: DocEndpoint;
+  baseUrl: string;
+  defaultResponse?: string;
+}
+
+const { endpoint, baseUrl, defaultResponse } = Astro.props;
+const requestPath = endpoint.path.replaceAll(':id', '1');
+const requestUrl = `${baseUrl}${requestPath}`;
+const curlStart = `curl ${endpoint.method === 'GET' ? '' : `-X ${endpoint.method} `}'${requestUrl}'`;
+const curl = endpoint.request
+  ? [
+      `${curlStart} \\`,
+      `  -H 'Content-Type: application/json' \\`,
+      `  -d '${endpoint.request.replaceAll('\n', ' ')}'`,
+    ].join('\n')
+  : curlStart;
+const exampleResponse =
+  endpoint.response ||
+  (['POST', 'PUT', 'PATCH'].includes(endpoint.method) ? defaultResponse : undefined);
+---
+
+<section class="endpoint-card" id={endpoint.id}>
+  <div class="endpoint-heading">
+    <div>
+      <p class="endpoint-path">
+        <span class:list={['method-badge', `method-${endpoint.method.toLowerCase()}`]}>
+          {endpoint.method}
+        </span>
+        <code>{endpoint.path}</code>
+      </p>
+      <h3>{endpoint.summary}</h3>
+    </div>
+    {endpoint.status && <span class="status-badge">{endpoint.status}</span>}
+  </div>
+
+  <p>{endpoint.description}</p>
+
+  <CodePanel code={curl} id={`${endpoint.id}-curl`} label="cURL request" language="bash" />
+
+  {
+    endpoint.parameters && endpoint.parameters.length > 0 && (
+      <div class="endpoint-block">
+        <h4>Parameters</h4>
+        <DocTable fields={endpoint.parameters} firstColumn="Parameter" />
+      </div>
+    )
+  }
+
+  {
+    endpoint.request && (
+      <div class="endpoint-block">
+        <h4>Request body</h4>
+        <CodePanel code={endpoint.request} id={`${endpoint.id}-request`} label="JSON" language="json" />
+      </div>
+    )
+  }
+
+  {
+    exampleResponse && (
+      <div class="endpoint-block">
+        <h4>{endpoint.responseLabel || 'Example response'}</h4>
+        <CodePanel code={exampleResponse} id={`${endpoint.id}-response`} label="JSON" language="json" />
+      </div>
+    )
+  }
+
+  {
+    endpoint.notes && endpoint.notes.length > 0 && (
+      <ul class="endpoint-notes">
+        {endpoint.notes.map((note) => <li>{note}</li>)}
+      </ul>
+    )
+  }
+</section>

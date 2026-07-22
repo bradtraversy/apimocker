@@ -1,0 +1,100 @@
+---
+import CodePanel from '../../components/docs/CodePanel.astro';
+import { docsApiBaseUrl } from '../../config/docs';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const description =
+  'Test writes, validation errors, rate limits, loading states, and intentional API failures with ApiMocker.';
+const createTodo = `curl -X POST '${docsApiBaseUrl}/todos' \\
+  -H 'Content-Type: application/json' \\
+  -d '{"title":"Test the success state","completed":false,"userId":1}'`;
+const validationError = `{
+  "error": "Validation Error",
+  "message": "Invalid input data",
+  "details": [
+    {
+      "type": "field",
+      "value": "",
+      "msg": "Title is required and must be between 1 and 200 characters",
+      "path": "title",
+      "location": "body"
+    }
+  ]
+}`;
+---
+
+<DocsLayout title="Errors and testing" description={description}>
+  <header class="docs-hero docs-hero-compact">
+    <p class="docs-kicker">Testing guide</p>
+    <h1>Exercise more than the happy path.</h1>
+    <p>
+      Create temporary records, update state, delete data, slow responses, and trigger known
+      failures without setting up a backend.
+    </p>
+  </header>
+
+  <aside class="docs-callout docs-callout-warning">
+    <strong>Writes are public</strong>
+    <p>
+      The free dataset is shared. Do not send secrets or personal information. All records reset
+      to the original seed data at midnight UTC.
+    </p>
+  </aside>
+
+  <section class="docs-section" id="writes">
+    <p class="docs-kicker">Mutations</p>
+    <h2>Test create, update, and delete flows</h2>
+    <p>
+      Send JSON to POST, PUT, and PATCH endpoints. A successful create returns 201, updates return
+      200, and a successful delete returns 204 with no response body.
+    </p>
+    <CodePanel code={createTodo} id="testing-create" label="Create a todo" language="bash" />
+    <div class="testing-grid">
+      <article><code>POST</code><h3>Create</h3><p>Add a temporary record. Server-generated IDs and timestamps are returned.</p></article>
+      <article><code>PUT</code><h3>Replace</h3><p>Send every required field for the resource.</p></article>
+      <article><code>PATCH</code><h3>Update</h3><p>Send only the fields that should change.</p></article>
+      <article><code>DELETE</code><h3>Remove</h3><p>Delete a record until the next daily reset.</p></article>
+    </div>
+  </section>
+
+  <section class="docs-section" id="validation">
+    <p class="docs-kicker">Validation</p>
+    <h2>Handle invalid input</h2>
+    <p>
+      Missing fields, invalid emails, out-of-range strings, and invalid IDs return a 400 response.
+      Validation responses include field-level details when available.
+    </p>
+    <CodePanel code={validationError} id="testing-validation" label="400 response" language="json" />
+    <aside class="docs-note">
+      Database conflicts and unexpected failures can use a different JSON shape. Always use the
+      HTTP status and display the returned <code>message</code> or <code>error</code> value.
+    </aside>
+  </section>
+
+  <section class="docs-section" id="error-routes">
+    <p class="docs-kicker">Error simulation</p>
+    <h2>Trigger predictable failures</h2>
+    <div class="error-route-list">
+      <a href={`${docsApiBaseUrl}/error/404`} target="_blank" rel="noopener noreferrer"><span><code>GET /error/404</code><strong>Not found</strong></span><b>404</b></a>
+      <a href={`${docsApiBaseUrl}/error/500`} target="_blank" rel="noopener noreferrer"><span><code>GET /error/500</code><strong>Server failure</strong></span><b>500</b></a>
+      <a href={`${docsApiBaseUrl}/error/validation`} target="_blank" rel="noopener noreferrer"><span><code>GET /error/validation</code><strong>Validation failure</strong></span><b>400</b></a>
+      <div><span><code>GET /error/timeout</code><strong>Request that never completes</strong></span><b>Timeout</b></div>
+    </div>
+    <aside class="docs-note docs-note-danger">
+      The timeout route intentionally does not respond. Test it with an abort signal or a client
+      timeout so your request can be cancelled.
+    </aside>
+  </section>
+
+  <section class="docs-section" id="limits">
+    <p class="docs-kicker">Limits and reset</p>
+    <h2>Design around the shared service</h2>
+    <div class="limit-grid">
+      <article><strong>1,000 requests</strong><p>Maximum requests per IP address in a rolling 15-minute window. The next response is 429.</p></article>
+      <article><strong>100 writes</strong><p>Maximum POST, PUT, PATCH, and DELETE requests per IP address each day. The next response is 429.</p></article>
+      <article><strong>Midnight UTC</strong><p>The shared database returns to its original users, posts, todos, and comments.</p></article>
+      <article><strong>Open CORS</strong><p>Browser requests are accepted from any origin, and total-count headers are exposed.</p></article>
+      <article><strong>10 MB JSON</strong><p>JSON request bodies larger than 10 MB are rejected.</p></article>
+    </div>
+  </section>
+</DocsLayout>

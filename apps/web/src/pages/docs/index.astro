@@ -1,0 +1,158 @@
+---
+import CodePanel from '../../components/docs/CodePanel.astro';
+import { docsApiBaseUrl, resourceList } from '../../config/docs';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const description =
+  'Use the free ApiMocker REST API with complete endpoint guides, request examples, query options, and testing behavior.';
+const quickStart = `const response = await fetch('${docsApiBaseUrl}/users');
+const { data, pagination } = await response.json();
+
+console.log(data);
+console.log(pagination.total);`;
+const listResponse = `{
+  "data": [
+    { "id": 1, "name": "John Doe", "username": "johndoe" }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 10,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  }
+}`;
+const healthResponse = `{
+  "status": "OK",
+  "timestamp": "2026-07-22T18:25:14.477Z",
+  "uptime": 21107.49
+}`;
+---
+
+<DocsLayout title="Free API documentation" description={description}>
+  <header class="docs-hero">
+    <p class="docs-kicker">ApiMocker free API</p>
+    <h1>Predictable JSON for the interface you are building.</h1>
+    <p>
+      Use realistic shared data, complete CRUD endpoints, search, filtering, pagination,
+      relationships, delays, and intentional errors. No signup or API key is required.
+    </p>
+    <div class="base-url" aria-label="API base URL">
+      <span>Base URL</span>
+      <code>{docsApiBaseUrl}</code>
+      <a href={`${docsApiBaseUrl}/users`} target="_blank" rel="noopener noreferrer">
+        Test it <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </header>
+
+  <aside class="docs-callout">
+    <strong>Shared sandbox</strong>
+    <p>
+      Everyone uses the same dataset. Writes are temporary, and the original records return
+      every day at midnight UTC.
+    </p>
+  </aside>
+
+  <section class="docs-section" id="quick-start">
+    <p class="docs-kicker">Quick start</p>
+    <h2>Make your first request</h2>
+    <p>
+      Send a standard HTTP request from a browser, terminal, API client, or server. The API
+      accepts cross-origin requests from any origin.
+    </p>
+    <CodePanel code={quickStart} id="overview-fetch" label="JavaScript" language="javascript" />
+  </section>
+
+  <section class="docs-section" id="health">
+    <p class="docs-kicker">Service health</p>
+    <h2>Check availability</h2>
+    <p>
+      The health endpoint confirms that the API process is running. It returns the current server
+      timestamp and process uptime in seconds.
+    </p>
+    <CodePanel
+      code={`curl '${docsApiBaseUrl}/health'`}
+      id="overview-health-request"
+      label="cURL request"
+      language="bash"
+    />
+    <CodePanel code={healthResponse} id="overview-health-response" label="200 response" language="json" />
+  </section>
+
+  <section class="docs-section" id="resources">
+    <p class="docs-kicker">Resources</p>
+    <h2>Four connected datasets</h2>
+    <p>Each resource supports reads, writes, filtering, and per-resource search.</p>
+    <div class="resource-grid">
+      {
+        resourceList.map((resource) => (
+          <a class="resource-card" href={`/docs/${resource.slug}`}>
+            <span class="resource-count">{resource.seedCount} records</span>
+            <h3>{resource.name}</h3>
+            <p>{resource.description}</p>
+            <code>/{resource.slug}</code>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="docs-section" id="responses">
+    <p class="docs-kicker">Response format</p>
+    <h2>Collections include pagination</h2>
+    <p>
+      List endpoints return a <code>data</code> array and a <code>pagination</code> object.
+      Single-resource endpoints return the resource directly. The total count is also available
+      in the <code>X-Total-Count</code> response header.
+    </p>
+    <CodePanel code={listResponse} id="overview-list-response" label="JSON" language="json" />
+  </section>
+
+  <section class="docs-section" id="conventions">
+    <p class="docs-kicker">Conventions</p>
+    <h2>What every client should know</h2>
+    <div class="convention-grid">
+      <article>
+        <span>01</span>
+        <h3>JSON in and out</h3>
+        <p>Send JSON request bodies with <code>Content-Type: application/json</code>.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Numeric IDs</h3>
+        <p>Resource and relationship IDs are positive integers.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Normal HTTP status codes</h3>
+        <p>Creates return 201, successful deletes return 204, and invalid input returns 400.</p>
+      </article>
+      <article>
+        <span>04</span>
+        <h3>Temporary writes</h3>
+        <p>POST, PUT, PATCH, and DELETE change shared data only until the daily reset.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="docs-section" id="next-steps">
+    <p class="docs-kicker">Go deeper</p>
+    <h2>Build the state you need</h2>
+    <div class="next-grid">
+      <a href="/docs/querying">
+        <h3>Querying data</h3>
+        <p>Paginate, sort, filter, search, and slow down responses.</p>
+      </a>
+      <a href="/docs/testing">
+        <h3>Errors and testing</h3>
+        <p>Exercise writes, validation, rate limits, and failure states.</p>
+      </a>
+      <a href="/openapi.json" target="_blank" rel="noopener noreferrer">
+        <h3>OpenAPI JSON</h3>
+        <p>Import the public contract into an API client or tooling.</p>
+      </a>
+    </div>
+  </section>
+</DocsLayout>

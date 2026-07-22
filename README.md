@@ -4,40 +4,42 @@ A comprehensive fake REST API service for developers to test against, built with
 
 **Live Demo:** https://apimocker.com
 
+**Documentation:** https://apimocker.com/docs
+
 You can test it out with my API probe tool - https://apiprobe.dev
 
 <img src="./apps/api/public/screen.png" width="500">
 
 ## ⚡ Quick Usage (Hosted)
 
-- **Hosted Base URL**: https://apimocker.com
+- **Hosted Base URL**: https://api.apimocker.com
 - All responses are JSON and support pagination, filtering, and sorting.
 
 ### Core Endpoints
 
 - Users
-  - GET `https://apimocker.com/users`
-  - GET `https://apimocker.com/users/1`
-  - GET `https://apimocker.com/users/1/posts`
-  - GET `https://apimocker.com/users/1/todos`
-  - GET `https://apimocker.com/users/search?q=john`
+  - GET `https://api.apimocker.com/users`
+  - GET `https://api.apimocker.com/users/1`
+  - GET `https://api.apimocker.com/users/1/posts`
+  - GET `https://api.apimocker.com/users/1/todos`
+  - GET `https://api.apimocker.com/users/search?q=john`
 - Posts
-  - GET `https://apimocker.com/posts`
-  - GET `https://apimocker.com/posts/1`
-  - GET `https://apimocker.com/posts?userId=1&_page=1&_limit=10`
-  - GET `https://apimocker.com/posts/search?q=development&_sort=id&_order=desc&_page=1&_limit=5`
-  - GET `https://apimocker.com/posts/1/likes`
-  - POST `https://apimocker.com/posts/1/likes`
+  - GET `https://api.apimocker.com/posts`
+  - GET `https://api.apimocker.com/posts/1`
+  - GET `https://api.apimocker.com/posts?userId=1&_page=1&_limit=10`
+  - GET `https://api.apimocker.com/posts/search?q=development&_sort=id&_order=desc&_page=1&_limit=5`
+  - GET `https://api.apimocker.com/posts/1/likes`
+  - POST `https://api.apimocker.com/posts/1/likes`
 - Todos
-  - GET `https://apimocker.com/todos`
-  - GET `https://apimocker.com/todos/1`
-  - GET `https://apimocker.com/todos?completed=true&_page=1&_limit=10`
-  - GET `https://apimocker.com/todos/search?q=review`
+  - GET `https://api.apimocker.com/todos`
+  - GET `https://api.apimocker.com/todos/1`
+  - GET `https://api.apimocker.com/todos?completed=true&_page=1&_limit=10`
+  - GET `https://api.apimocker.com/todos/search?q=review`
 - Comments
-  - GET `https://apimocker.com/comments`
-  - GET `https://apimocker.com/comments/1`
-  - GET `https://apimocker.com/comments?postId=1&_page=1&_limit=5`
-  - GET `https://apimocker.com/comments/search?q=great`
+  - GET `https://api.apimocker.com/comments`
+  - GET `https://api.apimocker.com/comments/1`
+  - GET `https://api.apimocker.com/comments?email=reader@example.com&_page=1&_limit=5`
+  - GET `https://api.apimocker.com/comments/search?q=great`
 
 ### Useful Query Params
 
@@ -48,7 +50,7 @@ You can test it out with my API probe tool - https://apiprobe.dev
 
 ### Health Check
 
-- GET `https://apimocker.com/health`
+- GET `https://api.apimocker.com/health`
 
 ## Isolated Environments Beta
 
@@ -743,14 +745,14 @@ GET /comments
 
 - `_page` (optional): Page number (default: 1)
 - `_limit` (optional): Items per page (default: 10)
-- `postId` (optional): Filter by post ID
+- `email` (optional): Filter by exact email address
 - `name_like` (optional): Search by commenter name
 - `email_like` (optional): Search by email
 
 **Example:**
 
 ```http
-GET /comments?postId=1&_page=1&_limit=5
+GET /comments?email=reader@example.com&_page=1&_limit=5
 ```
 
 **Response:**
@@ -1088,11 +1090,10 @@ are not touched by the shared API's daily reset.
 
 ## 🚀 Deployment
 
-Production deployment and Docker packaging have not yet been updated for the
-pnpm workspace. The API can be built with `pnpm run build:api` and started with
-`pnpm run start:api`. The Astro app builds with the Node adapter in standalone
-mode and starts with `pnpm run start:web`, but Render configuration, production
-migration, web deployment, and container configuration remain future work.
+Production runs as separate API and web services on Railway from this pnpm
+workspace. The API builds with `pnpm run build:api` and starts with
+`pnpm run start:api`. The Astro app builds with `pnpm run build:web` and starts
+with `pnpm run start:web` using the Node adapter in standalone mode.
 
 ## 🧪 Testing
 

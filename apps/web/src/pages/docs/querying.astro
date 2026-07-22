@@ -1,0 +1,103 @@
+---
+import CodePanel from '../../components/docs/CodePanel.astro';
+import DocTable from '../../components/docs/DocTable.astro';
+import { docsApiBaseUrl, type DocField } from '../../config/docs';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const description =
+  'Paginate, sort, filter, search, and delay ApiMocker responses with complete query parameter examples.';
+const listParameters: DocField[] = [
+  { name: '_page or page', type: 'integer', required: 'Optional', description: 'Page number. Defaults to 1.' },
+  { name: '_limit or limit', type: 'integer', required: 'Optional', description: 'Items per page. Defaults to 10 and is capped at 100.' },
+  { name: '_sort', type: 'string', required: 'Optional', description: 'Field to sort by. Defaults to id.' },
+  { name: '_order', type: 'asc | desc', required: 'Optional', description: 'Sort direction. Defaults to asc.' },
+  { name: '_delay', type: 'integer', required: 'Optional', description: 'Artificial response delay in milliseconds.' },
+];
+const searchMatrix: DocField[] = [
+  { name: '/users/search', type: 'name, username, email', required: '10 max', description: 'Returns query, total, and results.' },
+  { name: '/posts/search', type: 'title, body', required: 'Paginated', description: 'Supports page, limit, sort, order, and delay.' },
+  { name: '/todos/search', type: 'title, description', required: '10 max', description: 'Returns query, total, and results.' },
+  { name: '/comments/search', type: 'name, email, body', required: '10 max', description: 'Returns query, total, and results.' },
+];
+---
+
+<DocsLayout title="Querying data" description={description}>
+  <header class="docs-hero docs-hero-compact">
+    <p class="docs-kicker">Query guide</p>
+    <h1>Shape responses for the interface you need to test.</h1>
+    <p>Combine pagination, sorting, exact filters, partial matches, search, and artificial delay.</p>
+  </header>
+
+  <section class="docs-section" id="pagination">
+    <p class="docs-kicker">Pagination and sorting</p>
+    <h2>Control collection results</h2>
+    <p>These parameters work on all top-level list endpoints. Posts search also supports them.</p>
+    <DocTable fields={listParameters} firstColumn="Parameter" />
+    <CodePanel
+      code={`curl '${docsApiBaseUrl}/posts?_page=2&_limit=5&_sort=title&_order=asc'`}
+      id="query-pagination"
+      label="cURL request"
+      language="bash"
+    />
+  </section>
+
+  <section class="docs-section" id="filters">
+    <p class="docs-kicker">Filtering</p>
+    <h2>Match exact values</h2>
+    <p>
+      Add a field and value to the query string. Numeric IDs and boolean values are converted to
+      their correct types before filtering.
+    </p>
+    <div class="example-stack">
+      <CodePanel code={`curl '${docsApiBaseUrl}/todos?completed=false&userId=1'`} id="query-exact" label="Incomplete todos for user 1" language="bash" />
+      <CodePanel code={`curl '${docsApiBaseUrl}/posts?userId=1'`} id="query-relationship" label="Posts for user 1" language="bash" />
+    </div>
+    <aside class="docs-note">
+      Common exact filters include <code>id</code>, <code>userId</code>, <code>completed</code>,
+      <code>username</code>, and <code>email</code>.
+    </aside>
+  </section>
+
+  <section class="docs-section" id="partial-matches">
+    <p class="docs-kicker">Partial matches</p>
+    <h2>Use <code>_like</code> for text</h2>
+    <p>
+      Add <code>_like</code> to a string field for a case-insensitive substring match. You can
+      combine it with pagination and sorting.
+    </p>
+    <CodePanel
+      code={`curl '${docsApiBaseUrl}/posts?title_like=web&_limit=5'`}
+      id="query-like"
+      label="cURL request"
+      language="bash"
+    />
+  </section>
+
+  <section class="docs-section" id="search">
+    <p class="docs-kicker">Search</p>
+    <h2>Search multiple fields at once</h2>
+    <p>Use the resource search endpoint with a required <code>q</code> parameter.</p>
+    <DocTable fields={searchMatrix} firstColumn="Endpoint" />
+    <CodePanel
+      code={`curl '${docsApiBaseUrl}/users/search?q=john'`}
+      id="query-search"
+      label="cURL request"
+      language="bash"
+    />
+  </section>
+
+  <section class="docs-section" id="delay">
+    <p class="docs-kicker">Loading states</p>
+    <h2>Delay a response on purpose</h2>
+    <p>
+      Add <code>_delay</code> to GET list, search, or single-resource requests. The value is in
+      milliseconds and is useful for skeletons, spinners, and route transitions.
+    </p>
+    <CodePanel
+      code={`curl '${docsApiBaseUrl}/todos?_delay=2000'`}
+      id="query-delay"
+      label="Two-second response"
+      language="bash"
+    />
+  </section>
+</DocsLayout>

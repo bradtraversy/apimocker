@@ -1,0 +1,42 @@
+---
+import { docsNavigation } from '../../config/docs';
+
+interface Props {
+  currentPath: string;
+  mobile?: boolean;
+}
+
+const { currentPath, mobile = false } = Astro.props;
+const isActive = (href: string) =>
+  href === '/docs' ? currentPath === href : currentPath.startsWith(href);
+---
+
+<nav class:list={['docs-nav', { 'docs-nav-mobile': mobile }]} aria-label="Documentation">
+  {
+    docsNavigation.map((group) => (
+      <div class="docs-nav-group">
+        <p>{group.label}</p>
+        <ul>
+          {group.items.map((item) => {
+            const external = 'external' in item && item.external;
+
+            return (
+              <li>
+                <a
+                  class:list={{ active: isActive(item.href) }}
+                  href={item.href}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                >
+                  <span>{item.label}</span>
+                  {external && <span aria-hidden="true">↗</span>}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))
+  }
+</nav>
