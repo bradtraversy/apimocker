@@ -1,0 +1,16 @@
+---
+import { API_BASE_URL, GITHUB_URL } from '../../config/site';
+---
+
+<section class="section final-cta" aria-labelledby="cta-title">
+  <div class="cta-glow" aria-hidden="true"></div>
+  <div class="eyebrow">Your next fetch starts here</div>
+  <h2 id="cta-title">Build the interface.<br />Use the mock data that is ready now.</h2>
+  <p>Make your first request in seconds. No signup, token, or SDK required.</p>
+  <div class="hero-actions">
+    <a class="button button-primary" href={`${API_BASE_URL}/posts/1`}>Open GET /posts/1</a>
+    <a class="button button-secondary" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+      View source on GitHub
+    </a>
+  </div>
+</section>

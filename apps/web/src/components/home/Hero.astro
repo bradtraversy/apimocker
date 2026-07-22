@@ -1,0 +1,47 @@
+---
+import CopyCommand from '../CopyCommand.astro';
+import { API_BASE_URL, resources } from '../../config/site';
+
+const stacks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Vanilla JS'];
+const curlCommand = `curl ${API_BASE_URL}/posts/1`;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-glow hero-glow-one" aria-hidden="true"></div>
+  <div class="hero-glow hero-glow-two" aria-hidden="true"></div>
+
+  <a class="announcement" href="#free-api">
+    <span>Available now</span>
+    Free API, no signup or key
+    <strong aria-hidden="true">&#8594;</strong>
+  </a>
+
+  <h1 id="hero-title">The mock REST API<br /><em>built for frontend work.</em></h1>
+  <p class="hero-copy">
+    Build against realistic users, posts, todos, and comments. Practice CRUD,
+    test loading and error states, and get useful JSON with one request.
+  </p>
+
+  <div class="hero-actions">
+    <a class="button button-primary" href="#api-overview">Explore the free API</a>
+    <a class="button button-secondary" href={`${API_BASE_URL}/posts/1`}>Open a live response</a>
+  </div>
+
+  <CopyCommand command={curlCommand} id="hero-curl-command" />
+
+  <div class="free-stats" aria-label="Free API seed data">
+    {resources.map((resource) => (
+      <div>
+        <strong>{resource.count}</strong>
+        <span>{resource.name}</span>
+      </div>
+    ))}
+  </div>
+
+  <div class="trust-strip">
+    <p>Drop-in mock data for the frontend stack you already use</p>
+    <div class="stack-list" aria-label="Common frontend stacks">
+      {stacks.map((stack) => <span>{stack}</span>)}
+    </div>
+  </div>
+</section>

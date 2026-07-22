@@ -95,4 +95,4 @@ ehthumbs.db
 Thumbs.db
 
 # Prisma
-src/generated/prisma/
+apps/api/src/generated/prisma/

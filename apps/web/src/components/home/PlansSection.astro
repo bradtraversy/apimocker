@@ -1,0 +1,65 @@
+---
+import { API_BASE_URL, BETA_URL } from '../../config/site';
+
+const betaPlans = [
+  {
+    name: 'Developer private beta',
+    description: 'An isolated environment for demos, portfolios, and side projects that need stable mock data.',
+    features: ['25,000 requests per month', '120 requests per minute', '1,000 records per resource', 'Dedicated reset snapshot'],
+  },
+  {
+    name: 'Classroom private beta',
+    description: 'Higher default limits for courses, workshops, cohorts, and teaching teams.',
+    features: ['100,000 requests per month', '240 requests per minute', '2,000 records per resource', 'Dedicated reset snapshot'],
+  },
+] as const;
+---
+
+<section class="section plans-section" id="plans" aria-labelledby="plans-title">
+  <div class="plans-heading">
+    <div>
+      <div class="eyebrow">Public API and private beta</div>
+      <h2 id="plans-title">Start shared. Add isolation when it matters.</h2>
+    </div>
+    <p>
+      Billing and customer self-service are not launched. Developer and Classroom
+      environments are manually provisioned private beta plans.
+    </p>
+  </div>
+
+  <div class="plans-grid">
+    <article class="plan-card plan-card-featured">
+      <div class="availability-tag">Available now</div>
+      <div class="plan-name">Free API</div>
+      <h3>$0 <span>public access</span></h3>
+      <p>Shared data for learning, examples, tutorials, and frontend prototypes.</p>
+      <ul class="check-list compact-list">
+        <li>All four public resources</li>
+        <li>CRUD, search, filters, and pagination</li>
+        <li>Daily data reset</li>
+        <li>No account or API key</li>
+      </ul>
+      <a class="button button-secondary" href={`${API_BASE_URL}/posts`}>Use the free API</a>
+    </article>
+
+    {betaPlans.map((plan, index) => (
+      <article class="plan-card">
+        <div class="plan-name">{plan.name}</div>
+        <h3>Manual <span>provisioning</span></h3>
+        <p>{plan.description}</p>
+        <ul class="check-list compact-list">
+          {plan.features.map((feature) => <li>{feature}</li>)}
+        </ul>
+        <a
+          class:list={['button', index === 0 ? 'button-primary' : 'button-secondary']}
+          href={BETA_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Read beta details
+        </a>
+      </article>
+    ))}
+  </div>
+  <p class="plans-note">Beta limits are plan defaults and can be adjusted during manual provisioning.</p>
+</section>

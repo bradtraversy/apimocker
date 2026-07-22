@@ -1,0 +1,41 @@
+---
+import { API_BASE_URL } from '../../config/site';
+---
+
+<section class="section example-section" id="example" aria-labelledby="example-title">
+  <div class="example-copy">
+    <div class="eyebrow">A familiar REST contract</div>
+    <h2 id="example-title">Readable request.<br />Realistic response.</h2>
+    <p>
+      Single-resource endpoints return the resource directly. Posts include the
+      current nested user summary, so relationship-driven interfaces can start immediately.
+    </p>
+    <ul class="check-list">
+      <li>Current seeded post title and body</li>
+      <li>Nested user ID, name, username, and email</li>
+      <li>No SDK, account, or configuration</li>
+    </ul>
+    <a class="text-link" href={`${API_BASE_URL}/posts/1`}>Request GET /posts/1 &#8594;</a>
+  </div>
+
+  <div class="code-window" aria-label="Example response for GET posts 1">
+    <div class="window-bar">
+      <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      <span>GET /posts/1</span>
+      <span class="response-status">200 OK</span>
+    </div>
+    <pre><code><span class="syntax-muted">&#123;</span>
+  <span class="syntax-key">"id"</span>: <span class="syntax-number">1</span>,
+  <span class="syntax-key">"title"</span>: <span class="syntax-string">"Getting Started with Modern Web Development: A Practical First Project"</span>,
+  <span class="syntax-key">"body"</span>: <span class="syntax-string">"This is a comprehensive article about getting started with modern web development."</span>,
+  <span class="syntax-key">"userId"</span>: <span class="syntax-number">1</span>,
+  <span class="syntax-key">"user"</span>: <span class="syntax-muted">&#123;</span>
+    <span class="syntax-key">"id"</span>: <span class="syntax-number">1</span>,
+    <span class="syntax-key">"name"</span>: <span class="syntax-string">"John Doe"</span>,
+    <span class="syntax-key">"username"</span>: <span class="syntax-string">"johndoe"</span>,
+    <span class="syntax-key">"email"</span>: <span class="syntax-string">"john.doe@example.com"</span>
+  <span class="syntax-muted">&#125;</span>
+<span class="syntax-muted">&#125;</span></code></pre>
+    <p class="code-note">Reset-generated timestamp fields are omitted for readability.</p>
+  </div>
+</section>

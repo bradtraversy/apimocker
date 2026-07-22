@@ -1,0 +1,24 @@
+{
+  "name": "@apimocker/web",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22.12 <23"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "typecheck": "astro check",
+    "start": "node ./dist/server/entry.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.0.2",
+    "astro": "^7.1.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9"
+  }
+}

@@ -1,0 +1,60 @@
+---
+import { API_BASE_URL, resources } from '../../config/site';
+---
+
+<section class="section intro" id="free-api" aria-labelledby="free-api-title">
+  <div class="eyebrow">Free shared API</div>
+  <h2 id="free-api-title">Useful REST behavior without<br />the disposable backend.</h2>
+  <p>
+    Learn fetch, build tutorials, prototype interfaces, and test frontend states.
+    The shared data resets every day at midnight UTC.
+  </p>
+
+  <div class="feature-grid">
+    <article class="feature-card feature-card-large">
+      <div class="card-label">One public base URL</div>
+      <h3>Realistic resources, ready in one request.</h3>
+      <p>
+        Use full CRUD, filtering, sorting, pagination, search, relationships, and
+        post likes from any HTTP client.
+      </p>
+      <div class="resource-row" aria-label="Available resources">
+        {resources.map((resource) => (
+          <a href={`${API_BASE_URL}${resource.path}`}>{resource.path}</a>
+        ))}
+      </div>
+    </article>
+
+    <article class="feature-card">
+      <div class="card-icon card-icon-key" aria-hidden="true">0</div>
+      <h3>No account or token</h3>
+      <p>Call public endpoints directly from a browser, terminal, course project, or frontend app.</p>
+    </article>
+
+    <article class="feature-card">
+      <div class="card-icon" aria-hidden="true">24</div>
+      <h3>Predictable resets</h3>
+      <p>The shared API returns to its seeded state every 24 hours, so experiments do not linger forever.</p>
+    </article>
+
+    <article class="feature-card">
+      <div class="card-icon card-icon-code" aria-hidden="true">200</div>
+      <h3>Built for UI states</h3>
+      <p>Simulate delays and common errors, then combine search, filtering, sorting, and pagination.</p>
+    </article>
+
+    <article class="feature-card private-card">
+      <div class="card-label">Manual private beta</div>
+      <h3>Isolated data when shared data is not enough.</h3>
+      <p>Keep a seeded copy and reset snapshot that no other ApiMocker user can change.</p>
+      <div class="environment-preview" aria-label="Example isolated environment">
+        <div>
+          <span class="status-dot" aria-hidden="true"></span>
+          <strong>course-dashboard</strong>
+        </div>
+        <small>Isolated mock data with persistent usage tracking</small>
+        <span class="usage-bar" aria-hidden="true"><i></i></span>
+      </div>
+    </article>
+  </div>
+</section>

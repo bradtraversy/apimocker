@@ -1,0 +1,27 @@
+---
+import ApiOverview from '../components/home/ApiOverview.astro';
+import ExampleSection from '../components/home/ExampleSection.astro';
+import FeatureSection from '../components/home/FeatureSection.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import Hero from '../components/home/Hero.astro';
+import PlansSection from '../components/home/PlansSection.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import '../styles/home.css';
+
+const title = 'ApiMocker - Free Mock REST API for Frontend Developers';
+const description =
+  'Build with a free shared mock REST API for users, posts, todos, and comments. Test CRUD, search, pagination, relationships, delays, errors, and private beta environments.';
+---
+
+<SiteLayout
+  title={title}
+  description={description}
+  socialDescription="Realistic mock data, full CRUD, search, pagination, and frontend test states with no signup or API key."
+>
+  <Hero />
+  <FeatureSection />
+  <ExampleSection />
+  <ApiOverview />
+  <PlansSection />
+  <FinalCta />
+</SiteLayout>

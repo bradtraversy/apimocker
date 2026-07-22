@@ -1,0 +1,101 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { SITE_NAME, SITE_URL } from '../config/site';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  socialDescription?: string;
+}
+
+const {
+  title,
+  description,
+  canonicalPath = '/',
+  socialDescription = description,
+} = Astro.props;
+
+const canonicalUrl = new URL(canonicalPath, SITE_URL).toString();
+const socialImageUrl = new URL('/favicon.ico', SITE_URL).toString();
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: SITE_NAME,
+  description,
+  url: SITE_URL,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  featureList: [
+    'Full CRUD operations',
+    'Pagination and filtering',
+    'Per-resource search',
+    'Relationships and post likes',
+    'Delay and error simulation',
+    'Daily data reset',
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE_NAME} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#03110b" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={socialDescription} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={socialDescription} />
+    <meta name="twitter:image" content={socialImageUrl} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-BQM7V0HBFE"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function gtag() {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag('js', new Date());
+      window.gtag('config', 'G-BQM7V0HBFE');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="site-shell">
+      <SiteHeader />
+      <main id="main-content" tabindex="-1">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+---
+import Brand from './Brand.astro';
+import { GITHUB_URL } from '../config/site';
+---
+
+<footer class="site-footer">
+  <Brand />
+  <p>Free mock REST data for developers who would rather build the interface.</p>
+  <nav aria-label="Footer navigation">
+    <a href="/#api-overview">API overview</a>
+    <a href="/#plans">Plans</a>
+    <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+  </nav>
+</footer>
