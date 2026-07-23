@@ -780,6 +780,16 @@
   letter-spacing: 0.07em;
 }
 
+.availability-tag-development {
+  color: #2a1d00;
+  background: var(--yellow);
+}
+
+.status-dot-development {
+  background: var(--yellow);
+  box-shadow: 0 0 14px rgba(255, 213, 106, 0.55);
+}
+
 .plan-card h3 {
   margin: 14px 0 12px;
   font-size: 2rem;
