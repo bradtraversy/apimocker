@@ -6,7 +6,7 @@ export const API_BASE_URL = configuredApiUrl?.startsWith("http")
   ? configuredApiUrl
   : API_URL;
 export const GITHUB_URL = "https://github.com/bradtraversy/apimocker";
-export const BETA_URL = `${GITHUB_URL}#isolated-environments-beta`;
+export const BETA_URL = `${GITHUB_URL}#isolated-environments-in-development`;
 
 export const resources = [
   { name: "Users", path: "/users", count: 10 },

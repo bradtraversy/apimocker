@@ -1,14 +1,18 @@
 # ApiMocker 🚀
 
-A comprehensive fake REST API service for developers to test against, built with Node.js, Express, TypeScript, and PostgreSQL. Features include rate limiting, validation, realistic data, and advanced filtering capabilities.
+ApiMocker is a free hosted mock REST API for frontend developers, students,
+instructors, and tutorial authors. It provides realistic relational data,
+working CRUD, filtering, sorting, pagination, search, delay and error
+simulation, and a predictable daily reset. No signup or API key is required.
 
-**Live Demo:** https://apimocker.com
+- **Website:** https://apimocker.com
+- **Documentation:** https://apimocker.com/docs
+- **API Base URL:** https://api.apimocker.com
+- **OpenAPI:** https://api.apimocker.com/openapi.json
 
-**Documentation:** https://apimocker.com/docs
+You can also explore the API with [ApiProbe](https://apiprobe.dev).
 
-You can test it out with my API probe tool - https://apiprobe.dev
-
-<img src="./apps/api/public/screen.png" width="500">
+[![ApiMocker homepage](./apps/web/public/readme-screenshot.jpg)](https://apimocker.com)
 
 ## ⚡ Quick Usage (Hosted)
 
@@ -51,99 +55,6 @@ You can test it out with my API probe tool - https://apiprobe.dev
 ### Health Check
 
 - GET `https://api.apimocker.com/health`
-
-## Isolated Environments Beta
-
-The shared `/users`, `/posts`, `/todos`, and `/comments` API remains free and
-resets every day. Paid beta environments keep a private copy of those five
-collections, including likes, behind an API key. Data written to one environment
-cannot affect the shared API or another customer environment.
-
-Environment routes use this base path:
-
-```http
-/v1/environments/:slug
-```
-
-Send the API key with every environment request. This key is a browser-visible
-metering token for non-sensitive mock data, so it is not an authorization
-boundary for confidential information:
-
-```http
-X-API-Key: am_env_your_key
-```
-
-The four main resources support CRUD plus the common filtering, sorting,
-pagination, search, relationship, and post-like flows used by the shared API.
-
-The intentional beta differences that remain are:
-
-- Every isolated request requires an API key and limits request bodies to 64 KB.
-- Authenticated requests to active environments consume persistent monthly and
-  burst quota after payload parsing.
-- Usage and reset are environment-only routes. Reset also requires the
-  management key.
-- Isolated environments do not expose `/health` or `/error` routes.
-- Isolated routes do not support `_delay` response simulation.
-- Isolated writes discard unknown input fields, while shared Prisma-backed
-  writes reject fields outside the resource schema.
-- Isolated domain errors can use a different response envelope from shared
-  Prisma errors.
-
-The environment-only routes are:
-
-```http
-GET /v1/environments/:slug/usage
-POST /v1/environments/:slug/reset
-```
-
-Reset also requires a server-side management key:
-
-```http
-X-Management-Key: am_mgmt_your_key
-```
-
-Usage is enforced with persistent monthly and per-minute counters in PostgreSQL.
-Each resource also has a record cap. The reset route restores the private data
-snapshot captured when the environment was created. The global midnight reset
-does not modify paid environments. Keep the management key on the server and
-never include it in browser code.
-
-Billing and customer self-service are not part of this beta. Provision and
-revoke environments from the server:
-
-```bash
-pnpm run env:create -- --slug acme-course --name "Acme Course" --plan classroom
-pnpm run env:revoke -- --slug acme-course
-```
-
-The `developer` plan defaults to 25,000 monthly requests, 120 requests per
-minute, and 1,000 records per resource. The `classroom` plan defaults to
-100,000 monthly requests, 240 requests per minute, and 2,000 records per
-resource. Provisioning arguments can override those limits for a manual beta
-customer.
-
-The create command copies all current global tables in ID order inside one
-repeatable-read transaction. It displays the API and management keys once and
-stores only their SHA-256 hashes.
-
-Existing deployments that were created with `prisma db push` must mark the
-tracked baseline as already applied before deploying the environment tables:
-
-```bash
-pnpm --filter @apimocker/api exec prisma migrate resolve --applied 20260720112500_baseline_existing_schema
-pnpm run db:migrate
-```
-
-Run these commands with `DIRECT_URL` pointing to the target database. A fresh
-database only needs `pnpm run db:migrate`. Keep
-`ENABLE_ISOLATED_ENVIRONMENTS=false` during the migration, then enable it and
-restart the server after provisioning the first environment.
-
-The routes stay unavailable while `ENABLE_ISOLATED_ENVIRONMENTS` is `false`.
-Keep both displayed keys in a password manager or secrets service.
-
----
 
 ## ✨ Features
 
@@ -1065,7 +976,7 @@ apimocker/
 | `DIRECT_URL`            | Optional direct URL for Prisma CLI commands | DATABASE_URL |
 | `PORT`                  | Server port                              | 8000           |
 | `NODE_ENV`              | Environment (development/production)     | development    |
-| `ENABLE_ISOLATED_ENVIRONMENTS` | Enable paid environment routes after schema setup | false |
+| `ENABLE_ISOLATED_ENVIRONMENTS` | Development flag for unfinished isolated environment routes | false |
 | `RESET_SCHEDULER`       | Reset mode: in_process, external, or disabled | in_process |
 | `RATE_LIMIT_WINDOW_MS`  | Rate limit window in milliseconds        | 86400000 (24h) |
 | `RATE_LIMIT_MAX_WRITES` | Maximum write operations per day per IP  | 100            |
@@ -1084,9 +995,10 @@ The shared API uses five models:
 All models include timestamps and proper foreign key relationships, with cascade
 deletes from parents to children.
 
-The isolated-environments beta adds `ApiEnvironment` for credentials and quotas,
-plus `EnvironmentCollection` for private JSON resource snapshots. These models
-are not touched by the shared API's daily reset.
+The in-development isolated environment work adds `ApiEnvironment` for
+credentials and quotas, plus `EnvironmentCollection` for private JSON resource
+snapshots. This product is not publicly available. These models are not touched
+by the shared API's daily reset.
 
 ## 🚀 Deployment
 
@@ -1170,3 +1082,104 @@ For issues, questions, or contributions:
 ---
 
 **ApiMocker** - Your reliable fake API for development and testing! 🎯
+
+---
+
+## Isolated Environments (In Development)
+
+> **Not available yet:** Isolated environments are still in development. There
+> is no public beta, signup, billing, or customer provisioning at this time.
+> The routes and tooling in this section document unfinished development work
+> and are not part of the currently available ApiMocker service.
+
+The shared `/users`, `/posts`, `/todos`, and `/comments` API remains free and
+resets every day. The planned isolated environments will keep a private copy of
+those five collections, including likes, behind an API key. Data written to one
+environment will not affect the shared API or another environment.
+
+Environment routes use this base path:
+
+```http
+/v1/environments/:slug
+```
+
+Send the API key with every environment request. This key is a browser-visible
+metering token for non-sensitive mock data, so it is not an authorization
+boundary for confidential information:
+
+```http
+X-API-Key: am_env_your_key
+```
+
+The four main resources support CRUD plus the common filtering, sorting,
+pagination, search, relationship, and post-like flows used by the shared API.
+
+The current development contract includes these planned differences:
+
+- Every isolated request requires an API key and limits request bodies to 64 KB.
+- Authenticated requests to provisioned development environments consume
+  persistent monthly and burst quota after payload parsing.
+- Usage and reset are environment-only routes. Reset also requires the
+  management key.
+- Isolated environments do not expose `/health` or `/error` routes.
+- Isolated routes do not support `_delay` response simulation.
+- Isolated writes discard unknown input fields, while shared Prisma-backed
+  writes reject fields outside the resource schema.
+- Isolated domain errors can use a different response envelope from shared
+  Prisma errors.
+
+The planned environment-only routes, currently implemented behind a disabled
+development flag, are:
+
+```http
+GET /v1/environments/:slug/usage
+POST /v1/environments/:slug/reset
+```
+
+Reset also requires a server-side management key:
+
+```http
+X-Management-Key: am_mgmt_your_key
+```
+
+Usage is enforced with persistent monthly and per-minute counters in PostgreSQL.
+Each resource also has a record cap. The reset route restores the private data
+snapshot captured when the environment was created. The global midnight reset
+does not modify provisioned development environments. Keep the management key
+on the server and never include it in browser code.
+
+Billing, customer self-service, and public provisioning are not available.
+Internal development tooling can provision and revoke test environments from
+the server:
+
+```bash
+pnpm run env:create -- --slug acme-course --name "Acme Course" --plan classroom
+pnpm run env:revoke -- --slug acme-course
+```
+
+The `developer` plan defaults to 25,000 monthly requests, 120 requests per
+minute, and 1,000 records per resource. The `classroom` plan defaults to
+100,000 monthly requests, 240 requests per minute, and 2,000 records per
+resource. Provisioning arguments can override those limits during development
+testing.
+
+The create command copies all current global tables in ID order inside one
+repeatable-read transaction. It displays the API and management keys once and
+stores only their SHA-256 hashes.
+
+Existing deployments that were created with `prisma db push` must mark the
+tracked baseline as already applied before deploying the environment tables:
+
+```bash
+pnpm --filter @apimocker/api exec prisma migrate resolve --applied 20260720112500_baseline_existing_schema
+pnpm run db:migrate
+```
+
+Run these commands with `DIRECT_URL` pointing to the target database. A fresh
+database only needs `pnpm run db:migrate`. Keep
+`ENABLE_ISOLATED_ENVIRONMENTS=false` during the migration. Do not enable it in
+production until the environment product is ready for release.
+
+The routes stay unavailable while `ENABLE_ISOLATED_ENVIRONMENTS` is `false`.
+That flag should remain false for the current public service. Keep any keys
+created during development in a password manager or secrets service.

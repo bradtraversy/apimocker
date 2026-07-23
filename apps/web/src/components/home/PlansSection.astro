@@ -1,15 +1,15 @@
 ---
 import { API_BASE_URL, BETA_URL } from '../../config/site';
 
-const betaPlans = [
+const plannedPlans = [
   {
-    name: 'Developer private beta',
-    description: 'An isolated environment for demos, portfolios, and side projects that need stable mock data.',
+    name: 'Developer environment',
+    description: 'A planned isolated environment for demos, portfolios, and side projects that need stable mock data.',
     features: ['25,000 requests per month', '120 requests per minute', '1,000 records per resource', 'Dedicated reset snapshot'],
   },
   {
-    name: 'Classroom private beta',
-    description: 'Higher default limits for courses, workshops, cohorts, and teaching teams.',
+    name: 'Classroom environment',
+    description: 'Planned higher limits for courses, workshops, cohorts, and teaching teams.',
     features: ['100,000 requests per month', '240 requests per minute', '2,000 records per resource', 'Dedicated reset snapshot'],
   },
 ] as const;
@@ -18,12 +18,12 @@ const betaPlans = [
 <section class="section plans-section" id="plans" aria-labelledby="plans-title">
   <div class="plans-heading">
     <div>
-      <div class="eyebrow">Public API and private beta</div>
-      <h2 id="plans-title">Start shared. Add isolation when it matters.</h2>
+      <div class="eyebrow">Free API now. Private environments later.</div>
+      <h2 id="plans-title">Use the shared API today. Isolation is still being built.</h2>
     </div>
     <p>
-      Billing and customer self-service are not launched. Developer and Classroom
-      environments are manually provisioned private beta plans.
+      Developer and Classroom environments are not available yet. There is no
+      signup, billing, public beta, or customer provisioning.
     </p>
   </div>
 
@@ -42,24 +42,25 @@ const betaPlans = [
       <a class="button button-secondary" href={`${API_BASE_URL}/posts`}>Use the free API</a>
     </article>
 
-    {betaPlans.map((plan, index) => (
+    {plannedPlans.map((plan) => (
       <article class="plan-card">
+        <div class="availability-tag availability-tag-development">Not available yet</div>
         <div class="plan-name">{plan.name}</div>
-        <h3>Manual <span>provisioning</span></h3>
+        <h3>In development <span>planned environment</span></h3>
         <p>{plan.description}</p>
         <ul class="check-list compact-list">
           {plan.features.map((feature) => <li>{feature}</li>)}
         </ul>
         <a
-          class:list={['button', index === 0 ? 'button-primary' : 'button-secondary']}
+          class="button button-secondary"
           href={BETA_URL}
           target="_blank"
           rel="noopener noreferrer"
         >
-          Read beta details
+          View development details
         </a>
       </article>
     ))}
   </div>
-  <p class="plans-note">Beta limits are plan defaults and can be adjusted during manual provisioning.</p>
+  <p class="plans-note">These are development targets, not active plans or purchase options.</p>
 </section>

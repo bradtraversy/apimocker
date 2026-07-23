@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ApiMocker - Free Mock REST API for Frontend Developers</title>
   <meta name="title" content="ApiMocker - Free Mock REST API for Frontend Developers">
-  <meta name="description" content="Build with a free shared mock REST API for users, posts, todos, and comments. Test CRUD, search, pagination, relationships, delays, errors, and private beta environments.">
+  <meta name="description" content="Build with a free shared mock REST API for users, posts, todos, and comments. Test CRUD, search, pagination, relationships, delays, and errors.">
   <meta name="keywords" content="fake api, rest api, mock api, json api, development, testing, frontend, backend, api testing, fake data, mock data, jsonplaceholder, json-server">
   <meta name="author" content="ApiMocker">
   <meta name="robots" content="index, follow">
@@ -184,12 +184,12 @@
           </article>
 
           <article class="feature-card private-card">
-            <div class="card-label">Manual private beta</div>
-            <h3>Isolated data when shared data is not enough.</h3>
-            <p>Isolated environments keep their own seeded copy and reset snapshot behind a browser-visible metering key.</p>
-            <div class="environment-preview" aria-label="Example isolated environment">
-              <div><span class="status-dot" aria-hidden="true"></span><strong>course-dashboard</strong></div>
-              <small>Isolated mock data and persistent usage tracking</small>
+            <div class="card-label">In development - not available yet</div>
+            <h3>Private environments are planned.</h3>
+            <p>Isolated data and dedicated reset snapshots are still being developed and cannot be provisioned yet.</p>
+            <div class="environment-preview" aria-label="Planned isolated environment preview">
+              <div><span class="status-dot status-dot-development" aria-hidden="true"></span><strong>course-dashboard</strong></div>
+              <small>Development preview with no public access</small>
               <span class="usage-bar" aria-hidden="true"><i></i></span>
             </div>
           </article>
@@ -304,18 +304,18 @@
             <p><strong>Delete:</strong> <code>204 No Content</code> with an empty body.</p>
           </article>
 
-          <article class="reference-card reference-card-wide beta-reference" id="beta">
+          <article class="reference-card reference-card-wide beta-reference" id="isolated-environments-in-development">
             <div>
-              <div class="card-label">Isolated environments beta</div>
-              <h3>Isolated mock data uses a versioned route and API key.</h3>
-              <p><code>/v1/environments/:slug</code> mirrors core CRUD, search, relationships, and likes for manually provisioned environments.</p>
-              <p>Use only for non-sensitive mock data. The browser-visible key meters usage and is not an authorization boundary for confidential information.</p>
+              <div class="card-label">In development - not available yet</div>
+              <h3>Isolated mock data is planned around a versioned route and API key.</h3>
+              <p><code>/v1/environments/:slug</code> is being developed to mirror core CRUD, search, relationships, and likes.</p>
+              <p>There is no public beta, signup, billing, or customer provisioning. These routes are not part of the currently available ApiMocker service.</p>
             </div>
             <ul class="check-list compact-list">
-              <li>Every request requires <code>X-API-Key</code></li>
-              <li>Request bodies are limited to 64 KB</li>
-              <li>No <code>/health</code>, <code>/error</code>, or <code>_delay</code></li>
-              <li>Usage and reset are environment-only routes</li>
+              <li>Planned API key metering</li>
+              <li>Planned 64 KB request limit</li>
+              <li>Planned isolated reset snapshots</li>
+              <li>Development details are documented on GitHub</li>
             </ul>
           </article>
         </div>
@@ -324,12 +324,12 @@
       <section class="section plans-section" id="plans" aria-labelledby="plans-title">
         <div class="plans-heading">
           <div>
-            <div class="eyebrow">Public API and private beta</div>
-            <h2 id="plans-title">Start shared. Add isolation when it matters.</h2>
+            <div class="eyebrow">Free API now. Private environments later.</div>
+            <h2 id="plans-title">Use the shared API today. Isolation is still being built.</h2>
           </div>
           <p>
-            Billing and customer self-service are not launched. Developer and
-            Classroom environments are manually provisioned private beta plans.
+            Developer and Classroom environments are not available yet. There is no
+            signup, billing, public beta, or customer provisioning.
           </p>
         </div>
 
@@ -349,32 +349,34 @@
           </article>
 
           <article class="plan-card">
-            <div class="plan-name">Developer private beta</div>
-            <h3>Manual <span>provisioning</span></h3>
-            <p>An isolated environment for demos, portfolios, and side projects that need stable, non-sensitive mock data.</p>
+            <div class="availability-tag availability-tag-development">Not available yet</div>
+            <div class="plan-name">Developer environment</div>
+            <h3>In development <span>planned environment</span></h3>
+            <p>A planned isolated environment for demos, portfolios, and side projects that need stable mock data.</p>
             <ul class="check-list compact-list">
               <li>25,000 requests per month</li>
               <li>120 requests per minute</li>
               <li>1,000 records per resource</li>
               <li>Dedicated reset snapshot</li>
             </ul>
-            <a class="button button-primary" href="https://github.com/bradtraversy/apimocker#isolated-environments-beta" target="_blank" rel="noopener noreferrer">Read beta details</a>
+            <a class="button button-secondary" href="https://github.com/bradtraversy/apimocker#isolated-environments-in-development" target="_blank" rel="noopener noreferrer">View development details</a>
           </article>
 
           <article class="plan-card">
-            <div class="plan-name">Classroom private beta</div>
-            <h3>Manual <span>provisioning</span></h3>
-            <p>Higher default limits for courses, workshops, cohorts, and teaching teams.</p>
+            <div class="availability-tag availability-tag-development">Not available yet</div>
+            <div class="plan-name">Classroom environment</div>
+            <h3>In development <span>planned environment</span></h3>
+            <p>Planned higher limits for courses, workshops, cohorts, and teaching teams.</p>
             <ul class="check-list compact-list">
               <li>100,000 requests per month</li>
               <li>240 requests per minute</li>
               <li>2,000 records per resource</li>
               <li>Dedicated reset snapshot</li>
             </ul>
-            <a class="button button-secondary" href="https://github.com/bradtraversy/apimocker#isolated-environments-beta" target="_blank" rel="noopener noreferrer">Read beta details</a>
+            <a class="button button-secondary" href="https://github.com/bradtraversy/apimocker#isolated-environments-in-development" target="_blank" rel="noopener noreferrer">View development details</a>
           </article>
         </div>
-        <p class="plans-note">The listed beta limits are plan defaults. They can be adjusted during manual provisioning.</p>
+        <p class="plans-note">These are development targets, not active plans or purchase options.</p>
       </section>
 
       <section class="section final-cta" aria-labelledby="cta-title">
