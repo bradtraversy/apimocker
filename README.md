@@ -8,7 +8,6 @@ simulation, and a predictable daily reset. No signup or API key is required.
 - **Website:** https://apimocker.com
 - **Documentation:** https://apimocker.com/docs
 - **API Base URL:** https://api.apimocker.com
-- **OpenAPI:** https://api.apimocker.com/openapi.json
 
 You can also explore the API with [ApiProbe](https://apiprobe.dev).
 
