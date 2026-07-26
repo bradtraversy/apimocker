@@ -1,8 +1,33 @@
 import { API_BASE_URL } from './site';
 
 const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` });
-const jsonResponse = (description: string, schema?: Record<string, unknown>) => ({
+
+const rateLimitHeaders = {
+  'RateLimit-Policy': {
+    description: 'General request limit and window policy, such as 1000;w=900.',
+    schema: { type: 'string' },
+  },
+  'RateLimit-Limit': {
+    description: 'Maximum requests allowed in the rolling 15-minute general window.',
+    schema: { type: 'integer', example: 1000 },
+  },
+  'RateLimit-Remaining': {
+    description: 'Requests remaining in the current general window.',
+    schema: { type: 'integer', minimum: 0 },
+  },
+  'RateLimit-Reset': {
+    description: 'Seconds until the current general window resets.',
+    schema: { type: 'integer', minimum: 0 },
+  },
+};
+
+const jsonResponse = (
+  description: string,
+  schema?: Record<string, unknown>,
+  headers: Record<string, unknown> = {},
+) => ({
   description,
+  headers: { ...rateLimitHeaders, ...headers },
   ...(schema
     ? {
         content: {
@@ -11,6 +36,48 @@ const jsonResponse = (description: string, schema?: Record<string, unknown>) => 
       }
     : {}),
 });
+
+const emptyResponse = (description: string) => ({
+  description,
+  headers: rateLimitHeaders,
+});
+
+const tooManyRequestsResponse = jsonResponse(
+  'The rolling general request limit or additional write limit was exceeded.',
+  ref('RateLimitError'),
+  {
+    'Retry-After': {
+      description: 'Seconds to wait when the general request limit is exceeded.',
+      schema: { type: 'integer', minimum: 0 },
+    },
+  },
+);
+
+const rateLimitedResponses = <T extends Record<string, unknown>>(responses: T) => ({
+  ...responses,
+  '429': tooManyRequestsResponse,
+});
+
+const payloadTooLargeResponse = {
+  description: 'JSON request body exceeds the 10 MB limit.',
+  content: {
+    'application/json': { schema: { type: 'object', additionalProperties: true } },
+  },
+};
+
+const sharedBodyResponses = <T extends Record<string, unknown>>(responses: T) => ({
+  ...rateLimitedResponses(responses),
+  '413': payloadTooLargeResponse,
+});
+
+const totalCountHeader = {
+  'X-Total-Count': {
+    description: 'Total matching records before pagination.',
+    schema: { type: 'integer', minimum: 0 },
+  },
+};
+
+const sharedJsonRequestBodyDescription = 'JSON request body. Maximum size: 10 MB.';
 
 const idParameter = {
   name: 'id',
@@ -66,7 +133,7 @@ const searchParameters = [
   delayParameter,
 ];
 
-const mutationResponses = (resourceName: string) => ({
+const mutationResponses = (resourceName: string) => sharedBodyResponses({
   '200': jsonResponse(`Updated ${resourceName}.`, ref(resourceName)),
   '400': jsonResponse('Invalid request data.', ref('ValidationError')),
   '404': jsonResponse(`${resourceName} not found.`, ref('Error')),
@@ -98,7 +165,7 @@ const createCrudPaths = ({
       summary: `List ${slug}`,
       description: listDescription,
       parameters: [...listParameters, ...filters],
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse(`Paginated ${slug}.`, {
           allOf: [
             ref('PaginatedResponse'),
@@ -109,8 +176,8 @@ const createCrudPaths = ({
               },
             },
           ],
-        }),
-      },
+        }, totalCountHeader),
+      }),
     },
     post: {
       operationId: `create${name}`,
@@ -118,12 +185,13 @@ const createCrudPaths = ({
       summary: `Create a ${name.toLowerCase()}`,
       requestBody: {
         required: true,
+        description: sharedJsonRequestBodyDescription,
         content: { 'application/json': { schema: ref(inputName) } },
       },
-      responses: {
+      responses: sharedBodyResponses({
         '201': jsonResponse(`Created ${name}.`, ref(name)),
         '400': jsonResponse('Invalid request data.', ref('ValidationError')),
-      },
+      }),
     },
   };
 
@@ -134,7 +202,7 @@ const createCrudPaths = ({
       summary: `Search ${slug}`,
       description: searchDescription,
       parameters: name === 'Post' ? [searchParameters[0], ...listParameters] : searchParameters,
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse('Search results.', {
           type: 'object',
           properties: {
@@ -145,7 +213,7 @@ const createCrudPaths = ({
           required: ['query', 'total', 'results'],
         }),
         '400': jsonResponse('Missing search query.', ref('ValidationError')),
-      },
+      }),
     },
   };
 
@@ -155,10 +223,10 @@ const createCrudPaths = ({
       tags: [name],
       summary: `Get one ${name.toLowerCase()}`,
       parameters: [idParameter, delayParameter],
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse(`${name} resource.`, ref(name)),
         '404': jsonResponse(`${name} not found.`, ref('Error')),
-      },
+      }),
     },
     put: {
       operationId: `replace${name}`,
@@ -167,6 +235,7 @@ const createCrudPaths = ({
       parameters: [idParameter],
       requestBody: {
         required: true,
+        description: sharedJsonRequestBodyDescription,
         content: { 'application/json': { schema: ref(inputName) } },
       },
       responses: mutationResponses(name),
@@ -178,6 +247,7 @@ const createCrudPaths = ({
       parameters: [idParameter],
       requestBody: {
         required: true,
+        description: sharedJsonRequestBodyDescription,
         content: { 'application/json': { schema: ref(patchName) } },
       },
       responses: mutationResponses(name),
@@ -187,10 +257,10 @@ const createCrudPaths = ({
       tags: [name],
       summary: `Delete a ${name.toLowerCase()}`,
       parameters: [idParameter],
-      responses: {
-        '204': { description: 'Deleted successfully. No response body.' },
+      responses: rateLimitedResponses({
+        '204': emptyResponse('Deleted successfully. No response body.'),
         '404': jsonResponse(`${name} not found.`, ref('Error')),
-      },
+      }),
     },
   };
 
@@ -244,12 +314,30 @@ const crudResources: CrudResource[] = [
 ];
 
 const paths: Record<string, unknown> = {
+  '/': {
+    get: {
+      operationId: 'getApiStatus',
+      tags: ['System'],
+      summary: 'Get API status',
+      responses: rateLimitedResponses({
+        '200': jsonResponse('API process status.', {
+          type: 'object',
+          properties: {
+            name: { type: 'string', examples: ['ApiMocker API'] },
+            status: { type: 'string', examples: ['running'] },
+            health: { type: 'string', examples: ['/health'] },
+          },
+          required: ['name', 'status', 'health'],
+        }),
+      }),
+    },
+  },
   '/health': {
     get: {
       operationId: 'getHealth',
       tags: ['System'],
       summary: 'Check API health',
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse('API is healthy.', {
           type: 'object',
           properties: {
@@ -259,7 +347,7 @@ const paths: Record<string, unknown> = {
           },
           required: ['status', 'timestamp', 'uptime'],
         }),
-      },
+      }),
     },
   },
 };
@@ -275,10 +363,10 @@ Object.assign(paths, {
       tags: ['User', 'Post'],
       summary: "List a user's posts",
       parameters: [idParameter, ...listParameters.slice(0, 2)],
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse('Paginated posts.', ref('PaginatedPostResponse')),
         '404': jsonResponse('User not found.', ref('Error')),
-      },
+      }),
     },
   },
   '/users/{id}/todos': {
@@ -287,10 +375,10 @@ Object.assign(paths, {
       tags: ['User', 'Todo'],
       summary: "List a user's todos",
       parameters: [idParameter, ...listParameters.slice(0, 2)],
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse('Paginated todos.', ref('PaginatedTodoResponse')),
         '404': jsonResponse('User not found.', ref('Error')),
-      },
+      }),
     },
   },
   '/posts/{id}/likes': {
@@ -299,7 +387,7 @@ Object.assign(paths, {
       tags: ['Post'],
       summary: "Get a post's like count",
       parameters: [idParameter],
-      responses: {
+      responses: rateLimitedResponses({
         '200': jsonResponse('Current like count.', {
           type: 'object',
           properties: {
@@ -309,7 +397,7 @@ Object.assign(paths, {
           required: ['postId', 'likes'],
         }),
         '404': jsonResponse('Post not found.', ref('Error')),
-      },
+      }),
     },
     post: {
       operationId: 'addPostLike',
@@ -318,6 +406,7 @@ Object.assign(paths, {
       parameters: [idParameter],
       requestBody: {
         required: false,
+        description: sharedJsonRequestBodyDescription,
         content: {
           'application/json': {
             schema: {
@@ -327,10 +416,10 @@ Object.assign(paths, {
           },
         },
       },
-      responses: {
+      responses: sharedBodyResponses({
         '201': jsonResponse('Like added.', ref('LikeResult')),
         '404': jsonResponse('Post not found.', ref('Error')),
-      },
+      }),
     },
   },
   '/error/404': {
@@ -338,7 +427,7 @@ Object.assign(paths, {
       operationId: 'simulateNotFound',
       tags: ['Error simulation'],
       summary: 'Simulate a 404 response',
-      responses: { '404': jsonResponse('Intentional not-found response.', ref('Error')) },
+      responses: rateLimitedResponses({ '404': jsonResponse('Intentional not-found response.', ref('Error')) }),
     },
   },
   '/error/500': {
@@ -346,7 +435,7 @@ Object.assign(paths, {
       operationId: 'simulateServerError',
       tags: ['Error simulation'],
       summary: 'Simulate a 500 response',
-      responses: { '500': jsonResponse('Intentional server error.', ref('Error')) },
+      responses: rateLimitedResponses({ '500': jsonResponse('Intentional server error.', ref('Error')) }),
     },
   },
   '/error/validation': {
@@ -354,7 +443,7 @@ Object.assign(paths, {
       operationId: 'simulateValidationError',
       tags: ['Error simulation'],
       summary: 'Simulate a validation failure',
-      responses: { '400': jsonResponse('Intentional validation error.', ref('ValidationError')) },
+      responses: rateLimitedResponses({ '400': jsonResponse('Intentional validation error.', ref('ValidationError')) }),
     },
   },
   '/error/timeout': {
@@ -362,7 +451,7 @@ Object.assign(paths, {
       operationId: 'simulateTimeout',
       tags: ['Error simulation'],
       summary: 'Simulate a request that never completes',
-      responses: { default: { description: 'The server intentionally does not send a response.' } },
+      responses: rateLimitedResponses({ default: emptyResponse('The server intentionally does not send a response.') }),
     },
   },
 });
@@ -407,8 +496,11 @@ export const openapiDocument = {
   info: {
     title: 'ApiMocker Free API',
     version: '1.0.0',
-    description:
-      'A shared mock REST API for frontend development. Writes are temporary and data resets daily at midnight UTC.',
+    description: [
+      'A shared mock REST API for frontend development with open CORS and a 10 MB JSON request-body limit.',
+      'Every request counts toward a rolling 1,000-request, 15-minute IP limit. Writes also count toward a rolling 100-write, 24-hour IP limit.',
+      'Writes are temporary and data resets daily at midnight UTC.',
+    ].join(' '),
   },
   servers: [{ url: API_BASE_URL, description: 'Public free API' }],
   tags: [
@@ -560,6 +652,19 @@ export const openapiDocument = {
           error: { type: 'string' },
           message: { type: 'string' },
         },
+      },
+      RateLimitError: {
+        type: 'object',
+        properties: {
+          error: { type: 'string', examples: ['Too Many Requests'] },
+          message: { type: 'string' },
+          resetTime: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Present when the additional rolling write limit is exceeded.',
+          },
+        },
+        required: ['error', 'message'],
       },
       ValidationError: {
         type: 'object',

@@ -21,6 +21,15 @@ const validationError = `{
     }
   ]
 }`;
+const generalLimitError = `{
+  "error": "Too Many Requests",
+  "message": "Too many requests from this IP, please try again later."
+}`;
+const writeLimitError = `{
+  "error": "Too Many Requests",
+  "message": "Write limit exceeded. Maximum 100 write operations per day per IP.",
+  "resetTime": "2026-07-27T14:30:00.000Z"
+}`;
 ---
 
 <DocsLayout title="Errors and testing" description={description}>
@@ -90,11 +99,42 @@ const validationError = `{
     <p class="docs-kicker">Limits and reset</p>
     <h2>Design around the shared service</h2>
     <div class="limit-grid">
-      <article><strong>1,000 requests</strong><p>Maximum requests per IP address in a rolling 15-minute window. The next response is 429.</p></article>
-      <article><strong>100 writes</strong><p>Maximum POST, PUT, PATCH, and DELETE requests per IP address each day. The next response is 429.</p></article>
+      <article><strong>1,000 requests</strong><p>Maximum requests per IP address in a rolling 15-minute window. Every public API method counts toward this quota.</p></article>
+      <article><strong>100 writes</strong><p>Additional combined POST, PUT, PATCH, and DELETE limit per IP address in a rolling 24-hour window.</p></article>
       <article><strong>Midnight UTC</strong><p>The shared database returns to its original users, posts, todos, and comments.</p></article>
       <article><strong>Open CORS</strong><p>Browser requests are accepted from any origin, and total-count headers are exposed.</p></article>
       <article><strong>10 MB JSON</strong><p>JSON request bodies larger than 10 MB are rejected.</p></article>
     </div>
+    <aside class="docs-note">
+      <strong>Two separate windows</strong>
+      <p>
+        Writes count toward both quotas. Both counters are held by the API process and are not
+        shared across multiple instances. Restarting the service starts new windows. The midnight
+        database reset is separate and does not reset either running-process counter.
+      </p>
+    </aside>
+  </section>
+
+  <section class="docs-section" id="rate-limit-responses">
+    <p class="docs-kicker">Rate-limit responses</p>
+    <h2>Handle 429 responses explicitly</h2>
+    <p>
+      The general limiter returns standard <code>RateLimit-Policy</code>,
+      <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, and
+      <code>RateLimit-Reset</code> headers. The reset value is the number of seconds remaining in
+      the rolling 15-minute window. A general-limit 429 also includes <code>Retry-After</code>.
+    </p>
+    <div class="example-stack">
+      <CodePanel code={generalLimitError} id="testing-general-limit" label="General limit 429" language="json" />
+      <CodePanel code={writeLimitError} id="testing-write-limit" label="Write limit 429" language="json" />
+    </div>
+    <aside class="docs-note">
+      <p>
+        The standard headers describe the 1,000-request general quota. Server clients and API
+        tools can read them directly, but the current CORS configuration does not expose them to
+        browser JavaScript. The additional write limiter reports its reset time in the JSON body
+        rather than separate quota headers. Browser clients should always handle the 429 status.
+      </p>
+    </aside>
   </section>
 </DocsLayout>

@@ -16,7 +16,8 @@ You can also explore the API with [ApiProbe](https://apiprobe.dev).
 ## ⚡ Quick Usage (Hosted)
 
 - **Hosted Base URL**: https://api.apimocker.com
-- All responses are JSON and support pagination, filtering, and sorting.
+- Responses use JSON except successful deletes, which return `204 No Content`.
+  Collection endpoints support pagination, filtering, and sorting.
 
 ### Core Endpoints
 
@@ -57,14 +58,14 @@ You can also explore the API with [ApiProbe](https://apiprobe.dev).
 
 ## ✨ Features
 
-- **Full CRUD Operations** - Create, Read, Update, Delete for all resources
+- **Full CRUD Operations** - Create, Read, Update, Delete for users, posts, todos, and comments
 - **PATCH Method Support** - Partial updates for users, posts, todos, and comments
-- **Advanced Filtering** - `_like`, `_sort`, `_order` parameters with `X-Total-Count` headers
+- **Advanced Filtering** - `_like`, `_sort`, `_order`, and `X-Total-Count` on top-level collections
 - **Per-Resource Search** - Dedicated `/search` endpoints on users, posts, todos, and comments
 - **Response Delay Simulation** - `_delay` parameter for testing loading states
 - **Error Simulation** - Dedicated endpoints for testing error handling
 - **Realistic Data** - 10 users, 100 posts, 200 todos, 500 comments with realistic content
-- **Rate Limiting** - Configurable limits to prevent abuse
+- **Rate Limiting** - General and write-specific per-IP request limits
 - **Input Validation** - Comprehensive validation for all endpoints
 - **Pagination** - Built-in pagination support with `_page` and `_limit`
 - **Daily Reset** - Automatic database reset at midnight UTC
@@ -782,29 +783,44 @@ GET /posts?title_like=web&_delay=2000
 
 ## 🔒 Rate Limiting
 
-ApiMocker implements a sophisticated rate limiting system to prevent abuse while allowing legitimate usage:
+ApiMocker applies two per-IP rate limits to prevent abuse while allowing legitimate usage:
 
-### Write Operations (POST, PUT, DELETE, PATCH)
+### General Request Limit
 
-- **Limit**: 100 write operations per day per IP address
-- **Window**: 24 hours (configurable via `RATE_LIMIT_WINDOW_MS`)
-- **Reset**: Daily at midnight UTC
+- **Limit**: 1,000 requests per IP address
+- **Window**: Rolling 15 minutes
+- **Applies to**: All public API methods, including reads and writes
 
-### Read Operations (GET)
+### Additional Write Limit
 
-- **Limit**: 1000 requests per 15 minutes per IP address
-- **Window**: 15 minutes
-- **Reset**: Automatically after the time window
+- **Limit**: 100 combined POST, PUT, PATCH, and DELETE requests per IP address
+- **Window**: Rolling 24 hours by default, configurable through
+  `RATE_LIMIT_WINDOW_MS`
+- **Reset**: 24 hours after the first counted write in the current window
+
+Both rate-limit counters are stored in the API process and are not shared across
+multiple instances. Restarting the API starts new windows. The midnight UTC
+database reset is separate and does not reset either running-process counter.
 
 ### Rate Limit Response
 
-When rate limits are exceeded, the API returns:
+When the general request limit is exceeded, the API returns:
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Too many requests from this IP, please try again later."
+}
+```
+
+When the additional write limit is exceeded, the response includes the end of
+the rolling write window:
 
 ```json
 {
   "error": "Too Many Requests",
   "message": "Write limit exceeded. Maximum 100 write operations per day per IP.",
-  "resetTime": "2024-01-16T00:00:00.000Z"
+  "resetTime": "2026-07-27T14:30:00.000Z"
 }
 ```
 
@@ -812,15 +828,25 @@ When rate limits are exceeded, the API returns:
 
 ### Rate Limit Headers
 
-The API includes rate limit information in response headers:
+The general limiter includes these standard headers on public API responses:
 
-- `X-RateLimit-Limit`: Maximum requests allowed
-- `X-RateLimit-Remaining`: Remaining requests in current window
-- `X-RateLimit-Reset`: Time when the rate limit resets
+- `RateLimit-Policy`: Limit and window policy, such as `1000;w=900`
+- `RateLimit-Limit`: Maximum requests allowed in the general window
+- `RateLimit-Remaining`: Remaining requests in the general window
+- `RateLimit-Reset`: Seconds until the general window resets
+- `Retry-After`: Seconds to wait, included when the general limit returns 429
+
+These headers describe the 1,000-request general quota. The additional write
+limiter does not publish separate quota headers. Its 429 response reports the
+write-window reset time in the JSON body.
+
+Browser JavaScript can read `X-Total-Count`, but the current CORS configuration
+does not expose the `RateLimit-*` headers. Server clients and API tools can read
+them directly. Browser clients should always handle the 429 status and JSON body.
 
 ## ✅ Input Validation
 
-All endpoints include comprehensive input validation:
+Write endpoints validate resource fields as follows:
 
 ### User Validation
 
@@ -845,6 +871,17 @@ All endpoints include comprehensive input validation:
 - **completed**: Optional, boolean value
 - **userId**: Optional, positive integer (defaults to user ID 1 if not provided)
 
+### Comment Validation
+
+- **name**: Required, 1-100 characters
+- **email**: Required, valid email format
+- **body**: Required, 1-1000 characters
+- **postId**: Required, positive integer
+
+### Like Validation
+
+- **userId**: Optional, positive integer. Omit it for an anonymous like.
+
 ### Validation Error Response
 
 ```json
@@ -862,6 +899,12 @@ All endpoints include comprehensive input validation:
   ]
 }
 ```
+
+## 📦 Request Body Limits
+
+- Shared API JSON request bodies are limited to 10 MB.
+- In-development isolated-environment request bodies are limited to 64 KB.
+- Requests above the applicable limit return `413 Payload Too Large`.
 
 ## 🔄 Daily Reset
 
